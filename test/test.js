@@ -1,6 +1,6 @@
 const assert = require( `chai` ).assert;
-const casino = require( `./index.js` );
-const bosk = require( `./bosk.js` );
+const casino = require( `../src/index.js` );
+const bosk = require( `../src/bosk.js` );
 
 // Convenience function created only for this test.
 Array.prototype.lastEntry = function() { return this[ this.length - 1 ]; };
