@@ -2,7 +2,7 @@
   "name": "bosk-casino",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "node ./src/index.js",
   "scripts": {
     "test": "node ./test/test.js"
   },

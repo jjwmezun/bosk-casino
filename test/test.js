@@ -1,5 +1,5 @@
 const assert = require( `chai` ).assert;
-const casino = require( `../src/index.js` );
+const casino = require( `../src/casino.js` );
 const bosk = require( `../src/bosk.js` );
 
 // Convenience function created only for this test.
