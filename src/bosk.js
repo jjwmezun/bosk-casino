@@ -173,17 +173,16 @@
 		return list[ list.length - 1 ];
 	};
 
+	Bosk.PageCode = function()
+	{
+		var s;
+		var slist;
 
-Bosk.PageCode = function()
-{
-	var s;
-	var slist;
-
-	s = window.location.href;
-	s = s.replace( ".html", "/" );
-	slist = s.split( "/" );
-	slist.pop();
-	return "story_" + slist.pop();
-};
+		s = window.location.href;
+		s = s.replace( ".html", "/" );
+		slist = s.split( "/" );
+		slist.pop();
+		return "story_" + slist.pop();
+	};
 
 module.exports = Bosk;
