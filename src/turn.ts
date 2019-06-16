@@ -7,10 +7,8 @@ export class Turn
 	readonly finished:boolean;
 	readonly reachedEnd:boolean;
 	readonly startingStatus:TurnStatus;
-	readonly finalStatus:TurnStatus;
-	readonly passStatuses:Array<TurnStatus>
-	readonly pass:string[];
-	readonly land:string;
+	readonly passes:Array<TurnStatus>;
+	readonly land:TurnStatus;
 	constructor
 	(
 		number:number,
@@ -18,10 +16,8 @@ export class Turn
 		finished:boolean,
 		reachedEnd:boolean,
 		startingStatus:TurnStatus,
-		finalStatus:TurnStatus,
-		passStatuses:Array<TurnStatus>,
-		pass:string[],
-		land:string
+		passes:Array<TurnStatus>,
+		land:TurnStatus
 	)
 	{
 		this.number = number;
@@ -29,9 +25,7 @@ export class Turn
 		this.finished = finished;
 		this.reachedEnd = reachedEnd;
 		this.startingStatus = startingStatus;
-		this.finalStatus = finalStatus;
-		this.passStatuses = passStatuses;
-		this.pass = pass;
+		this.passes = passes;
 		this.land = land;
 	}
 };

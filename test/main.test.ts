@@ -1,5 +1,7 @@
 const casino = require( '../src/casino.ts' );
+const config = require( '../src/config.ts' );
 import { Turn } from '../src/turn';
+import { TurnStatus } from '../src/turn-status';
 
 test
 (
@@ -40,8 +42,7 @@ test
             {
                 const latestTurn:Turn = turns[ turns.length - 1 ];
                 expect( latestTurn.finished ).toBe( true );
-                expect( latestTurn.pass.length ).toBe( 0 );
-                expect( latestTurn.land ).toBe( null );
+                expect( latestTurn.passes.length ).toBe( 0 );
             }
         }
     }
@@ -49,16 +50,19 @@ test
 
 test
 (
-    'Always a pass per roll',
+    'Always a pass per roll ’less reached end',
     function()
     {
         const turns:Array<Turn> = [ casino.createFirstTurn() ];
-        expect( turns[ 0 ].pass.length ).toBe( turns[ 0 ].roll );
+        expect( turns[ 0 ].passes.length ).toBe( turns[ 0 ].roll );
         for ( let i = 1; i < 30; i++ )
         {
             turns.push( casino.getNextTurn( turns ) );
             const latestTurn:Turn = turns[ turns.length - 1 ];
-            expect( latestTurn.pass.length ).toBe( latestTurn.roll );
+            if ( !latestTurn.reachedEnd )
+            {
+                expect( latestTurn.passes.length ).toBe( latestTurn.roll );
+            }
         }
     }
 );
@@ -92,15 +96,43 @@ test
             turns.push( casino.getNextTurn( turns ) );
             const latestTurn:Turn = turns[ turns.length - 1 ];
 
-            if ( !latestTurn.finished )
+            if ( latestTurn.finished && !latestTurn.reachedEnd )
+            {
+                expect( latestTurn.roll ).toBe( 0 );
+            }
+            else
             {
                 expect( latestTurn.roll ).toBeLessThanOrEqual( 6 );
                 expect( latestTurn.roll ).toBeGreaterThanOrEqual( 1 );
             }
-            else
-            {
-                expect( latestTurn.roll ).toBe( 0 );
-            }
         }
+    }
+);
+
+test
+(
+    'Starting status is always land status o’ previous turn',
+    function()
+    {
+        const turns:Array<Turn> = [ casino.createFirstTurn() ];
+        expect( turns[ 0 ].roll ).toBe( 0 );
+        for ( let i = 1; i < 30; i++ )
+        {
+            turns.push( casino.getNextTurn( turns ) );
+            const latestTurn:Turn = turns[ turns.length - 1 ];
+            const previousTurn:Turn = turns[ turns.length - 2 ];
+            expect( latestTurn.startingStatus ).toBe( previousTurn.land );
+        }
+    }
+);
+
+test
+(
+    'Run returns data.',
+    function()
+    {
+        const output:Array<Turn> = casino.run();
+        expect( typeof output ).toBe( "object" );
+        console.log( output );
     }
 );
