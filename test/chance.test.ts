@@ -1,4 +1,5 @@
 const chance = require( '../src/chance.ts' );
+import { ChanceDeck } from '../src/chance-deck';
 
 test
 (
@@ -34,7 +35,7 @@ test
     'Deck always has a last card ’cept the 1st deck.',
     function()
     {
-		let deck:Deck = chance.createDeck();
+		let deck:ChanceDeck = chance.createDeck();
 		expect( deck.latestCard ).toBe( null );
 		for ( let i = 0; i < 100; i++ )
 		{
@@ -49,7 +50,7 @@ test
     'Deck lengths always correct.',
     function()
     {
-		const deckList:Array<Deck> = [ chance.createDeck() ];
+		const deckList:Array<ChanceDeck> = [ chance.createDeck() ];
 		for ( let i = 0; i < 100; i++ )
 		{
 			const previousDeck = deckList[ deckList.length - 1 ];

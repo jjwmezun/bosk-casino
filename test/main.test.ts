@@ -2,6 +2,7 @@ const casino = require( '../src/casino.ts' );
 const config = require( '../src/config.ts' );
 import { Turn } from '../src/turn';
 import { TurnStatus } from '../src/turn-status';
+import { MinigameStatus } from '../src/minigame-status';
 
 test
 (
@@ -134,5 +135,25 @@ test
         const output:Array<Turn> = casino.run();
         expect( typeof output ).toBe( "object" );
         console.log( output );
+    }
+);
+
+test
+(
+    'Only minigame land turn statuses have extra info',
+    function()
+    {
+        const output:Array<Turn> = casino.run();
+        for ( const turn of output )
+        {
+            if ( turn.land.action === "minigame" )
+            {
+                expect( typeof turn.land.minigameStatus ).toBe( "object" );
+            }
+            else
+            {
+                expect( turn.land.minigameStatus ).toBe( null );
+            }
+        }
     }
 );

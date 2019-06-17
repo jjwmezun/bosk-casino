@@ -1,3 +1,4 @@
+import { MinigameGame } from '../src/minigame-game';
 const minigame = require( '../src/minigame.ts' );
 
 test
@@ -32,7 +33,7 @@ test
     {
 		for ( let i = 0; i < 1000; i++ )
 		{
-			const game:Minigame = minigame.getRandomMinigame();
+			const game:MinigameGame = minigame.getRandomMinigame();
 			expect([ 'karts', 'tower', 'count' ]).toContain( game.type );
 		}
     }

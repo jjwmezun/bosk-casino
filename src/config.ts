@@ -19,7 +19,6 @@ module.exports = Object.freeze
 		},
 		thirdBranch:
 		{
-			FIRST_pathsMeet: 28,
 			topPathStart: 45,
 			bottomPathStart: 30,
 			pathsMeet: 53
