@@ -1,5 +1,6 @@
 const casino = require( '../src/casino.ts' );
 const config = require( '../src/config.ts' );
+import { Game } from '../src/game';
 import { Turn } from '../src/turn';
 import { TurnStatus } from '../src/turn-status';
 import { MinigameStatus } from '../src/minigame-status';
@@ -27,6 +28,16 @@ test
         {
             expect( [ "Autumn", "Dawn", "Edgar" ] ).toContain( casino.getRandomPlayer() );
         }
+    }
+);
+
+test
+(
+    'getRandomPlayerOrder always returns list o’ indices from 0 to # o’ players',
+    function()
+    {
+        const playerOrder:number[] = casino.getRandomPlayerOrder();
+        expect( playerOrder.length ).toEqual( casino.config.players.length );
     }
 );
 
@@ -132,9 +143,8 @@ test
     'Run returns data.',
     function()
     {
-        const output:Array<Turn> = casino.run();
+        const output:Game = casino.run();
         expect( typeof output ).toBe( "object" );
-        console.log( output );
     }
 );
 

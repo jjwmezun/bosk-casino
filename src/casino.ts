@@ -1,3 +1,4 @@
+import { Game } from './game';
 import { Turn } from './turn';
 import { TurnStatus } from './turn-status';
 import { ChanceDeck } from './chance-deck';
@@ -13,7 +14,11 @@ import { ChanceDeck } from './chance-deck';
 		config: config,
 		board: require( `./board.js` )( config ),
 		spaces: require( `./spaces.ts` )( config ),
-		run: function():Array<Turn>
+		run: function():Game
+		{
+			return new Game( this.getRandomPlayerOrder(), this.getTurnsList() );
+		},
+		getTurnsList: function():Array<Turn>
 		{
 			const turns:Array<Turn> = [ this.createFirstTurn() ];
 			while( !turns[ turns.length - 1 ].finished )
@@ -21,6 +26,19 @@ import { ChanceDeck } from './chance-deck';
 				turns.push( this.getNextTurn( turns ) );
 			}
 			return turns;
+		},
+		getRandomPlayerOrder: function():number[]
+		{
+			const listOfIndices:number[] = ( function()
+			{
+				const list:number[] = [];
+				for ( let i = 0; i < this.config.players.length; i++ )
+				{
+					list.push( i );
+				}
+				return list;
+			}).bind( this )();
+			return Object.freeze( Bosk.shuffleList( listOfIndices ) );
 		},
 		createFirstTurn: function():Turn
 		{
