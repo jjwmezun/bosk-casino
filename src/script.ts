@@ -38,6 +38,8 @@ import { Turn } from './turn';
 			{
 				paragraphs = this.addParagraphs( paragraphs, this.getRollText( data, turn ) );
 			}
+			const finalTurn:Turn = data.turnList[ data.turnList.length - 1 ];
+			paragraphs = this.addParagraphs( paragraphs, this.getEndingScript( finalTurn, data ) );
 			return Object.freeze( paragraphs );
 		},
 		addParagraph: function( list:string[], newParagraph:string ):readonly string[]
@@ -89,7 +91,7 @@ import { Turn } from './turn';
 							],
 							Dawn:
 							[
-								`<¿Why don’t you try now?>, asked Autumn.`,
+								`<¿Why don’t you try now, since you’re the expert here?>, asked Autumn.`,
 								`<If you insist>. Dawn began rolling the die with frantic energy, & then threw the die on the ground with aplomb. She looked down & saw that she’d rolled a ${ turn.roll }.`
 							]
 						});
@@ -131,6 +133,30 @@ import { Turn } from './turn';
 					break;
 				}
 			}).bind( this )());
+		},
+		getEndingScript: function( finalTurn:Turn, game:Game ):readonly string[]
+		{
+			const paragraphs : string[] = [];
+			if ( finalTurn.reachedEnd )
+			{
+				return [
+					"Though Autumn had noticed it coming long before they reached it, Autumn was still surprised to find her nerves stir in a pleasant pulse for once as they all walked up to the last space, adorned with a checkered flag towering o’er their heads, emblazoning 1 bold word: “FINISH”.",
+					"& just as Dawn ’head o’ them made her 1st step on the chrome-shine space, all but she were startled by a burst o’ sudden ska horns, followed by rain o’ rainbow confetti.",
+					"Autumn couldn’t keep herself from craning neck in all directions, only for her attention to find its stop sign on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.",
+					"<¡Congratulations on making it to the end, kids!>.",
+					`<It looks like you have ${ finalTurn.land.funds }>.`
+				];
+			}
+			else
+			{
+				const currentPlayer:string = this.playerNameText( analyze.getTurnNumberPlayer( game, finalTurn.number + 1 ) );
+				return [
+					`Before ${ currentPlayer } could roll the next turn, all 3 were startled by the cry o’ a parrot, <q>¡FINIIIIISH!</q>. They looked round themselves to find the source, only to stop on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.`,
+					`<That’s the last turn, guys. Sorry you couldn’t make it to the end>.`,
+					`Autumn was ’bout to think, { Cool. Glad to get fucked in the ass as always }, but stopped that thought when the turtle continued, <But let’s see what you can win with the money you’ve made>.`,
+					`<It looks like you have ${ finalTurn.land.funds }>.`
+				];
+			}
 		},
 		firstRollText: function( game:Game ):readonly string[]
 		{

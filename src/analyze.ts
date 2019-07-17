@@ -9,7 +9,11 @@ import { Turn } from './turn';
 	({
 		getTurnPlayer: function( game:Game, turn:Turn ):number
 		{
-			return game.playerOrder[ ( turn.number - 1 ) % config.players.length ];
+			return this.getTurnNumberPlayer( game, turn.number );
+		},
+		getTurnNumberPlayer: function( game:Game, turnNumber:number ):number
+		{
+			return game.playerOrder[ ( turnNumber - 1 ) % config.players.length ];
 		}
 	});
 })();
