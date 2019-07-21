@@ -67,6 +67,14 @@ module.exports = function( config )
 			"goPastCycle": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
 			{
 				return changeCurrentSpace( lastStatus, config.importantSpaces.secondBranch.pathsMeet );
+			},
+			"final": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			{
+				return ( currentTurn.number <= config.endingBonus.bestBonus.turns )
+					? changeFunds( lastStatus, config.endingBonus.bestBonus.bonus )
+					: ( ( currentTurn.number <= config.endingBonus.middleBonus.turns )
+						? changeFunds( lastStatus, config.endingBonus.middleBonus.bonus )
+						: changeFunds( lastStatus, config.endingBonus.minimumBonus ) )
 			}
 		},
 		"pass":

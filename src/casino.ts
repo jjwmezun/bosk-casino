@@ -128,7 +128,9 @@ import { ChanceDeck } from './chance-deck';
 				lastStatus.chanceDeck,
 				lastStatus.reachedEnd
 			));
-			return this.applyAction( "land", currentTurn, finalStatus );
+			return ( finalStatus.action === null )
+				? this.spaces.land.final( currentTurn, finalStatus )
+				: this.applyAction( "land", currentTurn, finalStatus );
 		},
 		applyAction: function( type:string, currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
 		{
