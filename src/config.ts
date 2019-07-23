@@ -3,6 +3,18 @@ module.exports = Object.freeze
 	startingFunds: 20,
 	maxTurns: 25,
 	players: [ `Autumn`, `Edgar`, `Dawn` ],
+	playerNumberFromName: function( name:string ):number
+	{
+		for ( let i = 0; i < this.players; i++ )
+		{
+			const player = this.players[ i ];
+			if ( player === name )
+			{
+				return i;
+			}
+		}
+		throw "Invalid character name";
+	},
 	importantSpaces: Object.freeze
 	({
 		start: 0,

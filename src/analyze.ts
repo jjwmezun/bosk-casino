@@ -16,20 +16,35 @@ import { Turn } from './turn';
 		{
 			return game.playerOrder[ ( turnNumber - 1 ) % config.players.length ];
 		},
-		firstLandOTypes: function( turnsList:Array<Turn>, turnNumber:number, types:string[] ):boolean
+		firstLandOTypes: function( game:Game, turnNumber:number, types:string[] ):boolean
 		{
-			for ( const turn of turnsList )
+			return this.firstTurnOCondition
+			(
+				game,
+				turnNumber,
+				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
+			);
+		},
+		firstLandOTypesWithCharacter: function( game:Game, turnNumber:number, types:string[], character:number ):boolean
+		{
+			return this.firstTurnOCondition
+			(
+				game,
+				turnNumber,
+				( turn ) => turn.land !== null &&
+					Bosk.inList( types, turn.land.action ) &&
+					character === this.getTurnNumberPlayer( game, turn.number )
+			);
+		},
+		firstTurnOCondition( game:Game, turnNumber:number, condition ):boolean
+		{
+			for ( const turn of game.turnList )
 			{
 				if ( turn.number >= turnNumber )
 				{
 					return true;
 				}
-
-				if
-				(
-					turn.land !== null &&
-					Bosk.inList( types, turn.land.action )
-				)
+				else if ( condition( turn ) )
 				{
 					return false;
 				}

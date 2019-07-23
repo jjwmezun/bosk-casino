@@ -66,24 +66,34 @@ import { Turn } from './turn';
 		},
 		generateLandText: function( game:Game, turn:Turn ):readonly string[]
 		{
-			const currentPlayer:string = config.players[ analyze.getTurnPlayer( game, turn ) ];
+			const currentPlayerNumber:number = analyze.getTurnPlayer( game, turn );
+			const currentPlayer:string = config.players[ currentPlayerNumber ];
 			switch ( turn.land.action )
 			{
-				case ( "gain5" ):
+				case ( "gain5" ): // fallthrough
 				case ( "gain10" ):
 				{
 					const amount:number = ( turn.land.action === "gain5" ) ? 5 : 10;
-					if ( analyze.firstLandOTypes( game.turnList, turn.number, [ "gain5", "gain10" ] ) )
+					if ( analyze.firstLandOTypes( game, turn.number, [ "gain5", "gain10" ] ) )
 					{
+						const neverHitLoseBefore:boolean = analyze.firstLandOTypes( game, turn.number, [ "gain5", "gain10", "lose5", "lose10" ] );
 						return this.addParagraphs
 						(
-							[
-								`They stopped on a golden space maked with the characters “+${ amount  }”. A tile in the ceiling slid out o’ place, & out o’ that hole fell a gloved hand on a mechanical arm, which bent its “elbow”, reaching down toward them. Autumn looked @ Dawn with the eyes o’ a spooked cat.`,
-								`<Don’t worry>, Dawn said with a smile. <It won’t harm us; this is good, actually>.`
-							],
 							( function()
 							{
-								const choices:object = {
+								return ( neverHitLoseBefore )
+								? [
+									`They stopped on a golden space maked with the characters “+${ amount  }”. A tile in the ceiling slid out o’ place, & out o’ that hole fell a gloved hand on a mechanical arm, which bent its “elbow”, reaching down toward them. Autumn looked @ Dawn with the eyes o’ a spooked cat.`,
+									`<Don’t worry>, Dawn said with a smile. <It won’t harm us; this is good, actually>.`
+								] :
+								[
+									`They stopped on a golden space maked with the characters “+${ amount  }”. The ceiling opened & released the hand crane ’gain, causing Autumn to frown.`,
+									`<Don’t worry>, Dawn said with a smile. <It won’t harm us; this is good, actually>.`
+								];
+							})(),
+							( function()
+							{
+								return {
 									Autumn: [
 										`The arm stopped ’bove Autumn, which caused her to steel her legs, ready to run. She watched it open its palm to reveal red chips. Autumn jerked back just in time to avoid them smacking her on the head. ’Stead they clacked on the ground, swiveling to a gradual stop from the force o’ their fall.`,
 										`<¿See? I told you ’twas all good>, said Dawn.`,
@@ -99,13 +109,110 @@ import { Turn } from './turn';
 										`<¿See? I told you ’twas all good>, Dawn said as she slipped the chips into her pocket.`,
 										`<An odd way to give us chips, but I won’t complain>, muttered Autumn.${ ( function() { return ( turn.startingStatus.funds < 30 ) ? ' <We could certainly use the chips>.' : '' } )() }`
 									]
-								};
-								return choices[ currentPlayer ];
+								}[ currentPlayer ];
 							})()
 						);
 					}
-					return [
-						`They landed on yet ’nother gold space, where the hand crane handed them ’nother ${ amount } chips.`
+					const characterHasntGottenGain:boolean = analyze.firstLandOTypesWithCharacter( game, turn.number, [ "gain5", "gain10" ], currentPlayerNumber );
+					return ( characterHasntGottenGain )
+					? [
+						`They landed on yet ’nother gold space, where the hand handed them ’nother ${ amount } chips, this time to ${ currentPlayer }.`
+					] :
+					[
+						`They landed on yet ’nother gold space, where the hand crane handed ${ currentPlayer } ’nother ${ amount } chips.`
+					];
+				}
+				break;
+
+				case ( "lose5" ): // fallthrough
+				case ( "lose10" ):
+				{
+					const amount:number = ( turn.land.action === "lose5" ) ? 5 : 10;
+					if ( analyze.firstLandOTypes( game, turn.number, [ "lose5", "lose10" ] ) )
+					{
+						return this.addParagraphs
+						(
+							( function()
+							{
+								const neverHitGainBefore:boolean = analyze.firstLandOTypes( game, turn.number, [ "gain5", "gain10", "lose5", "lose10" ] );
+								return ( neverHitGainBefore )
+								? [
+									`They stopped on a red space maked with the characters “-${ amount  }”. A tile in the ceiling slid out o’ place, & out o’ that hole fell a gloved hand on a mechanical arm, which bent its “elbow”, reaching down toward them. Autumn looked @ Dawn with the eyes o’ a spooked cat; her nerves weren’t soothed by the uncomfortable half-smile, half-frown Dawn wore.`
+								] :
+								[
+									`They stopped on a red space maked with the characters “-${ amount  }”. The ceiling opened & released the hand on the arm ’gain.`
+								];
+							})(),
+							( function()
+							{
+								return {
+									Autumn: [
+										`<This is where the less-fun part comes> — Dawn hastily continued — <but don’t panic too much: it’s mo’ jolting than painful>.`,
+										`Autumn glared up @ the arm heading for her & steeled her legs. <¿What, is this thing going to outright attack me now? ¿That’s legal?>.`,
+										`<It’ll just shake you up a bit. Think o’ it like a wild ride>, said Dawn`,
+										`She backed ’way from the looming hand, but the hand rushed forward & snatched her in less than a second. The hand began shaking her, causing chips to fly out o’ her pockets. After only a few seconds o’ this, the hand slowly lowered Autumn back to the floor & then began scooping up some o’ the chips lying on the floor. Autumn looked on, holding her forehead still feeling the ghost o’ the throttling. After collecting a few chips, the hand began flicking the rest o’ the chips toward Autumn’s feet. Keeping her eyes locked on the hand, she bent down & cupped the chips into her hands & returned them to her pocket. The hand slowly rose back into its ceiling hole & its ceiling tile “door” slid back o’er the hole.`,
+										`Dawn walked up to Autumn & said, <I’m truly sorry ’bout that, Autumn. I would’ve offered to have endured that ordeal, but the hand insists on doing that to the person who rolled>.`,
+										`<It’s fine; I’ve endured worse>, Autumn said without looking @ Dawn, still staring @ the ceiling. <¿How many chips did that lose us?>.`,
+										`<The sign on the space said “${ amount }”>.`,
+										`<¿How can we be sure that’s the exact amount the hand took?>.`,
+										`<You needn’t worry ’bout that>, said Dawn: <nobody e’er loses mo’ than the exact amount. They have legions o’ unit tests & mathematically-proven statically type-checked pure functions to ensure so>.`,
+										`<Well, anyway, ${ amount }’s not much. Let’s just continue so I can lose us mo’ money>.`
+									],
+									Edgar: [
+										`<This is where the less-fun part comes> — Dawn hastily continued — <but don’t panic too much: it’s mo’ jolting than painful>.`,
+										`Autumn’s eyes widened. She grabbed Edgar as she looked up in horror to see the arm heading for them. She steeled her legs. <¿What, is this thing going to outright attack us? ¿That’s legal?>.`,
+										`<It’ll just shake you up a bit. Think o’ it like a wild ride>, said Dawn`,
+										`She backed them ’way from the looming hand, but the hand rushed forward & snatched Edgar, pulling him out o’ her own grasp in less than a second. The hand began shaking Edgar, causing chips to fly out o’ his robe, while Autumn only looked up in a mix o’ horror & fury. After only a few seconds o’ this, the hand slowly lowered Edgar back to the floor & then began scooping up some o’ the chips lying on the floor. Autumn ran o’er to Edgar & held him ’gain, while he held his forehead, shaking.`,
+										`<¿You OK, Edgar?>, asked Autumn.`,
+										`Dawn leaned toward them & said, <I’m truly sorry ’bout that, Edgar. I would’ve offered to have endured that ordeal, but the hand insists on doing that to the person who rolled>.`,
+										`Still holding his head, Edgar replied, <It’s all right. Just a li’l shaken is all>.`,
+										`Autumn watched the hand collecting chips, expecting it to any moment leap @ them ’gain. She sharpened her nerves when she saw the hand reach a finger back & flick a chip toward them. However, they just landed near their feet. Then the hand slowly rose back into its ceiling hole & its ceiling tile “door” slid back o’er the hole. After looking round herself, expecting any other kind o’ abrupt danger, she finally bent down & scooped the chips into her hands & then slipped them into her pockets.`,
+										`<I’m sorry ’gain, guys>, said Dawn.`,
+										`Edgar responded, sounding just as apologetic, <It’s all right>.`,
+										`Autumn returned to her feet & grunted, <Let’s just continue so we can lose mo’ chips>.`
+									],
+									Dawn: [
+										`<This is where the truly fun part comes. Don’t worry: it’ll only do anything to me>.`,
+										`Autumn looked up in alarm to see the hand heading toward Dawn. It then grabbed Dawn, picked her up, & began shaking her, causing her to giggle all the way. Autumn noticed chips fly out o’ her jacket pockets, clattering on the floor. She began running for them, only to stop suddenly when she heard Dawn shout, <¡No! ¡Don’t try getting them, Autumn!>.`,
+										`The hand quickly dropped Dawn, & then grasped Autumn. Autumn struggled, but the hand dropped her o’er by Dawn before she could do much. Then the hand made a sudden swoop for the chips & scooped a bunch o’ them up. This time Autumn just stood, gazing dumbfound. She cringed ’way as she noticed the hand pull its finger back ’hind a chip, only to see it aim its shots to the ground next to their feet.`,
+										`<We can pick these chips up>, said Dawn.`,
+										`<¿Why?>.`,
+										`<The hand is only s’posed to take ${ amount }. This is the extra that fell out. Don’t worry — nobody e’er loses mo’ than the exact amount. They have legions o’ unit tests & mathematically-proven statically type-checked pure functions to ensure so>.`,
+										`<All right…>. Autumn watched the hand warily as she cupped the chips into her hand, only to see the hand rising ’way, back into its hole in the ceiling, followed by its tile “door” sliding back into place.`,
+										`<Sorry — I should’ve warned you ’bout not trying to grab the chips before. Should’ve known you’d ne’er be able to resist trying to save them. Thieves don’t obey no rules, after all>.`,
+										`<Untrue: they don’t obey mortal laws, but e’en they obey those unbreakable laws o’ physics & know, for instance, that they can’t ignore the unshakable rule that a giant metal hand can crush my bones into pudding>.`,
+										`Dawn laughed. <They would ne’er let it do that — they’d have lawsuits up their chutes>.`,
+										`<Well, we’ll see when we inevitably fall into the wrath o’ than hand ’gain, knowing our luck>.`
+									]
+								}[ currentPlayer ];
+							})()
+						);
+					}
+					const characterHasntGottenLose:boolean = analyze.firstLandOTypesWithCharacter( game, turn.number, [ "lose5", "lose10" ], currentPlayerNumber );
+					return ( characterHasntGottenLose )
+					? this.addParagraphs
+					(
+						[
+							`They landed on yet ’nother red space & saw the crane come out ’gain.`
+						],
+						( function()
+						{
+							return {
+								Autumn: [
+									`Autumn tensed up ’gain. <Great, ¿does this mean it’s my turn to get fucked?>.`,
+									`Dawn laughed. <It’s truly not that bad — quite fun, actually>.`,
+									( analyze.firstLandOTypesWithCharacter( game, turn.number, [ "lose5", "lose10" ], config.playerNumberFromName( `Dawn` ) ) ) ? `` : ``,
+									`But Autumn didn’t bother resisting the `
+								],
+								Edgar: [
+								],
+								Dawn: [
+								]
+							}[ currentPlayer ];
+						})()
+					) :
+					[
+						`They landed on yet ’nother red space & endured the hand crane shaking up ${ currentPlayer } ’gain & taking ${ amount } o’ their chips ’gain.`
 					];
 				}
 				break;
