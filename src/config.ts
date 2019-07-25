@@ -5,7 +5,7 @@ module.exports = Object.freeze
 	players: [ `Autumn`, `Edgar`, `Dawn` ],
 	playerNumberFromName: function( name:string ):number
 	{
-		for ( let i = 0; i < this.players; i++ )
+		for ( let i = 0; i < this.players.length; i++ )
 		{
 			const player = this.players[ i ];
 			if ( player === name )
@@ -13,7 +13,7 @@ module.exports = Object.freeze
 				return i;
 			}
 		}
-		throw "Invalid character name";
+		throw `Invalid character name: ${ name }.`;
 	},
 	importantSpaces: Object.freeze
 	({

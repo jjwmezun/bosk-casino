@@ -197,19 +197,41 @@ import { Turn } from './turn';
 						],
 						( function()
 						{
-							return {
-								Autumn: [
-									`Autumn tensed up ’gain. <Great, ¿does this mean it’s my turn to get fucked?>.`,
-									`Dawn laughed. <It’s truly not that bad — quite fun, actually>.`,
-									( analyze.firstLandOTypesWithCharacter( game, turn.number, [ "lose5", "lose10" ], config.playerNumberFromName( `Dawn` ) ) ) ? `` : ``,
-									`But Autumn didn’t bother resisting the `
-								],
-								Edgar: [
-								],
-								Dawn: [
+							return this.addParagraphs
+							(
+								{
+									Autumn: [
+										`Autumn tensed up ’gain. <Great, ¿does this mean it’s my turn to get fucked?>.`,
+										`Dawn laughed. <It’s truly not that bad — quite fun, actually>.`,
+										( analyze.firstLandOTypesWithCharacter( game, turn.number, [ "lose5", "lose10" ], config.playerNumberFromName( `Dawn` ) ) ) ? `<Yeah, we’ll see you say so when it’s your turn to get man-handled>.` : `<If you say so…>.`,
+										`Autumn didn’t bother resisting the crane hand, but stood & waited in impatience as it molested her & took her chips.`,
+										`<¿See? It wasn’t so bad>, said Dawn as Autumn stood & watched the crane hand pick up ${ amount } o’ their chips with a head on her dizzy forehead.`,
+										`<You should ne’er try convincing me that losing chips is not so bad>, Autumn replied as she began scooping up their remaining chips.`
+									],
+									Edgar: [
+										`Autumn tensed up ’gain. <Great, ¿does this mean it’s Edgar’s turn to get fucked?>, which caused Edgar to reflexively hold himself.`,
+										`Dawn turned to Edgar. <It’s truly not that bad — quite fun, actually>.`,
+										`Edgar then turned to Autumn, who was not soothed by these words, held her hand, & said, <It’s all right — I’m sure I’ve gone through worse>.`,
+										`Then he just stood there & waited as the giant crane hand grabbed & shook him. Before Edgar e’en had a chance to fret much ’bout it, the hand was already setting him back down & moving on to collect the scattered chips.`,
+										`<¿You OK?>, asked Autumn.`,
+										`<Yeah>.`,
+										`<¿See? I told you guys it wouldn’t be so bad>, said Dawn.`,
+										`<You should ne’er try convincing me that losing chips is not so bad>, Autumn replied as she began scooping up their remaining chips.`
+									],
+									Dawn: [
+										`<Cool: it’s finally my turn for the fun>, Dawn said with a wry smile.`,
+										`Autumn & Edgar watched as the hand crane came, lifted Dawn, & shook her for a second or so. Then it dropped her & proceeded to capture ${ amount } o’ their chips.`,
+										`<¿See? That wasn’t bad @ all>, said Dawn.`,
+										`<You should ne’er try convincing me that losing chips is not bad @ all>, Autumn replied as she began scooping up their remaining chips.`
+									]
+								}[ currentPlayer ],
+								[
+									`Dawn laughed. <You know they’re not real money, ¿right?>.`,
+									`<You know money isn’t real, ¿right?>.`,
+									`<Así es, sí>.`
 								]
-							}[ currentPlayer ];
-						})()
+							);
+						}).bind( this )(),
 					) :
 					[
 						`They landed on yet ’nother red space & endured the hand crane shaking up ${ currentPlayer } ’gain & taking ${ amount } o’ their chips ’gain.`
