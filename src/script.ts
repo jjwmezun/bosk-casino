@@ -257,15 +257,76 @@ import { Turn } from './turn';
 				}
 				break;
 
+				case ( `warpToStart` ):
+				{
+					const timesGottenWarpBefore:number = analyze.timesLandOTypes( game, turn.number, [ `warpToStart` ] );
+					switch ( timesGottenWarpBefore )
+					{
+						case ( 0 ):
+						{
+							return this.addParagraphs
+							(
+								[
+									`& then they landed on a gray space with some bent arrow icon on it.`,
+									`<What no — aaauuugh!>.`,
+									`Before Autumn could continue her question, she felt a thick force propel her into the air, only to so-quickly after feel the long arm o’ gravity pull her back to the ground, onto a pile also made up o’ Edgar & Dawn.`,
+									`Autumn immediately leapt to her feet & looked round herself. It didn’t take long to recognize their new — or rather, rather ol’ — location. She could see by the look on Dawn & Edgar’s faces that they knew, too.`,
+									`<Back luck for us>, Dawn said, still rubbing her side: <that space always takes us back to the start>.`,
+									`<Well, we need to prolong the endearing game as long as we can>, said Autumn.`,
+									`<Ha, ha. That just means we have mo’ opportunities to win mo’ chips before the end>.`
+								],
+								( turn.startingStatus.funds < 0 ) ?
+								[
+									`<Based on what’s happened so far, I think you mean “lose mo’ chips”>.`,
+									`<That just means we’re bound to win>.`,
+									`<The actual laws o’ probability disagree>, said Autumn. <Anyway, let’s get going ’gain — we have plenty o’ ground to retrace>.`
+								] :
+								[
+									`Autumn replied, <Yeah. Sure. Let’s get going ’gain — we have plenty o’ ground to retrace>.`
+								]
+							);
+						}
+						break;
+
+						case ( 1 ):
+						{
+							return [
+								`Autumn’s frown deepened as she saw the space they were headed for — that familiar gray space with the bent arrow.`,
+								`<Fuck me. ¿’Gain? ¿How unlucky can we be?>.`,
+								`<¿What? O…>.`,
+								`<I take it there’s no way to avoid the wild ride to broken pelvises>, said Autumn.`,
+								`Frowning herself, Dawn said, <No, & we’d better hurry & step on the space…>.`,
+								`<¿What’ll they do to us if we wait too long?>.`,
+								`Dawn looked ’way. <You don’t want to know>.`,
+								`<Cool. Broken pelvises it is>.`,
+								`So they all stepped onto the space & felt themselves flung back to the start yet ’gain. Then they returned to their feet, brushed themselves off, & continued their game wordlessly.`
+							];
+						}
+						break;
+
+						default:
+						{
+							return [
+								`Autumn’s frown deepened as she saw the space they were headed for — that familiar gray space with the bent arrow.`,
+								`<Fuck me. ¿’Gain? ¿How unlucky can we be?>.`,
+								`Dawn laughed. <We truly [i]are[/i] having bad luck>.`,
+								`So they endured being flung back to the start for the ${ this.toOrdinal( timesGottenWarpBefore + 1 ) } time, returned to their feet, brushed themselves off, & continued their game wordlessly.`
+							];
+						}
+						break;
+					}
+				}
+				break;
+
 				case ( null ):
 				{
-					return [ '' ];
+					return [ `` ];
 				}
 				break;
 
 				default:
 				{
-					return [ '' ];
+					return [ `` ];
 					//throw `Invalid Land Type: ${ turn.land.action }`;
 				}
 				break;
@@ -439,5 +500,15 @@ import { Turn } from './turn';
 		{
 			return playerNames[ config.players[ player ] ];
 		},
+		toOrdinal: function( number:number ):string
+		{
+			switch ( parseInt( number.toString().slice( -1 ) ) )
+			{
+				case ( 1 ): { return `${ number }st`; } break;
+				case ( 2 ): { return `${ number }nd`; } break;
+				case ( 3 ): { return `${ number }rd`; } break;
+				default   : { return `${ number }th`; } break;
+			}
+		}
 	});
 })();

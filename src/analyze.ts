@@ -25,6 +25,15 @@ import { Turn } from './turn';
 				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
 			);
 		},
+		timesLandOTypes: function( game:Game, turnNumber:number, types:string[] ):number
+		{
+			return this.numberOConditions
+			(
+				game,
+				turnNumber,
+				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
+			);
+		},
 		firstLandOTypesWithCharacter: function( game:Game, turnNumber:number, types:string[], character:number ):boolean
 		{
 			return this.firstTurnOCondition
@@ -82,6 +91,22 @@ import { Turn } from './turn';
 				}
 			}
 			return true;
+		},
+		numberOConditions( game:Game, turnNumber:number, condition ):number
+		{
+			let numberOConditions:number = 0;
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else if ( condition( turn ) )
+				{
+					numberOConditions++;
+				}
+			}
+			return numberOConditions;
 		}
 	});
 })();
