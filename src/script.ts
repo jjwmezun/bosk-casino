@@ -318,6 +318,28 @@ import { Turn } from './turn';
 				}
 				break;
 
+				case ( `goPastCycle` ):
+				{
+					return [
+						`Then they landed on a yellow space with an “!” etched on it, which, ’pon being stepped on, caused a escalator to fade into view under & next to them. Before they could act, the elevator’s steps began pulling them upward.`,
+						`Gripping the edge tightly & looking up & down, but not daring to try leaping off, Autumn said, <¿How’s this going to fuck us now?>.`,
+						`Dawn, who stood relaxed, said, <No, this is good: it means we can leave this circle we’re stuck in>.`
+					];
+				}
+				break;
+
+				case ( `chance` ):
+				{
+					return [ `Then they landed on an orange space with a “?” icon on it.` ];
+				}
+				break;
+
+				case ( `minigame` ):
+				{
+					return [ `Then they landed on a purple space with the icon o’ a baseball on it.` ];
+				}
+				break;
+
 				case ( null ):
 				{
 					return [ `` ];
@@ -326,8 +348,7 @@ import { Turn } from './turn';
 
 				default:
 				{
-					return [ `` ];
-					//throw `Invalid Land Type: ${ turn.land.action }`;
+					throw `Invalid Land Type: ${ turn.land.action }`;
 				}
 				break;
 			}
