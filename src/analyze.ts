@@ -36,6 +36,38 @@ import { Turn } from './turn';
 					character === this.getTurnNumberPlayer( game, turn.number )
 			);
 		},
+		firstLandOTypesWithCharacters: function( game:Game, turnNumber:number, types:string[] ):boolean[]
+		{
+			const charactersHadType:boolean[] = [];
+			for ( let character = 0; character < config.players.length; character++ )
+			{
+				charactersHadType[ character ] = true;
+			}
+
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					for ( let character = 0; character < config.players.length; character++ )
+					{
+						if
+						(
+							turn.land !== null &&
+							Bosk.inList( types, turn.land.action ) &&
+							character === this.getTurnNumberPlayer( game, turn.number )
+						)
+						{
+							charactersHadType[ character ] = false;
+						}
+					}
+				}
+			}
+			return charactersHadType;
+		},
 		firstTurnOCondition( game:Game, turnNumber:number, condition ):boolean
 		{
 			for ( const turn of game.turnList )
