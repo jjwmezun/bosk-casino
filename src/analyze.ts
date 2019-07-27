@@ -34,6 +34,15 @@ import { Turn } from './turn';
 				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
 			);
 		},
+		timesPassOTypes: function( game:Game, turnNumber:number, types:string[] ):number
+		{
+			return this.numberOPassesWithConditions
+			(
+				game,
+				turnNumber,
+				( pass ) => Bosk.inList( types, pass.action )
+			);
+		},
 		firstLandOTypesWithCharacter: function( game:Game, turnNumber:number, types:string[], character:number ):boolean
 		{
 			return this.firstTurnOCondition
@@ -77,7 +86,7 @@ import { Turn } from './turn';
 			}
 			return charactersHadType;
 		},
-		firstTurnOCondition( game:Game, turnNumber:number, condition ):boolean
+		firstTurnOCondition: function( game:Game, turnNumber:number, condition ):boolean
 		{
 			for ( const turn of game.turnList )
 			{
@@ -92,7 +101,7 @@ import { Turn } from './turn';
 			}
 			return true;
 		},
-		numberOConditions( game:Game, turnNumber:number, condition ):number
+		numberOConditions: function( game:Game, turnNumber:number, condition ):number
 		{
 			let numberOConditions:number = 0;
 			for ( const turn of game.turnList )
@@ -107,6 +116,64 @@ import { Turn } from './turn';
 				}
 			}
 			return numberOConditions;
+		},
+		numberOPassesWithConditions: function( game:Game, turnNumber:number, condition ):number
+		{
+			let numberOConditions:number = 0;
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					for ( const pass of turn.passes )
+					{
+						if ( pass !== null && condition( pass ) )
+						{
+							numberOConditions++;
+						}
+					}
+				}
+			}
+			return numberOConditions;
+		},
+		forkValues: function( game:Game, turnNumber:number, type:string ):object
+		{
+			const forkValues:object = { last: null };
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					for ( const pass of turn.passes )
+					{
+						if ( pass !== null && pass.action === type )
+						{
+							if ( forkValues[ pass.currentSpace ] === undefined )
+							{
+								forkValues[ pass.currentSpace ] = 0;
+							}
+							forkValues[ pass.currentSpace ]++;
+							forkValues[ `last` ] = pass.currentSpace;
+						}
+					}
+				}
+			}
+			return forkValues;
+		},
+		totalForkCount: function( forkValues:object ):number
+		{
+			let total:number = 0;
+			for ( const type in forkValues )
+			{
+				total += forkValues[ type ];
+			}
+			return total;
 		}
 	});
 })();

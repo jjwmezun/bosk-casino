@@ -1,5 +1,6 @@
 import { Game } from './game';
 import { Turn } from './turn';
+import { TurnStatus } from './turn-status';
 
 ( function()
 {
@@ -39,6 +40,7 @@ import { Turn } from './turn';
 				paragraphs = this.addParagraphs( paragraphs, this.getRollText( data, turn ) );
 				for ( const pass of turn.passes )
 				{
+					paragraphs = this.addParagraphs( paragraphs, this.generatePassText( data, turn, pass ) );
 				}
 				paragraphs = this.addParagraphs( paragraphs, this.generateLandText( data, turn ) );
 			}
@@ -342,13 +344,146 @@ import { Turn } from './turn';
 
 				case ( null ):
 				{
-					return [ `` ];
+					return []; // Ignore, but don’t throw error.
 				}
 				break;
 
 				default:
 				{
 					throw `Invalid Land Type: ${ turn.land.action }`;
+				}
+				break;
+			}
+		},
+		generatePassText: function( game:Game, turn:Turn, pass:TurnStatus ):readonly string[]
+		{
+			switch ( pass.action )
+			{
+				case ( `firstForkOddOrEven` ):
+				{
+					const forkValues:object = analyze.forkValues( game, turn.number, 'firstForkOddOrEven' );
+					const totalForkCount:number = analyze.totalForkCount( forkValues );
+					if ( totalForkCount === 0 )
+					{
+						return [
+							`@ the end o’ each previous turn, Autumn noticed a green door with a “?” icon on it that flapped back & forth o’er 2 side-by-side entryways. Now they were heading right for it, with the door covering the ${ ( pass.currentSpace === config.importantSpaces.firstBranch.bottomPathStart ) ? `right` : `left` } passageway.`,
+							`<¿Is this door to say we can’t go through the right passageway @ this point>.`,
+							`<Yeah, I remember this: the door switches which path we can take every turn>.`,
+							`<I take it there’s a significant different ’tween these 2 paths. 1 — probably the 1 we were lucky to get — likely sends us straight down into a volcano while the other leads to chests full o’ gold>.`,
+							`<I don’t remember. That’s the fun o’ this game: we ne’er know what we’ll get>.`,
+							`<We have radically different conceptions o’ “fun”> was all Autumn said before carrying on.`
+						];
+					}
+					else
+					{
+						switch ( pass.currentSpace )
+						{
+							case ( config.importantSpaces.firstBranch.bottomPathStart ):
+							{
+								return ( forkValues[ config.importantSpaces.firstBranch.bottomPathStart ] !== undefined && forkValues[ config.importantSpaces.firstBranch.bottomPathStart ] > 0 ) ?
+									[
+										`They returned to the starting fork, which was blocking the right passageway ’gain.`,
+										`<¿’Gain? We’re ne’er gonna get anywhere with this stupid board dicking us round like this repeatedly>.`
+									]
+								:
+									[
+										`They returned to the starting fork, which was blocking the right passageway this time.`,
+										`Dawn said, <Cool: now we get to see what the other path has to offer>.`,
+										`<Probably the same trace o’ bullshit>, muttered Autumn.`
+									]
+								;
+							}
+							break;
+
+							case ( config.importantSpaces.firstBranch.topPathStart ):
+							{
+								return ( forkValues[ config.importantSpaces.firstBranch.bottomPathStart ] !== undefined && forkValues[ config.importantSpaces.firstBranch.bottomPathStart ] > 0 ) ?
+									[
+										`They returned to the starting fork, which was now blocking the left path.`,
+										`<Good. Hopefully we won’t get fucked this time>, said Autumn.`
+									]
+								:
+									[
+										`They returned to the starting fork, which was blocking the left path ’gain.`,
+										`<Looks like we’ll ne’er get to see what that other path leads to,> said Autumn. <Probably better things than this path>.`,
+									]
+								;
+							}
+							break;
+
+							default:
+							{
+								throw `Invalid next space for firstForkOddOrEven: ${ pass.currentSpace }.`;
+							}
+							break;
+						}
+					}
+				}
+				break;
+
+				case ( `toStart` ):
+				{
+					const toStartCount:number = analyze.timesPassOTypes( game, turn.number, [ `toStart` ] );
+					return ( toStartCount === 0 ) ?
+						[
+							`As they went, Autumn noticed them enter a familiar part o’ the board.`,
+							`<Damn it: we’re going in a circle. This is where we started>.`,
+							`<Yeah, it must’ve been that fork we just passed — we probably need to go in the other direction>.`
+						]
+					:
+						[]
+					;
+				}
+				break;
+
+				case ( `secondForkCharactersChoose` ):
+				{
+					return [
+					];
+				}
+				break;
+
+				case ( `secondBranchPathsMeet` ):
+				{
+					return [
+						``
+					];
+				}
+				break;
+
+				case ( `secondBranchPathStart` ):
+				{
+					return [
+						``
+					];
+				}
+				break;
+
+				case ( `thirdForkRandom` ):
+				{
+					return [
+						``
+					];
+				}
+				break;
+
+				case ( `thirdBranchPathsMeet` ):
+				{
+					return [
+						``
+					];
+				}
+				break;
+
+				case ( null ):
+				{
+					return [ `` ]; // Ignore, but don’t throw error.
+				}
+				break;
+
+				default:
+				{
+					throw `Invalid pass type: ${ pass.action }.`;
 				}
 				break;
 			}
