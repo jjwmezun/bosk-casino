@@ -1,11 +1,11 @@
 export class ChanceCard
 {
 	readonly type:string;
-	readonly message:string;
+	readonly action;
 
-	constructor( type:string, message:string )
+	constructor( type:string, action )
 	{
 		this.type = type;
-		this.message = message;
+		this.action = action;
 	}
 };

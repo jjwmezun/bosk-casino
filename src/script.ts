@@ -6,6 +6,7 @@ import { TurnStatus } from './turn-status';
 {
 	const analyze = require( `./analyze.ts` );
 	const config = require( `./config.ts` );
+	const chance = require( `./chance.ts` );
 
 	const playerNames:object = Object.freeze
 	({
@@ -332,7 +333,18 @@ import { TurnStatus } from './turn-status';
 
 				case ( `chance` ):
 				{
-					return [ `Then they landed on an orange space with a “?” icon on it.` ];
+					const cardType:string = chance.cards[ turn.land.chanceDeck.latestCard ].type;
+					const firstChance:boolean = analyze.firstLandOTypes( game, turn.number, [ "chance" ] );
+					return ( firstChance ) ?
+						[
+							`Then they landed on an orange space with a “?” icon on it, before which was a sentinel o’ a machine that cast a shadow gainst the ceiling’s hot lights. It had been golem-still till just then, when it suddenly started to life, releasing an orange card from its mouth like a serpent tongue.`,
+							`Dawn took the card & showed it ’mong Autumn & Edgar. Said card showed ${ this.chanceCardImages[ cardType ] } next to the words “${ this.chanceCardText[ cardType ] }”.`
+						]
+					:
+						[
+							`They landed on the orange chance space ’gain & received a card that showed  ${ this.chanceCardImages[ cardType ] } next to the words “${ this.chanceCardText[ cardType ] }”.`
+						]
+					;
 				}
 				break;
 
@@ -477,7 +489,7 @@ import { TurnStatus } from './turn-status';
 
 				case ( null ):
 				{
-					return [ `` ]; // Ignore, but don’t throw error.
+					return []; // Ignore, but don’t throw error.
 				}
 				break;
 
@@ -665,6 +677,27 @@ import { TurnStatus } from './turn-status';
 				case ( 3 ): { return `${ number }rd`; } break;
 				default   : { return `${ number }th`; } break;
 			}
-		}
+		},
+		chanceCardText: Object.freeze
+		({
+			"lose-money1": `Get tricked into joining a religious cult scam. Pay 20 chips`,
+			//"lose-money2": ``,
+			"gain-money1": `200 chips for being an asshole`,
+			"half-money": `Your cat, Patches, gets a divorce. Pay half your chips.`,
+			"warp-to-final-stretch": `¡Take a train trip straight to the final road!`,
+			"warp-to-start": `¡Spring back to the start!`,
+			"pay-every-turn": `Your thimble token was caught in in private parking. Pay 10 chips for every turn passed`,
+			"gain-every-turn": `Attain capitalist class. Win 10 chips for every turn passed`
+		}),
+		chanceCardImages: Object.freeze
+		({
+			"lose-money1": `a man covered in a blue sheet like a ghost`,
+			"gain-money1": `an ol’ turtle in a plain black T-shirt, short stubble o’ a beard & combed back white hair facing the reader & shrugging`,
+			"half-money": `an ol’ turtle in an ink-black top hat & colorless walrus moustache with a long face o’ shock while next to him is a white cat holding a piece o’ paper that says “DIVORCE”`,
+			"warp-to-final-stretch": `an ol’ turtle in an ink-black top hat & colorless walrus moustache skipping down a line o’ sidewalk`,
+			"warp-to-start": `an ol’ turtle in an ink-black top hat & colorless walrus moustache leaping on a spring with a jovial smile`,
+			"pay-every-turn": `a man in a police uniform waving a baton toward a thimble next to a sign labeled, “PRIVATE PARKING”`,
+			"gain-every-turn": `an ol’ turtle in an ink-black top hat & colorless walrus moustache with a fist raised into the air & the words “¡LEVEL UP!” floating ’bove their head`
+		})
 	});
 })();

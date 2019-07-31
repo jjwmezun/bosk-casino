@@ -1,26 +1,38 @@
 const Bosk = require( './bosk.js' );
 import { ChanceCard } from './chance-card';
 import { ChanceDeck } from './chance-deck';
+import { Turn } from './turn';
 import { TurnStatus } from './turn-status';
+const action = require( './action.ts' );
+const config = require( `./config.ts` );
 
 module.exports = Object.freeze
 ({
 	cards:
 	[
-		new ChanceCard( `lose-money`, `Fell into religious cult scam: pay 50 chips` ),
-		new ChanceCard( `warp-to-end`, `Spring straight to the start o&rsquo; the final road` ),
-		new ChanceCard( `warp-to-start`, `Fall back to the start` )
+		new ChanceCard( `lose-money1`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, -20 ) ),
+		new ChanceCard( `gain-money1`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 200 ) ),
+		new ChanceCard( `half-money`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, lastStatus.funds / 2 ) ),
+		new ChanceCard( `warp-to-final-stretch`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.thirdBranch.pathsMeet ) ),
+		new ChanceCard( `warp-to-start`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.start ) ),
+		new ChanceCard( `pay-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, (-10) * currentTurn.number ) ),
+		new ChanceCard( `gain-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 10 * currentTurn.number ) )
 	],
-	run: function( latestStatus:TurnStatus ):TurnStatus
+	run: function( currentTurn:Turn, latestStatus:TurnStatus ):TurnStatus
 	{
 		const newDeck:ChanceDeck = this.getNextCard( latestStatus.chanceDeck );
-		return Object.freeze( new TurnStatus(
-			"land",
-			"chance",
-			latestStatus.funds,
-			latestStatus.currentSpace,
-			newDeck
-		));
+		return this.cards[ newDeck.latestCard ].action
+		(
+			currentTurn,
+			new TurnStatus
+			(
+				"land",
+				"chance",
+				latestStatus.funds,
+				latestStatus.currentSpace,
+				newDeck
+			)
+		);
 	},
 	getNextCard: function( deck:ChanceDeck ):ChanceDeck
 	{

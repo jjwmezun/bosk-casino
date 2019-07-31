@@ -1,10 +1,13 @@
-const casino = require( './casino.ts' );
-const script = require( './script.ts' );
-
-module.exports =
+module.exports = ( function()
 {
-	run: function():string
-	{
-		return script.generateForConsole( casino.run() );
-	}
-};
+	const casino = require( './casino.ts' );
+	const script = require( './script.ts' );
+	
+	return Object.freeze
+	({
+		run: function():string
+		{
+			return script.generateForConsole( casino.run() );
+		}
+	})
+})();
