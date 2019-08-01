@@ -1,5 +1,7 @@
 const Bosk = require( `./bosk.js` );
 import { Game } from './game';
+import { MinigameInfo } from './minigame-info';
+import { MinigameStatus } from './minigame-status';
 import { Turn } from './turn';
 
 ( function()
@@ -174,6 +176,26 @@ import { Turn } from './turn';
 				total += forkValues[ type ];
 			}
 			return total;
+		},
+		minigameInfo: function( game:Game, turnNumber:number ):object
+		{
+			const minigameInfo:MinigameInfo = new MinigameInfo();
+			console.log( minigameInfo );
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					if ( turn.land.action === "minigame" )
+					{
+						minigameInfo.addMinigame( turn.land.minigameStatus );
+					}
+				}
+			}
+			return minigameInfo;
 		}
 	});
 })();

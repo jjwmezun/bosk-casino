@@ -1,4 +1,6 @@
 import { Game } from './game';
+import { MinigameInfo } from './minigame-info';
+import { MinigameStatus } from './minigame-status';
 import { Turn } from './turn';
 import { TurnStatus } from './turn-status';
 
@@ -350,7 +352,70 @@ import { TurnStatus } from './turn-status';
 
 				case ( `minigame` ):
 				{
-					return [ `Then they landed on a purple space with the icon o’ a baseball on it.` ];
+					const currentMinigame:MinigameStatus = turn.land.minigameStatus;
+					const minigameInfo:MinigameInfo = analyze.minigameInfo( game, turn.number );
+					const isFirstMinigame:boolean = minigameInfo.getStatuses().length < 1;
+					const lastMinigame:MinigameStatus = ( isFirstMinigame ) ? null : minigameInfo.getStatuses()[ minigameInfo.getStatuses().length - 1 ];
+					const wasLastMinigameLost:boolean = lastMinigame && !lastMinigame.win;
+					const wereMoreWinsThanLosses:boolean = ( function()
+					{
+						let wins = 0;
+						let losses = 0;
+						for ( const minigame of minigameInfo.getStatuses() )
+						{
+							if ( minigame.win )
+							{
+								wins++;
+							}
+							else
+							{
+								losses++;
+							}
+							return wins > losses;
+						}
+					})();
+
+					const start:string[] = ( isFirstMinigame ) ?
+						[
+							`Then they landed on a purple space with the icon o’ a baseball on it. Just as they landed, a buzzer went off, causing Autumn to jerk her head in every direction. Then a kooky voice exclaimed, <¡Minigame time!>.`,
+							`<Ooo>. Dawn grabbed Autumn’s shoulder. <This is going to be fun, & you’ll like this bit: ’stead o’ that vile Random # God you rage gainst so much, we have a game where whether we win will be based only on our skills. You’ll smash this 1>.`,
+							`<If you say so…>, said Autumn, feeling only great unease.`,
+							`{ Great: so this time I know for sure it's my fault if we lose }.`
+						]
+					:
+						this.addParagraphs
+						(
+							[
+								`When they landed on the next space, that buzzer Autumn recalled from before went off; & with it was the similarly familiar kooky voice shouting, <Minigame time!>.`,
+								`<Cool: ’nother 1>, said Dawn.`
+							],
+							( wasLastMinigameLost ) ?
+									this.addParagraphs
+									(
+										[ `<Great, ’nother chance to lose>, replied Autumn.` ],
+										( wereMoreWinsThanLosses ) ?
+												[ `Dawn grabbed Autumn’s shoulder. <Don’t be such a soggy waffle: we've <em>won</em> mo' than we've lost>.` ]
+											:
+												[
+													`Dawn grabbed Autumn’s shoulder. <Don’t be such a soggy waffle: the law o’ averages says we have to win this time>.`,
+													`Autumn mumbled, <Probability doesn’t work that way>.`
+												]
+									)
+								:
+									[]
+						);
+					const instructions:string[] = [
+						`The announcer continued, <q>The game you&rsquo;ll be playing tonight is &lsquo;${ this.minigames[ currentMinigame.type ].name }&rsquo;, &amp; you&rsquo;ll be betting ${ currentMinigame.bet } chips</q>.`,
+						`Before %Autumn% had a chance to reply, the floor opened under them like a maw, dropping them into an abyss.`,
+						`@ the end o&rsquo; the tunnel they found themselves falling ${ this.minigames[ currentMinigame.type ].area }.`
+					];
+					const afterInstructions:string[] = ( currentMinigame.type === `karts` ) ?
+						[
+							`<q>I'm guessing we'd better stay on these things or else they'll disqualify us immediately</q>, said Dawn.`,
+							`<q>Can't think o' any other reasons to start us standing on these things</q>, replied Autumn.`
+						]
+					: [];
+					return this.addParagraphs( start, this.addParagraphs( instructions, afterInstructions ) );
 				}
 				break;
 
@@ -600,7 +665,7 @@ import { TurnStatus } from './turn-status';
 							}>.`
 						]
 					: [
-							`Before ${ currentPlayer } could roll the next turn, all 3 were startled by the cry o’ a parrot, <q>¡FINIIIIISH!</q>. They looked round themselves to find the source, only to stop on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.`,
+							`Before ${ currentPlayer } could roll the next turn, all 3 were startled by the cry o’ a parrot, <¡FINIIIIISH!>. They looked round themselves to find the source, only to stop on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.`,
 							`<That’s the last turn, guys. Sorry you couldn’t make it to the end>.`,
 							`Autumn was ’bout to think, { Cool. Glad to get fucked in the ass as always }, but stopped that thought when the turtle continued, <But let’s see what you can win with the money you’ve made>.`
 						]
@@ -698,6 +763,27 @@ import { TurnStatus } from './turn-status';
 			"warp-to-start": `an ol’ turtle in an ink-black top hat & colorless walrus moustache leaping on a spring with a jovial smile`,
 			"pay-every-turn": `a man in a police uniform waving a baton toward a thimble next to a sign labeled, “PRIVATE PARKING”`,
 			"gain-every-turn": `an ol’ turtle in an ink-black top hat & colorless walrus moustache with a fist raised into the air & the words “¡LEVEL UP!” floating ’bove their head`
+		}),
+		minigames: Object.freeze
+		({
+			"count":
+			{
+				name: `Count on Me`,
+				area: `into a green meadow covered in butterflies & soft chirps, with a clean dividng line fashioned with a border o' stones o' various shapes & sizes. While Autumn, as usual, ate up everything round her with her attention, Dawn focused mainly on the strange touch screen monitor on a sign post in front o' them with a stylus dangling from a cord`,
+				desc: `Within a minute, count how many moving Rockmen there are, but don’t count the ordinary stones or the Rockmen that dissolve into dust`
+			},
+			"karts":
+			{
+				name: `Having a Ball on a Roll`,
+				area: `on colored balls with stars on them in a small, circular island covered in short hills & snow surrounded by an ocean o' plastic balls in every color o' the rainbow. Attached to 4 corners o' the island were metal boxes. They — ’specially Edgar — struggled to keep their balance on the balls`,
+				desc: `A'least 1 o' you must stay standing on your ball, still on the island, for a whole minute. During that time, avoid the spike balls being shot @ you`
+			},
+			"tower":
+			{
+				name: `Treacherous Tower`,
+				area: `into a stormy dark place, just before a brown-stoned, dusty crenellated tower that rose so high its head faded in the distance`,
+				desc: ``
+			}
 		})
 	});
 })();
