@@ -196,6 +196,10 @@ import { Turn } from './turn';
 				}
 			}
 			return minigameInfo;
+		},
+		hasPlayedMinigameBefore: function( minigameInfo:MinigameInfo, type:string ):boolean
+		{
+			return minigameInfo.getNumber( type ) > 0;
 		}
 	});
 })();

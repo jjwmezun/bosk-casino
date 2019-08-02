@@ -1,3 +1,4 @@
+import { BallSurvival } from './ball-survival';
 import { MinigameGame } from './minigame-game';
 import { MinigameStatus } from './minigame-status';
 import { TurnStatus } from './turn-status';
@@ -10,9 +11,9 @@ import { TurnStatus } from './turn-status';
 	({
 		minigames:
 		[
-			new MinigameGame( 'karts', 'Bumper Karts', 50 ),
-			new MinigameGame( 'tower', 'Tower', 75 ),
-			new MinigameGame( 'count', 'Keep Count', 25 )
+			new MinigameGame( 'balls', 50 ),
+			new MinigameGame( 'tower', 75 ),
+			new MinigameGame( 'count', 25 )
 		],
 		run: function( latestStatus:TurnStatus ):TurnStatus
 		{
@@ -20,7 +21,8 @@ import { TurnStatus } from './turn-status';
 			const win:boolean = this.testWin( selectedMinigame );
 			const bet:number = this.getRandomBet();
 			const newFunds:number = ( win ) ? latestStatus.funds + bet : latestStatus.funds - bet;
-			const minigameStatus:MinigameStatus = new MinigameStatus( selectedMinigame.type, win, bet );
+			const misc:object = this.miscGenerators[ selectedMinigame.type ]( win, bet );
+			const minigameStatus:MinigameStatus = new MinigameStatus( selectedMinigame.type, win, bet, misc );
 			return Object.freeze( new TurnStatus
 			(
 				"land",
@@ -52,6 +54,31 @@ import { TurnStatus } from './turn-status';
 				list.push( i );
 			}
 			return list;
+		},
+		miscGenerators: {
+			balls: ( win:boolean, bet:number ):object => {
+				const autumnSurvives:boolean = ( win ) ? Bosk.randPercent( 65 ) : false;
+				const dawnSurvives:boolean = ( function() {
+					const winChance:number = ( autumnSurvives ) ? 45 : 80;
+					return ( win ) ? ( Bosk.randPercent( winChance ) ) : false;
+				})();
+				const edgarSurvives:boolean = ( win ) ? ( ( !autumnSurvives && !dawnSurvives ) ? true : Bosk.randPercent( 30 ) ) : false;
+				return {
+					survives: new BallSurvival( autumnSurvives, edgarSurvives, dawnSurvives )
+				};
+			},
+			tower: ( win:boolean, bet:number ):object => {
+				return {};
+			},
+			count: ( win:boolean, bet:number ):object => {
+				const playersWithCorrectGuesses = ( win ) ?
+
+				const correctNumber:number = Bosk.randInt( 48, 24 );
+				const autumnsGuess:number =
+				return {
+					guesses: new Guesses( correctNumber, autumnsGuess, edgarsGuess, dawnsGuess )
+				};
+			}
 		}
 	});
 })();

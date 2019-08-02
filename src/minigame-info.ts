@@ -15,6 +15,11 @@ export class MinigameInfo
 		return this.statuses;
 	}
 
+	getNumber( type:string ):number
+	{
+		return this.numbers[ type ];
+	}
+
 	addMinigame( status:MinigameStatus ):void
 	{
 		this.addStatus( status );

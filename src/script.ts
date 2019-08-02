@@ -1,3 +1,4 @@
+import { BallSurvival } from './ball-survival';
 import { Game } from './game';
 import { MinigameInfo } from './minigame-info';
 import { MinigameStatus } from './minigame-status';
@@ -68,6 +69,15 @@ import { TurnStatus } from './turn-status';
 				newList = this.addParagraph( newList, string );
 			}
 			return newList;
+		},
+		addParagraphLists: function( listOfLists ):string[]
+		{
+			let paragraphs:string[] = [];
+			for ( const list of listOfLists )
+			{
+				paragraphs = this.addParagraphs( paragraphs, list );
+			}
+			return paragraphs;
 		},
 		generateLandText: function( game:Game, turn:Turn ):readonly string[]
 		{
@@ -404,18 +414,218 @@ import { TurnStatus } from './turn-status';
 								:
 									[]
 						);
-					const instructions:string[] = [
-						`The announcer continued, <q>The game you&rsquo;ll be playing tonight is &lsquo;${ this.minigames[ currentMinigame.type ].name }&rsquo;, &amp; you&rsquo;ll be betting ${ currentMinigame.bet } chips</q>.`,
-						`Before %Autumn% had a chance to reply, the floor opened under them like a maw, dropping them into an abyss.`,
-						`@ the end o&rsquo; the tunnel they found themselves falling ${ this.minigames[ currentMinigame.type ].area }.`
-					];
-					const afterInstructions:string[] = ( currentMinigame.type === `karts` ) ?
+					const intro:string[] = ( currentMinigame.type === `balls` && analyze.hasPlayedMinigameBefore( minigameInfo, `balls` ) )
+					?
+						[
+							`<q>I'm guessing we'd better stay on these things or else they'll disqualify us immediately</q>, said Dawn.`,
+							`<q>Can't think o' any other reasons to start us standing on these things</q>, replied Autumn.`
+						]
+					:
+						[
+							`The announcer continued, <q>The game you&rsquo;ll be playing tonight is &lsquo;${ this.minigames[ currentMinigame.type ].name }&rsquo;, &amp; you&rsquo;ll be betting ${ currentMinigame.bet } chips</q>.`,
+							`Before %Autumn% had a chance to reply, the floor opened under them like a maw, dropping them into an abyss.`,
+							`@ the end o&rsquo; the tunnel they found themselves falling ${ this.minigames[ currentMinigame.type ].area }.`
+						];
+					const afterIntro:string[] = ( currentMinigame.type === `balls` ) ?
 						[
 							`<q>I'm guessing we'd better stay on these things or else they'll disqualify us immediately</q>, said Dawn.`,
 							`<q>Can't think o' any other reasons to start us standing on these things</q>, replied Autumn.`
 						]
 					: [];
-					return this.addParagraphs( start, this.addParagraphs( instructions, afterInstructions ) );
+					const beforeInstructions:string[] = [
+						`The announcer spoke &rsquo;gain: <q>&iquest;Want to hear instructions?</q>.`
+					];
+
+					const instructions:string[] = ( analyze.hasPlayedMinigameBefore( minigameInfo, currentMinigame.type ) ) ?
+						[ `%Autumn% turned to %Dawn%. %Dawn% said, <q>No</q>.` ]
+					:
+						this.addParagraphs
+						(
+							[
+								`%Autumn% turned to %Dawn%. %Dawn% said, <q>Yes</q>.`,
+								`The announcer continued: <q>${ this.minigames[ currentMinigame.type ].desc }</q>.`,
+								`%Autumn% could only say, <q>Ugh</q>.`
+							],
+							this.addParagraphs
+							(
+								( function()
+								{
+									switch( currentMinigame.type )
+									{
+										case ( `balls` ):
+										{
+											return [ `With her eyes still on her legs wobbling o'er her green ball, Dawn said, <q>With your great self control, you should have no problem with this</q>.` ];
+										}
+										break;
+										case ( `tower` ):
+										{
+											return [ `%Dawn% put her hand on %Autumn%&rsquo;s shoulder &amp; said, <q>C&rsquo;mon, with your thief skills @ parkour, you'll be a shoe-in</q>.` ];
+										}
+										break;
+										case ( `count` ):
+										{
+											return [ `%Dawn% put her hand on %Autumn%&rsquo;s shoulder &amp; said, <q>C&rsquo;mon, this is a brainy, math game: you should be great @ this</q>.` ];
+										}
+										break;
+										default:
+										{
+											throw `¡Invalid Minigame Type: ${ currentMinigame.type }!`;
+										}
+										break;
+									}
+								})(),
+								( !isFirstMinigame ) ?
+									[ `<q>Yeah, yeah, let's just get on with this</q>, replied Autumn.` ]
+								:
+									[
+										`<q>I feel much better knowing I have a reason to be extra disappointed if I lose</q>, said %Autumn%.`,
+										`<q>It&rsquo;s just a game meant for fun</q>, said %Dawn%.`,
+										`<q>For chips is ne&rsquo;er for fun</q>, replied %Autumn%.`
+									]
+							)
+						);
+					const readyToStart:string[] = [
+						`The announcer said, <q>&iquest;Ready to start?</q>.`,
+						`%Autumn% nodded &amp; %Dawn% said, <q>Yup</q>.`
+					];
+
+					const mainMinigameText:string[] = ( function()
+					{
+						switch ( currentMinigame.type )
+						{
+							case ( `count` ):
+							{
+								return [];
+							}
+							break;
+
+							case `balls`:
+							{
+								let text = [
+									`A clock on a wooden stick rose from the bushes right &rsquo;cross from them on the other side o' the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <q>&iexcl;Start!</q>, &amp; the clock dinging &amp; beginning to tick.`,
+									`Not a second passed before the corner cannons began blasting out metal balls as big as the ones they stood on, but covered in spikes.`,
+									`%Dawn% scrambled 'way @ a rapid roll, jerking 'way from spike ball to spike ball while %Edgar% stood paralyzed like a hare before a truck. %Autumn%'s eyes moved as quickly as %Dawn% did, but her movements were rarer & slower.'`
+								];
+
+								const survival = new BallSurvival( false, false, false );
+								if ( survival.dawn )
+								{
+									if ( survival.edgar )
+									{
+										if ( survival.autumn )
+										{
+										}
+										else
+										{
+											text.push( `But Autumn had spread her attention o'er too many pieces that she began to get uneasy & make hasty movements. Then she found herself surrounded by 4 spike balls, all rolling toward her.` );
+											text.push( `<span class="autumn-thought">Now, &iquest;how is this e'en possible?</span>.` );
+											text.push( `Autumn tried to carefully roll her way 'tween 2 close spike balls, but a spike scratched her ball, causing it to pop & blasting her into the ball pit.` );
+											text.push( `<q>&iexcl;Autumn!</q>, exclaimed %Edgar%.` );
+											text.push( `But it didn't take long for %Autumn%'s head to pop back up from under the surface o' the ball pit, a moody face slowly releasing ball after ball back to the pit from 'bove her head.` );
+											text.push( `<q>Don't worry 'bout me</q>, %Autumn% called out: <q>keep your attention on keeping yourselves in</q>.` );
+											text.push( `%Autumn% watched them maneuver round the spike balls, with greater fear as she watched %Edgar% become shakier in his movements, while %Dawn%, in contrast, became quieter & seemed to practice closer diligence to what she was doing, with a notable sweat drop dripping down the side o' her face. While she watched this, %Autumn%'s attention flicked to the clock on the wooden post as it crept toward 0.` );
+											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o' a buzzer. %Autumn% noticed %Edgar% jump when the spike balls round them suddenly puffed 'way. Then the parrot-like voice o' the announcer squawked, <q>&iexcl;Success!</q>.` );
+											text.push( `Before anyone could say anything further, a hole opened 'neath %Dawn% & %Edgar%, causing them to fall into a black chasm while %Autumn% was sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+										}
+									}
+									else
+									{
+										text.push( `Edgar panicked when he saw 2 spike balls roll toward him from opposite directions & scrambled forward, only to go so quickly that his feet slipped on the hem o' his robe, causing him to tumble off his ball.` );
+										text.push( `Before he had a chance to so much as sit back up, his ball puffed into smoke before everyone's eyes. %Edgar% jumped back to his feet & eyed the spike balls crawling all round him till he heard %Dawn%'s voice call out, <q>%Edgar%, into the ball pit. It should be safe in there</q>. %Edgar% dutifully sidestepped round the spike balls thankfully moving rather slowly for someone no longer bound to a cumbersome ball & dipped himself feet-1st into the lake o' plastic balls. He was pleasantly surprised to find that they weren't nearly as sinkable for someone like him who couldn't swim as water.` );
+										text.push( `<q>Shit</q>, muttered %Autumn%.` );
+
+										if ( survival.autumn )
+										{
+											text.push( `%Autumn% had been so distracted by %Edgar%'s failure that she lost track o' her own progress for a second & almost rolled into a spike ball before she twisted herself in the opposite direction a millimeter before hitting it.` );
+											text.push( `<q>&iexcl;%Autumn%!</q>, %Edgar% called out from the ball pit. <q>&iexcl;Watch out for that spike ball on the right!</q>.` );
+											text.push( `%Autumn% ignored him & tried to focus 75% o' her attention on the spike balls round her & the rest on the clock, ticking close to 0.` );
+											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o' a buzzer. %Autumn% noticed %Edgar% jump when the spike balls round them suddenly puffed 'way. Then the parrot-like voice o' the announcer squawked, <q>&iexcl;Success!</q>.` );
+											text.push( `Before anyone could say anything further, a hole opened 'neath %Autumn% & %Dawn%, causing them to fall into a black chasm while %Edgar% was sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+										}
+										else
+										{
+											text.push( `%Autumn% had been so distracted by %Edgar%'s failure that she lost track o' her own progress & now found herself surrounded by spike balls so close, she couldn't figure out how to maneuver round them. She tried to roll her ball back from 2 spike balls coming toward each other, only to back into yet 'nother spike ball, popping her ball & blasting her into the ball pit.` );
+											text.push( `<q>&iexcl;Autumn!</q>, exclaimed %Edgar%.` );
+											text.push( `But it didn't take long for %Autumn%'s head to pop back up from under the surface o' the ball pit, a moody face slowly releasing ball after ball back to the pit from 'bove her head.` );
+											text.push( `%Edgar% swimmed o'er to %Autumn% & said, <q>&iquest;Are you OK?</q>.` );
+											text.push( `<q>Yeah</q>, mumbled %Autumn%.` );
+											text.push( `They turned their attention to %Dawn%, still maneuvering round the spike balls with a sweat drop dripping down the side o' her face. %Autumn% kept looking up @ the clock on the wooden post, her breathing becoming tighter as she saw it creep toward 0.` );
+											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o' a buzzer. %Autumn% noticed %Edgar% jump when the spike balls round them suddenly puffed 'way. Then the parrot-like voice o' the announcer squawked, <q>&iexcl;Success!</q>.` );
+											text.push( `Before anyone could say anything further, a hole opened 'neath %Dawn%, causing her to fall into a black chasm while %Autumn% & %Edgar% were sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+										}
+									}
+								}
+								else
+								{
+									text.push( `But %Dawn% had gone too quickly, rolling forward so quickly that she couldn't stop anymo' till she ran into a spike ball, popping her ball & knocking her off the platform into the sea o' colored balls.` );
+									text.push( `%Edgar% noticed this in the corner o' his eyes & turned to see %Dawn% swim back up to the surface.` );
+									text.push( `<q>&iquest;Are you OK?</q>, he asked.` );
+									text.push( `<q>%Edgar%, watch 'hind you</q>.` );
+									text.push( `%Autumn%, who had been too focused on keeping herself up to notice %Dawn% get hit till she heard %Edgar% call out, was now looking up @ seeing a spike ball head right for %Edgar% & was rolling toward him to push him out o' its way.` );
+									text.push( `'Pon hearing %Autumn%, %Edgar% swung his head round in panic. He saw a spike ball only half a meter 'way from him.` );
+
+									if ( survival.edgar )
+									{
+										text.push( `Luckily, %Autumn% reached him before the spike ball did, & she was able to bounce him out o' the spike ball's way.` );
+
+										if ( survival.autumn )
+										{
+											text.push( `In the process, she herself almost rolled right into a spike ball, but rolled round it just in time, her ball coming within millimeters o' 1 o' them.` );
+											text.push( `<q>&iexcl;%Autumn%! &iexcl;Watch out for that spike ball on the right! &iexcl;%Edgar%! &iexcl;'Hind you!</q>.` );
+											text.push( `%Autumn% tried to drown out %Dawn% & focused 75% o' her attention on the spike balls round her & the rest on the clock, ticking close to 0.` );
+											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o' a buzzer. %Autumn% noticed %Edgar% jump when the spike balls round them suddenly puffed 'way. Then the parrot-like voice o' the announcer squawked, <q>&iexcl;Success!</q>.` );
+										}
+										else
+										{
+											text.push( `Unluckily, in bopping %Edgar% out o' the spike ball's way, her ball richocheted back & into a spike ball, popping her ball instantly & knocking her into the ball pit.` );
+											text.push( `<q>&iexcl;Autumn!</q>, exclaimed %Edgar%.` );
+											text.push( `But it didn't take long for %Autumn%'s head to pop back up from under the surface o' the ball pit, a moody face slowly releasing ball after ball back to the pit from 'bove her head.` );
+											text.push( `%Dawn% swimmed o'er to %Autumn% & said, <q>Awfully polite o' you to come join me</q>.` );
+											text.push( `<q>Yeah, we'll say that that's what happened</q>, said %Autumn%.` );
+											text.push( `Then they watched %Edgar% wobbly roll out o' the way o' spike ball followed by spike ball, during which %Dawn% began calling out advice till %Autumn% asked her to stop distracting him.` );
+											text.push( `As %Autumn% watched %Edgar%, she kept half her attention to the clock slowly ticking down on the post.` );
+											text.push( `Then the clock hit 0 & a buzzer went off. %Edgar% jumped as he saw the spike balls round him suddenly puff 'way. Then the parrot-like voice o' the announcer squawked, <q>&iexcl;Success!</q>.` );
+											text.push( `Before anyone could say anything further, a hole opened 'neath %Autumn% & %Edgar%, causing them to fall into a black chasm while %Dawn% was sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+										}
+									}
+									else
+									{
+										text.push( `However, in his rush to roll his ball 'way, he tripped his feet on the hem o' his robe & slipped off his ball.` );
+										text.push( `Before he had a chance to so much as sit back up, his ball puffed into smoke before everyone's eyes. %Edgar% jumped back to his feet & eyed the spike balls crawling all round him till he heard %Dawn%'s voice call out, <q>Here, into the ball pit</q>. %Edgar% dutifully sidestepped round the spike balls thankfully moving rather slowly for someone no longer bound to a cumbersome ball & dipped himself feet-1st into the lake o' plastic balls. He was pleasantly surprised to find that they weren't nearly as sinkable for someone like him who couldn't swim as water.` );
+										text.push( `<q>Shit</q>, muttered %Autumn%.` );
+
+										if ( survival.autumn )
+										{
+											text.push( `%Autumn% had been so distracted by %Edgar%'s failure that she lost track o' her own progress for a second & almost rolled into a spike ball before she twisted herself in the opposite direction a millimeter before hitting it.` );
+											text.push( `<q>&iexcl;%Autumn%! &iexcl;Watch out for that spike ball on the right!</q>.` );
+											text.push( `%Autumn% tried to drown out %Dawn% & focused 75% o' her attention on the spike balls round her & the rest on the clock, ticking close to 0.` );
+											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o' a buzzer. %Autumn% noticed %Edgar% jump when the spike balls round them suddenly puffed 'way. Then the parrot-like voice o' the announcer squawked, <q>&iexcl;Success!</q>.` );
+											text.push( `Before anyone could say anything further, a hole opened 'neath %Autumn%, causing her to fall into a black chasm while %Dawn% & %Edgar% were sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+										}
+										else
+										{
+											text.push( `%Autumn% had been so distracted by %Edgar%'s failure that she lost track o' her own progress & now found herself surrounded by spike balls so close, she couldn't figure out how to maneuver round them. She tried to roll her ball back from 2 spike balls coming toward each other, only to back into yet 'nother spike ball, popping her ball & blasting her into the ball pit.` );
+											text.push( `<q>&iexcl;Autumn!</q>, exclaimed %Edgar%.` );
+											text.push( `But it didn't take long for %Autumn%'s head to pop back up from under the surface o' the ball pit, a moody face slowly releasing ball after ball back to the pit from 'bove her head.` );
+											text.push( `%Dawn% & %Edgar% swimmed o'er to %Autumn%, & %Dawn% said, <q>Awfully polite o' you to come join us</q>.` );
+											text.push( `<q>Yeah, we'll say that that's what happened</q>, said %Autumn%.` );
+											text.push( `Then they all heard a horn blast, followed by the parrot-like voice o' the announcer call out, <q>&iexcl;Failed!</q>, followed by a jingle o' pure pity.` );
+											text.push( `Before anyone could say anything further, they began to feel a pulling force under them, & then found themselves sucked into a black chasm. After a few seconds falling through darkness, they fell out, back onto the board. The fall was so hard that it caused ${ currentMinigame.bet } chips to fall out o' their pockets.` );
+										}
+									}
+								}
+								return text;
+							}
+							break;
+
+							case `TOWER`:
+							{
+								return [];
+							}
+							break;
+						}
+					})();
+					return this.addParagraphLists([ start, intro, afterIntro, beforeInstructions, instructions ]);
 				}
 				break;
 
@@ -772,7 +982,7 @@ import { TurnStatus } from './turn-status';
 				area: `into a green meadow covered in butterflies & soft chirps, with a clean dividng line fashioned with a border o' stones o' various shapes & sizes. While Autumn, as usual, ate up everything round her with her attention, Dawn focused mainly on the strange touch screen monitor on a sign post in front o' them with a stylus dangling from a cord`,
 				desc: `Within a minute, count how many moving Rockmen there are, but don’t count the ordinary stones or the Rockmen that dissolve into dust`
 			},
-			"karts":
+			"balls":
 			{
 				name: `Having a Ball on a Roll`,
 				area: `on colored balls with stars on them in a small, circular island covered in short hills & snow surrounded by an ocean o' plastic balls in every color o' the rainbow. Attached to 4 corners o' the island were metal boxes. They — ’specially Edgar — struggled to keep their balance on the balls`,
