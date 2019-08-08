@@ -625,7 +625,7 @@ import { TurnStatus } from './turn-status';
 							break;
 						}
 					})();
-					return this.addParagraphLists([ start, intro, afterIntro, beforeInstructions, instructions ]);
+					return this.addParagraphLists([ start, intro, afterIntro, beforeInstructions, instructions, mainMinigameText ]);
 				}
 				break;
 

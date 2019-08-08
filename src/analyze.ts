@@ -180,7 +180,6 @@ import { Turn } from './turn';
 		minigameInfo: function( game:Game, turnNumber:number ):object
 		{
 			const minigameInfo:MinigameInfo = new MinigameInfo();
-			console.log( minigameInfo );
 			for ( const turn of game.turnList )
 			{
 				if ( turn.number >= turnNumber )

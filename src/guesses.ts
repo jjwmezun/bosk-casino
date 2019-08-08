@@ -2,13 +2,13 @@ export class Guesses
 {
 	readonly correct:number;
 	readonly autumn:number;
-	readonly edgar:number;
 	readonly dawn:number;
-	constructor( correct:number, autumn:number, edgar:number, dawn:number )
+	readonly chosen;
+	constructor( correct:number, autumn:number, dawn:number, chosen )
 	{
 		this.correct = correct;
 		this.autumn = autumn;
-		this.edgar = edgar;
 		this.dawn = dawn;
+		this.chosen = chosen;
 	}
 };

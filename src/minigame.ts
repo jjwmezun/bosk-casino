@@ -1,4 +1,5 @@
 import { BallSurvival } from './ball-survival';
+import { Guesses } from './guesses';
 import { MinigameGame } from './minigame-game';
 import { MinigameStatus } from './minigame-status';
 import { TurnStatus } from './turn-status';
@@ -70,15 +71,56 @@ import { TurnStatus } from './turn-status';
 			tower: ( win:boolean, bet:number ):object => {
 				return {};
 			},
-			count: ( win:boolean, bet:number ):object => {
-				const playersWithCorrectGuesses = ( win ) ?
+			count: ( function()
+			{
+				const testBothWin = () => Bosk.randPercent( 35 );
+				const testBothLose = testBothWin;
+				const testAutumnWins = () => Bosk.randPercent( 60 );
+				const testAutumnLoses = () => !testAutumnWins();
 
-				const correctNumber:number = Bosk.randInt( 48, 24 );
-				const autumnsGuess:number =
-				return {
-					guesses: new Guesses( correctNumber, autumnsGuess, edgarsGuess, dawnsGuess )
-				};
-			}
+				return ( win:boolean, bet:number ):object => {
+					const playersWithCorrectGuesses = ( win )
+					?
+						(
+							( testBothWin() )
+							? { autumn: true, dawn: true }
+							: (
+								( testAutumnWins() )
+								? { autumn: true, dawn: false }
+								: { autumn: false, dawn: true }
+							  )
+						)
+					:
+						(
+							( testBothLose() )
+							? { autumn: false, dawn: false }
+							: (
+								( testAutumnLoses() )
+								? { autumn: false, dawn: true }
+								: { autumn: true, dawn: false }
+							  )
+						);
+
+					const correctNumber:number = Bosk.randInt( 48, 24 );
+					const autumnsGuess:number = ( playersWithCorrectGuesses.autumn ) ? correctNumber : correctNumber + Bosk.randInt( 2, -4, 0 );
+					const dawnsGuess:number = ( playersWithCorrectGuesses.dawn ) ? correctNumber : correctNumber + Bosk.randInt( 4, -2, 0 );
+					const chosenNumber = ( function()
+					{
+						const autumnsChosen = { character: "autumn", number: autumnsGuess };
+						const dawnsChosen = { character: "dawn", number: dawnsGuess }
+						return ( autumnsGuess === dawnsGuess )
+						? { character: "both", number: autumnsGuess }
+						: (
+							( playersWithCorrectGuesses.autumn )
+							? ( win ) ? autumnsChosen : dawnsChosen
+							: ( win ) ? dawnsChosen : autumnsChosen
+						);
+					})();
+					return {
+						guesses: new Guesses( correctNumber, autumnsGuess, dawnsGuess, chosenNumber )
+					};
+				}
+			})()
 		}
 	});
 })();
