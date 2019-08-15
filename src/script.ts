@@ -287,8 +287,8 @@ import { TurnStatus } from './turn-status';
 									`<What no — aaauuugh!>.`,
 									`Before Autumn could continue her question, she felt a thick force propel her into the air, only to so-quickly after feel the long arm o’ gravity pull her back to the ground, onto a pile also made up o’ Edgar & Dawn.`,
 									`Autumn immediately leapt to her feet & looked round herself. It didn’t take long to recognize their new — or rather, rather ol’ — location. She could see by the look on Dawn & Edgar’s faces that they knew, too.`,
-									`<Back luck for us>, Dawn said, still rubbing her side: <that space always takes us back to the start>.`,
-									`<Well, we need to prolong the endearing game as long as we can>, said Autumn.`,
+									`<Bad luck for us>, Dawn said, still rubbing her side: <that space always takes us back to the start>.`,
+									`<Well, we need to prolong such an endearing game as long as we can>, said Autumn.`,
 									`<Ha, ha. That just means we have mo’ opportunities to win mo’ chips before the end>.`
 								],
 								( turn.startingStatus.funds < 0 ) ?
@@ -423,7 +423,7 @@ import { TurnStatus } from './turn-status';
 						]
 					:
 						[
-							`The announcer continued, <The game you’ll be playing tonight is ‘${ this.minigames[ currentMinigame.type ].name }’, &amp; you’ll be betting ${ currentMinigame.bet } chips>.`,
+							`The announcer continued, <The game you’ll be playing tonight is ‘${ this.minigames[ currentMinigame.type ].name }’, & you’ll be betting ${ currentMinigame.bet } chips>.`,
 							`Before Autumn had a chance to reply, the floor opened under them like a maw, dropping them into an abyss.`,
 							`@ the end o’ the tunnel they found themselves falling ${ this.minigames[ currentMinigame.type ].area }.`
 						];
@@ -460,12 +460,12 @@ import { TurnStatus } from './turn-status';
 										break;
 										case ( `tower` ):
 										{
-											return [ `Dawn put her hand on Autumn’s shoulder &amp; said, <C’mon, with your thief skills @ parkour, you’ll be a shoe-in>.` ];
+											return [ `Dawn put her hand on Autumn’s shoulder & said, <C’mon, with your thief skills @ parkour, you’ll be a shoe-in>.` ];
 										}
 										break;
 										case ( `count` ):
 										{
-											return [ `Dawn put her hand on Autumn’s shoulder &amp; said, <C’mon, this is a brainy, math game: you should be great @ this>.` ];
+											return [ `Dawn put her hand on Autumn’s shoulder & said, <C’mon, this is a brainy, math game: you should be great @ this>.` ];
 										}
 										break;
 										default:
@@ -487,7 +487,7 @@ import { TurnStatus } from './turn-status';
 						);
 					const readyToStart:string[] = [
 						`The announcer said, <¿Ready to start?>.`,
-						`Autumn nodded &amp; Dawn said, <Yup>.`
+						`Autumn nodded & Dawn said, <Yup>.`
 					];
 
 					const mainMinigameText:string[] = ( function()
@@ -498,7 +498,7 @@ import { TurnStatus } from './turn-status';
 							{
 								const guesses:Guesses = currentMinigame.misc.guesses;
 								let text:string[] = [
-									`A clock on a wooden stick rose from the bushes right ’cross from them on the other side o’ the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <¡Start!>, &amp; the clock dinging &amp; beginning to tick.`,
+									`A clock on a wooden stick rose from the bushes right ’cross from them on the other side o’ the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <¡Start!>, & the clock dinging & beginning to tick.`,
 									`All 3 immediately leaned forward, an index pointing @ various stones while the other hand ticked finger after finger in count. But before they had a chance to count them all, the Rockmen already began to crumble.`,
 									`<Shit>, mumbled Autumn.`,
 									`<I think I have ${ guesses.dawn }. ¿How ’bout you?>, said Dawn.`
@@ -649,7 +649,7 @@ import { TurnStatus } from './turn-status';
 							case `balls`:
 							{
 								let text = [
-									`A clock on a wooden stick rose from the bushes right ’cross from them on the other side o’ the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <¡Start!>, &amp; the clock dinging &amp; beginning to tick.`,
+									`A clock on a wooden stick rose from the bushes right ’cross from them on the other side o’ the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <¡Start!>, & the clock dinging & beginning to tick.`,
 									`Not a second passed before the corner cannons began blasting out metal balls as big as the ones they stood on, but covered in spikes.`,
 									`Dawn scrambled ’way @ a rapid roll, jerking ’way from spike ball to spike ball while Edgar stood paralyzed like a hare before a truck. Autumn’s eyes moved as quickly as Dawn did, but her movements were rarer & slower.’`
 								];
@@ -663,6 +663,7 @@ import { TurnStatus } from './turn-status';
 										{
 											text.push( `So focused had Autumn been on avoiding stumbling into all these spike balls that she was almost jolted off by the sharp sound o’ the buzzer. She looked up & saw that the timer had reached 0 already. As she did so, she heard the parrot-like voice o’ the announcer squawk, <¡Success!>.` );
 											text.push( `Before anyone could say anything further, a hole opened ’neath all 3 o’ them, causing them to fall into a black chasm. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+											text.push( `<¡Awesome job, guys!>, said Dawn.` );
 										}
 										else
 										{
@@ -675,6 +676,9 @@ import { TurnStatus } from './turn-status';
 											text.push( `Autumn watched them maneuver round the spike balls, with greater fear as she watched Edgar become shakier in his movements, while Dawn, in contrast, became quieter & seemed to practice closer diligence to what she was doing, with a notable sweat drop dripping down the side o’ her face. While she watched this, Autumn’s attention flicked to the clock on the wooden post as it crept toward 0.` );
 											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o’ a buzzer. Autumn noticed Edgar jump when the spike balls round them suddenly puffed ’way. Then the parrot-like voice o’ the announcer squawked, <¡Success!>.` );
 											text.push( `Before anyone could say anything further, a hole opened ’neath Dawn & Edgar, causing them to fall into a black chasm while Autumn was sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+											text.push( `<¡Awesome job, guys!>, said Dawn.` );
+											text.push( `<Well, ’cept for me — I fucked it up>, said Autumn.` );
+											text.push( `Dawn waved this ’way, saying, <That was just bad luck>.` );
 										}
 									}
 									else
@@ -690,6 +694,7 @@ import { TurnStatus } from './turn-status';
 											text.push( `Autumn ignored him & tried to focus 75% o’ her attention on the spike balls round her & the rest on the clock, ticking close to 0.` );
 											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o’ a buzzer. Autumn noticed Edgar jump when the spike balls round them suddenly puffed ’way. Then the parrot-like voice o’ the announcer squawked, <¡Success!>.` );
 											text.push( `Before anyone could say anything further, a hole opened ’neath Autumn & Dawn, causing them to fall into a black chasm while Edgar was sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+											text.push( `<¡Awesome job, guys!>, said Dawn.` );
 										}
 										else
 										{
@@ -701,6 +706,9 @@ import { TurnStatus } from './turn-status';
 											text.push( `They turned their attention to Dawn, still maneuvering round the spike balls with a sweat drop dripping down the side o’ her face. Autumn kept looking up @ the clock on the wooden post, her breathing becoming tighter as she saw it creep toward 0.` );
 											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o’ a buzzer. Autumn noticed Edgar jump when the spike balls round them suddenly puffed ’way. Then the parrot-like voice o’ the announcer squawked, <¡Success!>.` );
 											text.push( `Before anyone could say anything further, a hole opened ’neath Dawn, causing her to fall into a black chasm while Autumn & Edgar were sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+											text.push( `<¡Awesome job, guys!>, said Dawn.` );
+											text.push( `<Cool. We didn’t do shit>, said Autumn.` );
+											text.push( `Dawn waved this ’way, saying, <That was just bad luck>.` );
 										}
 									}
 								}
@@ -723,6 +731,7 @@ import { TurnStatus } from './turn-status';
 											text.push( `<¡Autumn! ¡Watch out for that spike ball on the right! ¡Edgar! ¡’Hind you!>.` );
 											text.push( `Autumn tried to drown out Dawn & focused 75% o’ her attention on the spike balls round her & the rest on the clock, ticking close to 0.` );
 											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o’ a buzzer. Autumn noticed Edgar jump when the spike balls round them suddenly puffed ’way. Then the parrot-like voice o’ the announcer squawked, <¡Success!>.` );
+											text.push( `Before anyone could say anything further, a hole opened ’neath Autumn & Edgar, causing them to fall into a black chasm while Dawn was sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
 										}
 										else
 										{
@@ -734,7 +743,10 @@ import { TurnStatus } from './turn-status';
 											text.push( `Then they watched Edgar wobbly roll out o’ the way o’ spike ball followed by spike ball, during which Dawn began calling out advice till Autumn asked her to stop distracting him.` );
 											text.push( `As Autumn watched Edgar, she kept half her attention to the clock slowly ticking down on the post.` );
 											text.push( `Then the clock hit 0 & a buzzer went off. Edgar jumped as he saw the spike balls round him suddenly puff ’way. Then the parrot-like voice o’ the announcer squawked, <¡Success!>.` );
-											text.push( `Before anyone could say anything further, a hole opened ’neath Autumn & Edgar, causing them to fall into a black chasm while Dawn was sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+											text.push( `Before anyone could say anything further, a hole opened ’neath Edgar, causing him to fall into a black chasm while Autumn & Dawn were sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+											text.push( `<¡Awesome job, guys!>, said Dawn.` );
+											text.push( `<Cool. We didn’t do shit>, said Autumn.` );
+											text.push( `Dawn waved this ’way, saying, <That was just bad luck>.` );
 										}
 									}
 									else
@@ -750,6 +762,8 @@ import { TurnStatus } from './turn-status';
 											text.push( `Autumn tried to drown out Dawn & focused 75% o’ her attention on the spike balls round her & the rest on the clock, ticking close to 0.` );
 											text.push( `& then, gainst her expectations, it struck 0, followed by the sound o’ a buzzer. Autumn noticed Edgar jump when the spike balls round them suddenly puffed ’way. Then the parrot-like voice o’ the announcer squawked, <¡Success!>.` );
 											text.push( `Before anyone could say anything further, a hole opened ’neath Autumn, causing her to fall into a black chasm while Dawn & Edgar were sucked down into the ball pit. After a few seconds falling through darkness, they fell out, back onto the board. Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps.` );
+											text.push( `<¡Awesome job, Autumn!>, said Dawn. <¡I knew we could count on you!>.` );
+											text.push( `Autumn looked ’way without responding.` );
 										}
 										else
 										{
@@ -760,6 +774,8 @@ import { TurnStatus } from './turn-status';
 											text.push( `<Yeah, we’ll say that that’s what happened>, said Autumn.` );
 											text.push( `Then they all heard a horn blast, followed by the parrot-like voice o’ the announcer call out, <¡Failed!>, followed by a jingle o’ pure pity.` );
 											text.push( `Before anyone could say anything further, they began to feel a pulling force under them, & then found themselves sucked into a black chasm. After a few seconds falling through darkness, they fell out, back onto the board. The fall was so hard that it caused ${ currentMinigame.bet } chips to fall out o’ their pockets.` );
+											text.push( `<Well, that sucked, like always>, said Autumn.` );
+											text.push( `Rubbing her side as she stood back up, Dawn replied, <That was just bad luck. We’ll win it next time>.` );
 										}
 									}
 								}
@@ -1071,7 +1087,7 @@ import { TurnStatus } from './turn-status';
 					`Autumn shrugged. <You’re the one experienced in this game, so you would know best, save for maybe the roll o’ a die>.`,
 					`<OK, let me think…>. Dawn rubbed her mouth. Then she turned to Edgar & put a hand on his shoulder. <Edgar, ¿why don’t you lead for once?>.`,
 					`<Uh, ¿are you sure?>, Edgar asked, wringing his hands together.`,
-					`<’Course I do>.`,
+					`<’Course I’m sure>.`,
 					`<Well, OK>. Edgar took the die from Dawn & began rolling it. He took a deep breath, & then finally released the die to the ground as if pushing it ’way. They all looked down @ it, Edgar & Dawn bending close to it to get a closer look while Autumn only budged her pupils.`
 				],
 				Dawn:

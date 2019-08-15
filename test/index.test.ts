@@ -9,6 +9,7 @@ import { TurnStatus } from '../src/turn-status';
 import { ChanceDeck } from '../src/chance-deck';
 import { MinigameStatus } from '../src/minigame-status';
 
+/*
 test
 (
     'run returns string',
@@ -22,7 +23,8 @@ test
 		expect( text ).not.toEqual( [''] );
     }
 );
-/*
+*/
+
 test
 (
     `script for every chance card & only for chance cards`,
@@ -47,4 +49,3 @@ test
 		console.log( text );
     }
 );
-*/
