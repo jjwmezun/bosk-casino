@@ -890,8 +890,47 @@ import { TurnStatus } from './turn-status';
 
 				case ( `secondForkCharactersChoose` ):
 				{
-					return [
+					const currentPlayerNumber:number = analyze.getTurnPlayer( game, turn );
+					const currentPlayer:string = config.players[ currentPlayerNumber ];
+					let text:string[] = [
+						`Then they found themselves faced with ’nother forking path, but this time without any closed doors to block them.`,
+						`<¿How will they fuck us now?>, asked Autumn.`
 					];
+					text = this.addParagraphs(
+						text,
+						( function() {
+							switch ( currentPlayer )
+							{
+								case ( `Autumn` ):
+								{
+									return [
+										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Autumn, you ought to choose for us>.`
+									];
+								}
+								break;
+								case ( `Edgar` ):
+								{
+									return [
+										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Edgar, you should pick a path for us>.`
+									];
+								}
+								break;
+								case ( `Dawn` ):
+								{
+									return [
+										`<I think this time we need to pick a path to go down>, said Dawn.`,
+										`<It’s your turn, so you pick>, said Autumn.`
+									];
+								}
+								break;
+								default:
+								{
+									throw `Invalid character given in pass “secondForkCharactersChoose”: ${ currentPlayer }`;
+								}
+								break;
+							}
+						})()
+					)
 				}
 				break;
 

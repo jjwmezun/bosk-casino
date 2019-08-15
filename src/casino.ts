@@ -16,14 +16,16 @@ import { ChanceDeck } from './chance-deck';
 		spaces: require( `./spaces.ts` )( config ),
 		run: function():Game
 		{
-			return new Game( this.getRandomPlayerOrder(), this.getTurnsList() );
+			const playerOrder:number[] = this.getRandomPlayerOrder();
+			return new Game( playerOrder, this.getTurnsList( playerOrder ) );
 		},
-		getTurnsList: function():Array<Turn>
+		getTurnsList: function( playerOrder:number[] ):Array<Turn>
 		{
 			const turns:Array<Turn> = [ this.createFirstTurn() ];
 			while( !turns[ turns.length - 1 ].finished )
 			{
-				turns.push( this.getNextTurn( turns ) );
+				const game:Game = new Game( playerOrder, turns );
+				turns.push( this.getNextTurn( turns, game ) );
 			}
 			return turns;
 		},
@@ -54,7 +56,7 @@ import { ChanceDeck } from './chance-deck';
 				new TurnStatus( "land", null, config.startingFunds, config.importantSpaces.start, initialDeck )
 			));
 		},
-		getNextTurn: function( turns:Array<Turn> ):Turn
+		getNextTurn: function( turns:Array<Turn>, game:Game ):Turn
 		{
 			const previousTurn:Turn = Bosk.getEndOfList( turns );
 			const ranOutOfTurns:boolean = ( previousTurn.number >= this.config.maxTurns );
@@ -78,7 +80,7 @@ import { ChanceDeck } from './chance-deck';
 				for ( let i = 0; i < roll; i++ )
 				{
 					const lastStatus:TurnStatus = ( list.length === 0 ) ? startingStatus : list[ list.length - 1 ];
-					list.push( this.runPass( currentTurn, lastStatus ) );
+					list.push( this.runPass( currentTurn, lastStatus, game ) );
 					if ( list[ list.length - 1 ].reachedEnd )
 					{
 						break;
@@ -89,7 +91,7 @@ import { ChanceDeck } from './chance-deck';
 			const reachedEnd:boolean = !ranOutOfTurns && passes[ passes.length - 1 ].reachedEnd;
 			const finished:boolean = ranOutOfTurns || reachedEnd;
 			const lastStatus:TurnStatus = ( passes.length > 0 ) ? passes[ passes.length - 1 ] : startingStatus;
-			const land:TurnStatus = this.runLand( currentTurn, lastStatus );
+			const land:TurnStatus = this.runLand( currentTurn, lastStatus, game );
 
 			return Object.freeze( new Turn
 			(
@@ -102,7 +104,7 @@ import { ChanceDeck } from './chance-deck';
 				land
 			));
 		},
-		runPass: function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+		runPass: function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 		{
 			const currentSpace:number = lastStatus.currentSpace + 1;
 			const reachedEnd:boolean = currentSpace >= this.board.length;
@@ -115,9 +117,9 @@ import { ChanceDeck } from './chance-deck';
 				lastStatus.chanceDeck,
 				reachedEnd
 			));
-			return this.applyAction( "pass", currentTurn, finalStatus );
+			return this.applyAction( "pass", currentTurn, finalStatus, game );
 		},
-		runLand: function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+		runLand: function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 		{
 			const action:string = ( lastStatus.currentSpace < this.board.length ) ? this.board[ lastStatus.currentSpace ].land : null;
 			const finalStatus:TurnStatus = Object.freeze( new TurnStatus(
@@ -130,13 +132,13 @@ import { ChanceDeck } from './chance-deck';
 			));
 			return ( finalStatus.action === null )
 				? this.spaces.land.final( currentTurn, finalStatus )
-				: this.applyAction( "land", currentTurn, finalStatus );
+				: this.applyAction( "land", currentTurn, finalStatus, game );
 		},
-		applyAction: function( type:string, currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+		applyAction: function( type:string, currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 		{
 			return ( lastStatus.action === null )
 				? lastStatus
-				: this.spaces[ type ][ lastStatus.action ]( currentTurn, lastStatus );
+				: this.spaces[ type ][ lastStatus.action ]( currentTurn, lastStatus, game );
 		},
 		rollDie: function():number
 		{
