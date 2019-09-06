@@ -1,7 +1,14 @@
+const Analyze = require( `./analyze.ts` );
 const Bosk = require( './bosk.js' );
 import { Game } from './game';
 import { Turn } from './turn';
 import { TurnStatus } from './turn-status';
+
+
+const testCharacterChooseBranch = function( game:Game, currentTurn:Turn ):boolean {
+	const currentPlayer:number = Analyze.getTurnPlayer( game, currentTurn );
+	return Bosk.randBoolean();
+};
 
 module.exports = function( config )
 {
@@ -73,12 +80,12 @@ module.exports = function( config )
 			{
 				return action.changeCurrentSpace( lastStatus, config.importantSpaces.start );
 			},
-			"secondForkCharactersChoose": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"secondForkCharactersChoose": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
 				return action.changeCurrentSpace
 				(
 					lastStatus,
-					( Bosk.randBoolean() ) ? config.importantSpaces.secondBranch.leftPathStart : config.importantSpaces.secondBranch.rightPathStart
+					( testCharacterChooseBranch( game, currentTurn ) ) ? config.importantSpaces.secondBranch.leftPathStart : config.importantSpaces.secondBranch.rightPathStart
 				);
 			},
 			"secondBranchPathsMeet": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
