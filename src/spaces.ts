@@ -1,21 +1,22 @@
-const Analyze = require( `./analyze.ts` );
-const Bosk = require( './bosk.js' );
 import { Game } from './game';
 import { Turn } from './turn';
 import { TurnStatus } from './turn-status';
 
 
-const testCharacterChooseBranch = function( game:Game, currentTurn:Turn ):boolean {
-	const currentPlayer:number = Analyze.getTurnPlayer( game, currentTurn );
-	return Bosk.randBoolean();
-};
+
 
 module.exports = function( config )
 {
+	const Bosk = require( './bosk.js' );
 	const chance = require( './chance.ts' );
 	const minigame = require( './minigame.ts' );
 	const analyze = require( `./analyze.ts` );
 	const action = require( './action.ts' );
+
+	const testCharacterChooseBranch = function( game:Game, currentTurn:Turn ):boolean {
+		const currentPlayer:number = analyze.getTurnPlayer( game, currentTurn );
+		return Bosk.randBoolean();
+	};
 
 	return Object.freeze
 	({

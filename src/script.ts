@@ -337,6 +337,8 @@ import { Text } from './text';
 
 				case ( `goPastCycle` ):
 				{
+					const timesGotten:number = analyze.timesLandOTypes( game, turn.number, [ `goPastCycle` ] );
+					throw timesGotten;
 					return [
 						`Then they landed on a yellow space with an “!” etched on it, which, ’pon being stepped on, caused a escalator to fade into view under & next to them. Before they could act, the elevator’s steps began pulling them upward.`,
 						`Gripping the edge tightly & looking up & down, but not daring to try leaping off, Autumn said, <¿How’s this going to fuck us now?>.`,
@@ -887,6 +889,7 @@ import { Text } from './text';
 
 				case ( `secondForkCharactersChoose` ):
 				{
+					throw "FORK";
 					const currentPlayerNumber:number = analyze.getTurnPlayer( game, turn );
 					const currentPlayer:string = config.players[ currentPlayerNumber ];
 					let text:string[] = [
