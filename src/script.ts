@@ -337,9 +337,12 @@ import { Text } from './text';
 
 				case ( `goPastCycle` ):
 				{
-					const timesGotten:number = analyze.timesLandOTypes( game, turn.number, [ `goPastCycle` ] );
-					throw timesGotten;
-					return [
+					const timesGottenBefore:number = analyze.timesLandOTypes( game, turn.number, [ `goPastCycle` ] );
+					return ( timesGottenBefore > 0 ) ?
+				    [
+						`Then they landed on the yellow space with the “!” etched on it, which caused the elevator to appear round them ’gain, pulling them up out o’ their circular trap.`
+				    ] :
+					[
 						`Then they landed on a yellow space with an “!” etched on it, which, ’pon being stepped on, caused a escalator to fade into view under & next to them. Before they could act, the elevator’s steps began pulling them upward.`,
 						`Gripping the edge tightly & looking up & down, but not daring to try leaping off, Autumn said, <¿How’s this going to fuck us now?>.`,
 						`Dawn, who stood relaxed, said, <No, this is good: it means we can leave this circle we’re stuck in>.`
@@ -366,7 +369,7 @@ import { Text } from './text';
 
 				case ( `minigame` ):
 				{
-					const currentMinigame:MinigameStatus = turn.land.minigameStatus;
+					const currentMinigame:MinigameStatus = turn.land.extra;
 					const minigameInfo:MinigameInfo = analyze.minigameInfo( game, turn.number );
 					const isFirstMinigame:boolean = minigameInfo.getStatuses().length < 1;
 					const lastMinigame:MinigameStatus = ( isFirstMinigame ) ? null : minigameInfo.getStatuses()[ minigameInfo.getStatuses().length - 1 ];
@@ -891,6 +894,11 @@ import { Text } from './text';
 				{
 					const currentPlayerNumber:number = analyze.getTurnPlayer( game, turn );
 					const currentPlayer:string = config.players[ currentPlayerNumber ];
+					const secondForkBranchData:Array<object> = analyze.getSecondForkBranchData( game, turn.number );
+					const currentBranch:object = secondForkBranchData[ secondForkBranchData.length - 1 ];
+					const currentPath:boolean = currentBranch[ 'path' ];
+					const direction:string = ( currentPath ) ? `left` : `right`;
+					console.log( secondForkBranchData );
 					let text:string[] = [
 						`Then they found themselves faced with ’nother forking path, but this time without any closed doors to block them.`,
 						`<¿How will they fuck us now?>, asked Autumn.`
@@ -903,14 +911,29 @@ import { Text } from './text';
 								case ( `Autumn` ):
 								{
 									return [
-										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Autumn, you ought to choose for us>.`
+										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Autumn, you ought to choose for us>.`,
+										`<You’re the one who knows this place — you should know which path is worse>, said Autumn.`,
+										`<Nope: they randomize all that ’tween every play session. It’d get boring after a while if they didn’t>.`,
+										`<As opposed to now, which is a rollercoaster>, said Autumn. She rifled through her pocket & pulled out a coin. <We’ll let capitalist fate decide>.`,
+										`She flipped the coin, caught it, & slapped it on her other arm. She pulled her hand ’way to reveal the coin ${ ( currentPath ) ? `heads-up` : `heads-down`; }`,
+										`<Let’s go ${ direction } then>, said Autumn.`,
+										`Dawn shrugged. <Sounds good>. & they did just that.`
 									];
 								}
 								break;
 								case ( `Edgar` ):
 								{
 									return [
-										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Edgar, you should pick a path for us>.`
+										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Edgar, you should pick a path for us>.`,
+										`Edgar began rubbing his arms together. <I wouldn’t e’en know where to start…>.`,
+										`<Don’t worry — there are no wrong answers>, said Dawn.`,
+										`To this, Autumn had to interject: <I’m quite sure the whole point o’ these games is that some answers are definitely inferior to others — which is good, since choices with no consequences are, well, o’ no consequences>.`,
+										`<¿Are you trying to tell us that you’re bursting to choose?>, asked Dawn.`,
+										`<I’d just flip a coin>, said Autumn.`,
+										`Finally, Edgar said, <I guess I’ll just pick ${ direction }>.`,
+										`<Awesome>, said Dawn.`,
+										`Autumn nodded. <I agree with Edgar that that is a choice not worth squandering much time on>.`,
+										`& so, without any further words, they went down the ${ direction } path.`
 									];
 								}
 								break;
@@ -918,7 +941,8 @@ import { Text } from './text';
 								{
 									return [
 										`<I think this time we need to pick a path to go down>, said Dawn.`,
-										`<It’s your turn, so you pick>, said Autumn.`
+										`<It’s your turn, so you pick>, said Autumn.`,
+										`<Great>. Dawn clapped her hands together. `
 									];
 								}
 								break;
@@ -930,6 +954,7 @@ import { Text } from './text';
 							}
 						})()
 					)
+					return text;
 				}
 				break;
 

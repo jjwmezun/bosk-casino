@@ -190,7 +190,7 @@ import { Turn } from './turn';
 				{
 					if ( turn.land.action === "minigame" )
 					{
-						minigameInfo.addMinigame( turn.land.minigameStatus );
+						minigameInfo.addMinigame( turn.land.extra );
 					}
 				}
 			}
@@ -199,6 +199,33 @@ import { Turn } from './turn';
 		hasPlayedMinigameBefore: function( minigameInfo:MinigameInfo, type:string ):boolean
 		{
 			return minigameInfo.getNumber( type ) > 0;
+		},
+		getSecondForkBranchData: function( game:Game, currentTurn:number ):Array<object>
+		{
+			const list:Array<object> = [];
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number > currentTurn )
+				{
+					break;
+				}
+
+				for ( const pass of turn.passes )
+				{
+					if ( pass.action === `secondForkCharactersChoose` )
+					{
+						list.push({
+							player: pass.extra[ 'player' ],
+							path: pass.extra[ 'path' ]
+						});
+					}
+				}
+			}
+			if ( list.length === 0 )
+			{
+				throw "getSecondForkBranchData should ne’er have no data.";
+			}
+			return list;
 		}
 	});
 })();

@@ -13,9 +13,19 @@ module.exports = function( config )
 	const analyze = require( `./analyze.ts` );
 	const action = require( './action.ts' );
 
-	const testCharacterChooseBranch = function( game:Game, currentTurn:Turn ):boolean {
+	const testCharacterChooseBranch = function( game:Game, currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus {
 		const currentPlayer:number = analyze.getTurnPlayer( game, currentTurn );
-		return Bosk.randBoolean();
+		const path:boolean = Bosk.randBoolean();
+		return Object.freeze( new TurnStatus
+    	(
+    		lastStatus.type,
+    		lastStatus.action,
+    		lastStatus.funds,
+    		( path ) ? config.importantSpaces.secondBranch.leftPathStart : config.importantSpaces.secondBranch.rightPathStart,
+    		lastStatus.chanceDeck,
+    		lastStatus.reachedEnd,
+			{ player: currentPlayer, path: path }
+    	));
 	};
 
 	return Object.freeze
@@ -73,11 +83,7 @@ module.exports = function( config )
 			},
 			"secondForkCharactersChoose": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
-				return action.changeCurrentSpace
-				(
-					lastStatus,
-					( testCharacterChooseBranch( game, currentTurn ) ) ? config.importantSpaces.secondBranch.leftPathStart : config.importantSpaces.secondBranch.rightPathStart
-				);
+				return testCharacterChooseBranch( game, currentTurn, lastStatus );
 			},
 			"secondBranchPathsMeet": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
 			{
