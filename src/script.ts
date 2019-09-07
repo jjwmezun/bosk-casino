@@ -889,7 +889,6 @@ import { Text } from './text';
 
 				case ( `secondForkCharactersChoose` ):
 				{
-					throw "FORK";
 					const currentPlayerNumber:number = analyze.getTurnPlayer( game, turn );
 					const currentPlayer:string = config.players[ currentPlayerNumber ];
 					let text:string[] = [

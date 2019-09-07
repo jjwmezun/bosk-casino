@@ -64,17 +64,7 @@ module.exports = function( config )
 				return action.changeCurrentSpace
 				(
 					lastStatus,
-					( function() {
-						const isFirstPass:boolean = analyze.timesPassOTypes( game, currentTurn.number, [ `firstForkOddOrEven` ] );
-						if ( isFirstPass ) {
-							return Bosk.randBoolean();
-						}
-						else {
-							const forkValues:object = analyze.forkValues( game, currentTurn.number, `firstForkOddOrEven` );
-							console.log( forkValues );
-							return true;
-						}
-					}) ? config.importantSpaces.firstBranch.bottomPathStart : config.importantSpaces.firstBranch.topPathStart
+					( currentTurn.number % 2 === 0 ) ? config.importantSpaces.firstBranch.bottomPathStart : config.importantSpaces.firstBranch.topPathStart
 				);
 			},
 			"toStart": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus

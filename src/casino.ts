@@ -108,7 +108,7 @@ import { ChanceDeck } from './chance-deck';
 		{
 			const currentSpace:number = lastStatus.currentSpace + 1;
 			const reachedEnd:boolean = currentSpace >= this.board.length;
-			const action:string = ( !reachedEnd ) ? this.board[ lastStatus.currentSpace ].pass : null;
+			const action:string = ( !reachedEnd ) ? this.board[ currentSpace ].pass : null;
 			const finalStatus:TurnStatus = Object.freeze( new TurnStatus(
 				"pass",
 				action,
