@@ -36,6 +36,7 @@ import { Turn } from './turn';
 				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
 			);
 		},
+		noPassOTypesYet: ( game:Game, turnNumber:number, types:string[] ):boolean => this.timesPassOTypes( game, turnNumber, types ) === 0,
 		timesPassOTypes: function( game:Game, turnNumber:number, types:string[] ):number
 		{
 			return this.numberOPassesWithConditions
@@ -226,6 +227,15 @@ import { Turn } from './turn';
 				throw "getSecondForkBranchData should ne’er have no data.";
 			}
 			return list;
+		},
+		hasTakenLeftPathOnSecondBranch: function( data:Array<object> ):boolean
+		{
+			for ( const item of data ) {
+				if ( data[ 'path' ] ) {
+					return true;
+				}
+			}
+			return false;
 		}
 	});
 })();

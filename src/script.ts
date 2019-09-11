@@ -898,63 +898,122 @@ import { Text } from './text';
 					const currentBranch:object = secondForkBranchData[ secondForkBranchData.length - 1 ];
 					const currentPath:boolean = currentBranch[ 'path' ];
 					const direction:string = ( currentPath ) ? `left` : `right`;
-					console.log( secondForkBranchData );
-					let text:string[] = [
-						`Then they found themselves faced with ’nother forking path, but this time without any closed doors to block them.`,
-						`<¿How will they fuck us now?>, asked Autumn.`
-					];
-					text = this.addParagraphs(
-						text,
-						( function() {
-							switch ( currentPlayer )
+					const isFirstTime:boolean = secondForkBranchData.length === 1;
+					const text = new Text();
+
+					if ( isFirstTime )
+					{
+						const firstOAnyBranch:boolean = !analyze.noPassOTypesYet([ `firstForkOddOrEven`, `thirdForkRandom` ]);
+						if ( !firstOAnyBranch )
+						{
+							text.addList([
+								`Then they found themselves faced with ’nother forking path, but this time without any closed doors to block them.`,
+								`<¿How will they fuck us now?>, asked Autumn.`
+							]);
+						}
+						else
+						{
+							text.addList([
+								`Then they found themselves faced with a forking path.`,
+								`<¿How will they fuck us now?>, asked Autumn.`
+							]);
+						}
+						text.addList(
+							( function() {
+								switch ( currentPlayer )
+								{
+									case ( `Autumn` ):
+									{
+										return [
+											`<I think ${ ( function() { ( firstOAnyBranch ) ? `now` : `this time`; } ) } we have to pick a path to go down>, said Dawn. <Since it’s your turn, Autumn, you ought to choose for us>.`,
+											`<You’re the one who knows this place — you should know which path is worse>, said Autumn.`,
+											`<Nope: they randomize all that ’tween every play session. It’d get boring after a while if they didn’t>.`,
+											`<As opposed to now, which is a rollercoaster>, said Autumn. She rifled through her pocket & pulled out a coin. <We’ll let capitalist fate decide>.`,
+											`She flipped the coin, caught it, & slapped it on her other arm. She pulled her hand ’way to reveal the coin ${ ( function(){ ( currentPath ) ? `heads-up` : `heads-down`; })() }`,
+											`<Let’s go ${ direction } then>, said Autumn.`,
+											`Dawn shrugged. <Sounds good>. & they did just that.`
+										];
+									}
+									break;
+									case ( `Edgar` ):
+									{
+										return [
+											`<I think ${ ( function() { ( firstOAnyBranch ) ? `now` : `this time`; } ) } we need to pick a path to go down>, said Dawn. <Since it’s your turn, Edgar, you should pick a path for us>.`,
+											`Edgar began rubbing his arms together. <I wouldn’t e’en know where to start…>.`,
+											`<Don’t worry — there are no wrong answers>, said Dawn.`,
+											`To this, Autumn had to interject: <I’m quite sure the whole point o’ these games is that some answers are definitely inferior to others — which is good, since choices with no consequences are, well, o’ no consequences>.`,
+											`<¿Are you trying to tell us that you’re bursting to choose?>, asked Dawn.`,
+											`<I’d just flip a coin>, said Autumn.`,
+											`Finally, Edgar said, <I guess I’ll just pick ${ direction }>.`,
+											`<Awesome>, said Dawn.`,
+											`Autumn nodded. <I agree with Edgar that that is a choice not worth squandering much time on>.`,
+											`& so, without any further words, they went down the ${ direction } path.`
+										];
+									}
+									break;
+									case ( `Dawn` ):
+									{
+										return [
+											`<I think ${ ( function() { ( firstOAnyBranch ) ? `now` : `this time`; } ) } we need to pick a path to go down>, said Dawn.`,
+											`<It’s your turn, so you pick>, said Autumn.`,
+											`<Great>. Dawn clapped her hands together. Then she stood there staring up @ the ceiling for a second, eyes fixed as if in a trance.`,
+											`<Since you’ve played this game before, you should know which path leads where>, said Autumn.`,
+											`<’Fraid not>, Dawn said without moving her gaze. <They randomize all that ’tween every play session. It’d get boring after a while if they didn’t>.`,
+											`<¿Then dare I ask why — ?>.`,
+											`<I got it>. Dawn looked back @ Autumn. <We should go ${ direction }>.`,
+											`< — No, thank you for cutting that short. I’d rather not know what you were doing there>, continued Autumn.`,
+											`<¿Want to know my intricate algorithm — ?>.`,
+											`<No, I’m good>, Autumn said as she began walking toward the ${ direction } path. <Let’s just mosey on>.`
+										];
+									}
+									break;
+									default:
+									{
+										throw `Invalid character given in pass “secondForkCharactersChoose”: ${ currentPlayer }`;
+									}
+									break;
+								}
+							})()
+						);
+					}
+					else
+					{
+						switch ( currentPlayer )
+						{
+							case ( `Autumn` ):
 							{
-								case ( `Autumn` ):
+								const isSecondPass:boolean = secondForkBranchData.length === 2;
+								text.add( `As they went, they found themselves faced with the fork with both paths open for them to choose to take ${ ( function() { ( isSecondPass ) ? `’gain` : `yet ’gain`; })() }.` );
+								const hasGottenFuckedByLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true ) && analyze.timesLandOTypes( game, turn.number, `warpToStart` ) > 0;
+								const hasGottenFuckedByRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false ) && analyze.timesPassOTypes( game, turn.number, `secondBranchPathStart` ) > 0;
+								if ( hasGottenFuckedByLeftPath && hasGottenFuckedByRightPath )
 								{
-									return [
-										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Autumn, you ought to choose for us>.`,
-										`<You’re the one who knows this place — you should know which path is worse>, said Autumn.`,
-										`<Nope: they randomize all that ’tween every play session. It’d get boring after a while if they didn’t>.`,
-										`<As opposed to now, which is a rollercoaster>, said Autumn. She rifled through her pocket & pulled out a coin. <We’ll let capitalist fate decide>.`,
-										`She flipped the coin, caught it, & slapped it on her other arm. She pulled her hand ’way to reveal the coin ${ ( currentPath ) ? `heads-up` : `heads-down`; }`,
-										`<Let’s go ${ direction } then>, said Autumn.`,
-										`Dawn shrugged. <Sounds good>. & they did just that.`
-									];
+									text.addList([
+										`<Great. Can’t wait till we get fucked [i]yet ’gain[/i]>, said Autumn.`,
+										`<It’s your turn, so your turn to choose>, said Dawn.`,
+										`<Both paths are excellent choices for reaming us, so I’ll just flip a coin>.`,
+										`Autumn pulled her coin out o’ her pocket & flipped, snatched it, & slapped it onto her arm. ’Pon pulling her hand ’way she revealed it to be ${ ( function(){ ( currentPath ) ? `heads-up` : `heads-down`; })() }.`,
+										`<${ this.capitalize( direction ) } it is>, Autumn said as she started walking toward that path. <Can’t wait to ${ ( function(){ ( currentPath ) ? `get sent back to the start ’gain` : `go in mo’ time-wasting circles`; })() }>.`
+									]);
 								}
-								break;
-								case ( `Edgar` ):
-								{
-									return [
-										`<I think this time we need to pick a path to go down>, said Dawn. <Since it’s your turn, Edgar, you should pick a path for us>.`,
-										`Edgar began rubbing his arms together. <I wouldn’t e’en know where to start…>.`,
-										`<Don’t worry — there are no wrong answers>, said Dawn.`,
-										`To this, Autumn had to interject: <I’m quite sure the whole point o’ these games is that some answers are definitely inferior to others — which is good, since choices with no consequences are, well, o’ no consequences>.`,
-										`<¿Are you trying to tell us that you’re bursting to choose?>, asked Dawn.`,
-										`<I’d just flip a coin>, said Autumn.`,
-										`Finally, Edgar said, <I guess I’ll just pick ${ direction }>.`,
-										`<Awesome>, said Dawn.`,
-										`Autumn nodded. <I agree with Edgar that that is a choice not worth squandering much time on>.`,
-										`& so, without any further words, they went down the ${ direction } path.`
-									];
-								}
-								break;
-								case ( `Dawn` ):
-								{
-									return [
-										`<I think this time we need to pick a path to go down>, said Dawn.`,
-										`<It’s your turn, so you pick>, said Autumn.`,
-										`<Great>. Dawn clapped her hands together. `
-									];
-								}
-								break;
-								default:
-								{
-									throw `Invalid character given in pass “secondForkCharactersChoose”: ${ currentPlayer }`;
-								}
-								break;
 							}
-						})()
-					)
-					return text;
+							break;
+							case ( `Edgar` ):
+							{
+							}
+							break;
+							case ( `Dawn` ):
+							{
+							}
+							break;
+							default:
+							{
+								throw `Invalid character given in pass “secondForkCharactersChoose”: ${ currentPlayer }`;
+							}
+							break;
+						}
+					}
+					return text.get();
 				}
 				break;
 
@@ -1181,6 +1240,7 @@ import { Text } from './text';
 				default   : { return `${ number }th`; } break;
 			}
 		},
+		capitalize: ( text:string ):string => text.charAt( 0 ).toUpperCase() + text.slice( 1 );
 		chanceCardText: Object.freeze
 		({
 			"lose-money1": `Get tricked into joining a religious cult scam. Pay 20 chips`,

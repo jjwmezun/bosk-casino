@@ -2,7 +2,7 @@ export class Text
 {
 	text:Array<string>;
 
-	constructor( text:any )
+	constructor( text:any = '' )
 	{
 		if ( typeof text === 'string' )
 		{
