@@ -898,6 +898,7 @@ import { Text } from './text';
 					const currentBranch:object = secondForkBranchData[ secondForkBranchData.length - 1 ];
 					const currentPath:boolean = currentBranch[ 'path' ];
 					const direction:string = ( currentPath ) ? `left` : `right`;
+					const otherDirection:string = ( currentPath ) ? `right` : `left`;
 					const isFirstTime:boolean = secondForkBranchData.length === 1;
 					const text = new Text();
 
@@ -978,23 +979,56 @@ import { Text } from './text';
 					}
 					else
 					{
+						text.add( `As they went, they found themselves faced with the fork with both paths open for them to choose to take ${ ( function() { ( isSecondPass ) ? `’gain` : `yet ’gain`; })() }.` );
 						switch ( currentPlayer )
 						{
 							case ( `Autumn` ):
 							{
 								const isSecondPass:boolean = secondForkBranchData.length === 2;
-								text.add( `As they went, they found themselves faced with the fork with both paths open for them to choose to take ${ ( function() { ( isSecondPass ) ? `’gain` : `yet ’gain`; })() }.` );
-								const hasGottenFuckedByLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true ) && analyze.timesLandOTypes( game, turn.number, `warpToStart` ) > 0;
-								const hasGottenFuckedByRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false ) && analyze.timesPassOTypes( game, turn.number, `secondBranchPathStart` ) > 0;
+								const hasTakenLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true );
+								const hasTakenRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false )
+								const hasGottenFuckedByLeftPath:boolean = hasTakenLeftPath && analyze.timesLandOTypes( game, turn.number, `warpToStart` ) > 0;
+								const hasGottenFuckedByRightPath:boolean = hasTakenRightPath && analyze.timesPassOTypes( game, turn.number, `secondBranchPathStart` ) > 0;
+								const autumnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, Config.playerNumberFromName( `Autumn` ) );
 								if ( hasGottenFuckedByLeftPath && hasGottenFuckedByRightPath )
 								{
 									text.addList([
 										`<Great. Can’t wait till we get fucked [i]yet ’gain[/i]>, said Autumn.`,
-										`<It’s your turn, so your turn to choose>, said Dawn.`,
+										`<It’s your turn, so your turn to choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Dawn.`,
 										`<Both paths are excellent choices for reaming us, so I’ll just flip a coin>.`,
 										`Autumn pulled her coin out o’ her pocket & flipped, snatched it, & slapped it onto her arm. ’Pon pulling her hand ’way she revealed it to be ${ ( function(){ ( currentPath ) ? `heads-up` : `heads-down`; })() }.`,
 										`<${ this.capitalize( direction ) } it is>, Autumn said as she started walking toward that path. <Can’t wait to ${ ( function(){ ( currentPath ) ? `get sent back to the start ’gain` : `go in mo’ time-wasting circles`; })() }>.`
 									]);
+								}
+								else if ( hasGottenFuckedByLeftPath || hasGottenFuckedByRightPath )
+								{
+									text.addList([
+										`<Great. can’t wait till we get fucked ’gain>.`,
+										`<It’s your turn, so your turn to choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Dawn.`,
+										`<Well, certainly not the ${ direction } path>.`,
+										`Dawn laughed. <${ this.capitalize( otherDirection ) } it is, I guess>.`
+									]);
+								}
+								else
+								{
+									const gottenBothPathsBefore:boolean = analyze.secondBranchHasGottenBothPaths( secondForkBranchData );
+									if ( gottenBothPathsBefore )
+									{
+										text.addList([
+											`<Well, it’s your turn, Autumn, so it’s your turn to choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Dawn.`,
+											`<Well, nothing bad to us happened on either path — a’least not by the paths themselves>, said Autumn. She shrugged. <The left path seemed shorter, so let’s go with that>.`,
+											``
+										]);
+									}
+									else
+									{
+										text.addList([
+											`<Well, it’s your turn, Autumn, so it’s your turn to choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Dawn.`,
+											`<Since nothing bad happened from the path we took last time, — a’least nothing that was that path’s fault — it’d be wisest to take that path ’gain. Better to stick with known success than risk failure>.`,
+											`<Whatever you say>, Dawn said cheerfully.`,
+											`& so they went down the ${ direction } path ’gain.`
+										]);
+									}
 								}
 							}
 							break;

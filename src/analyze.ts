@@ -236,6 +236,29 @@ import { Turn } from './turn';
 				}
 			}
 			return false;
+		},
+		characterHasGottenSecondBranch: function( data:Array<object>, playerNumber:number ):boolean
+		{
+			for ( const item in data ) {
+				if ( item[ 'player' ] === playerNumber ) {
+					return true;
+				}
+			}
+			return false;
+		},
+		secondBranchHasGottenBothPaths: function( data:Array<object> ):boolean
+		{
+			let gottenLeft:boolean = false;
+			let gottenRight:boolean = false;
+			for ( const item in data ) {
+				if ( item[ 'path' ] ) {
+					gottenLeft = true;
+				}
+				else {
+					gottenRight = true;
+				}
+			}
+			return gottenLeft && gottenRight;
 		}
 	});
 })();
