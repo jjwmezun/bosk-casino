@@ -895,6 +895,10 @@ import { Text } from './text';
 					const currentPlayerNumber:number = analyze.getTurnPlayer( game, turn );
 					const currentPlayer:string = config.players[ currentPlayerNumber ];
 					const secondForkBranchData:Array<object> = analyze.getSecondForkBranchData( game, turn.number );
+					if ( secondForkBranchData.length === 0 )
+					{
+						throw "getSecondForkBranchData should ne’er have no data.";
+					}
 					const currentBranch:object = secondForkBranchData[ secondForkBranchData.length - 1 ];
 					const currentPath:boolean = currentBranch[ 'path' ];
 					const direction:string = ( currentPath ) ? `left` : `right`;
@@ -904,7 +908,7 @@ import { Text } from './text';
 
 					if ( isFirstTime )
 					{
-						const firstOAnyBranch:boolean = !analyze.noPassOTypesYet([ `firstForkOddOrEven`, `thirdForkRandom` ]);
+						const firstOAnyBranch:boolean = analyze.noPassOTypesYet( game, turn.number, [ `firstForkOddOrEven`, `secondForkCharactersChoose`, `thirdForkRandom` ]);
 						if ( !firstOAnyBranch )
 						{
 							text.addList([
@@ -926,11 +930,11 @@ import { Text } from './text';
 									case ( `Autumn` ):
 									{
 										return [
-											`<I think ${ ( function() { ( firstOAnyBranch ) ? `now` : `this time`; } ) } we have to pick a path to go down>, said Dawn. <Since it’s your turn, Autumn, you ought to choose for us>.`,
+											`<I think ${ ( function() { return ( firstOAnyBranch ) ? `now` : `this time`; } )() } we have to pick a path to go down>, said Dawn. <Since it’s your turn, Autumn, you ought to choose for us>.`,
 											`<You’re the one who knows this place — you should know which path is worse>, said Autumn.`,
 											`<Nope: they randomize all that ’tween every play session. It’d get boring after a while if they didn’t>.`,
 											`<As opposed to now, which is a rollercoaster>, said Autumn. She rifled through her pocket & pulled out a coin. <We’ll let capitalist fate decide>.`,
-											`She flipped the coin, caught it, & slapped it on her other arm. She pulled her hand ’way to reveal the coin ${ ( function(){ ( currentPath ) ? `heads-up` : `heads-down`; })() }`,
+											`She flipped the coin, caught it, & slapped it on her other arm. She pulled her hand ’way to reveal the coin ${ ( function(){ return ( currentPath ) ? `heads-up` : `heads-down`; })() }`,
 											`<Let’s go ${ direction } then>, said Autumn.`,
 											`Dawn shrugged. <Sounds good>. & they did just that.`
 										];
@@ -939,7 +943,7 @@ import { Text } from './text';
 									case ( `Edgar` ):
 									{
 										return [
-											`<I think ${ ( function() { ( firstOAnyBranch ) ? `now` : `this time`; } ) } we need to pick a path to go down>, said Dawn. <Since it’s your turn, Edgar, you should pick a path for us>.`,
+											`<I think ${ ( function() { return ( firstOAnyBranch ) ? `now` : `this time`; } )() } we need to pick a path to go down>, said Dawn. <Since it’s your turn, Edgar, you should pick a path for us>.`,
 											`Edgar began rubbing his arms together. <I wouldn’t e’en know where to start…>.`,
 											`<Don’t worry — there are no wrong answers>, said Dawn.`,
 											`To this, Autumn had to interject: <I’m quite sure the whole point o’ these games is that some answers are definitely inferior to others — which is good, since choices with no consequences are, well, o’ no consequences>.`,
@@ -955,7 +959,7 @@ import { Text } from './text';
 									case ( `Dawn` ):
 									{
 										return [
-											`<I think ${ ( function() { ( firstOAnyBranch ) ? `now` : `this time`; } ) } we need to pick a path to go down>, said Dawn.`,
+											`<I think ${ ( function() { return ( firstOAnyBranch ) ? `now` : `this time`; } )() } we need to pick a path to go down>, said Dawn.`,
 											`<It’s your turn, so you pick>, said Autumn.`,
 											`<Great>. Dawn clapped her hands together. Then she stood there staring up @ the ceiling for a second, eyes fixed as if in a trance.`,
 											`<Since you’ve played this game before, you should know which path leads where>, said Autumn.`,
@@ -979,17 +983,17 @@ import { Text } from './text';
 					}
 					else
 					{
-						text.add( `As they went, they found themselves faced with the fork with both paths open for them to choose to take ${ ( function() { ( isSecondPass ) ? `’gain` : `yet ’gain`; })() }.` );
+						const isSecondPass:boolean = secondForkBranchData.length === 2;
+						text.add( `As they went, they found themselves faced with the fork with both paths open for them to choose to take ${ ( function() { return ( isSecondPass ) ? `’gain` : `yet ’gain`; })() }.` );
 						switch ( currentPlayer )
 						{
 							case ( `Autumn` ):
 							{
-								const isSecondPass:boolean = secondForkBranchData.length === 2;
 								const hasTakenLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true );
 								const hasTakenRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false )
 								const hasGottenFuckedByLeftPath:boolean = hasTakenLeftPath && analyze.timesLandOTypes( game, turn.number, `warpToStart` ) > 0;
 								const hasGottenFuckedByRightPath:boolean = hasTakenRightPath && analyze.timesPassOTypes( game, turn.number, `secondBranchPathStart` ) > 0;
-								const autumnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, Config.playerNumberFromName( `Autumn` ) );
+								const autumnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Autumn` ) );
 								if ( hasGottenFuckedByLeftPath && hasGottenFuckedByRightPath )
 								{
 									text.addList([
@@ -1005,8 +1009,8 @@ import { Text } from './text';
 									text.addList([
 										`<Great. can’t wait till we get fucked ’gain>.`,
 										`<It’s your turn, so your turn to choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Dawn.`,
-										`<Well, certainly not the ${ direction } path>.`,
-										`Dawn laughed. <${ this.capitalize( otherDirection ) } it is, I guess>.`
+										`<Well, certainly not the ${ otherDirection } path>.`,
+										`Dawn laughed. <${ this.capitalize( direction ) } it is, I guess>.`
 									]);
 								}
 								else
@@ -1014,10 +1018,15 @@ import { Text } from './text';
 									const gottenBothPathsBefore:boolean = analyze.secondBranchHasGottenBothPaths( secondForkBranchData );
 									if ( gottenBothPathsBefore )
 									{
+										if ( direction !== `left` )
+										{
+											throw "Invalid direction for 2nd branch Autumn gone down both paths before.";
+										}
+
 										text.addList([
 											`<Well, it’s your turn, Autumn, so it’s your turn to choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Dawn.`,
 											`<Well, nothing bad to us happened on either path — a’least not by the paths themselves>, said Autumn. She shrugged. <The left path seemed shorter, so let’s go with that>.`,
-											``
+											`Autumn led them toward the left path.`
 										]);
 									}
 									else
@@ -1038,6 +1047,28 @@ import { Text } from './text';
 							break;
 							case ( `Dawn` ):
 							{
+								const dawnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Dawn` ) );
+								text.addList([
+									`<You landed us on it, so you choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Autumn.`,
+									`<Great>. Dawn clapped her hands together. Then she stood there staring up @ the ceiling for a second, eyes fixed as if in a trance.`,
+								]);
+								if ( dawnhasGoneBefore )
+								{
+									text.addList([
+										`<¿Dare I ask why — ?>.`,
+										`<I got it>. Dawn looked back @ Autumn. <We should go ${ direction }>.`,
+										`< — No, thank you for cutting that short. I’d rather not know what you were doing there>, continued Autumn.`,
+										`<¿Want to know my intricate algorithm — ?>.`,
+										`<No, I’m good>, Autumn said as she began walking toward the ${ direction } path. <Let’s just mosey on>.`
+									]);
+								}
+								else
+								{
+									text.addList([
+										`<¿This ’gain, Madame Cleo?>, Autumn said as she rolled her eyes.`,
+										
+									]);
+								}
 							}
 							break;
 							default:
@@ -1274,7 +1305,7 @@ import { Text } from './text';
 				default   : { return `${ number }th`; } break;
 			}
 		},
-		capitalize: ( text:string ):string => text.charAt( 0 ).toUpperCase() + text.slice( 1 );
+		capitalize: ( text:string ):string => text.charAt( 0 ).toUpperCase() + text.slice( 1 ),
 		chanceCardText: Object.freeze
 		({
 			"lose-money1": `Get tricked into joining a religious cult scam. Pay 20 chips`,

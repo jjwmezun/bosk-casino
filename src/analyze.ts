@@ -36,7 +36,7 @@ import { Turn } from './turn';
 				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
 			);
 		},
-		noPassOTypesYet: ( game:Game, turnNumber:number, types:string[] ):boolean => this.timesPassOTypes( game, turnNumber, types ) === 0,
+		noPassOTypesYet: function( game:Game, turnNumber:number, types:string[] ):boolean { return this.timesPassOTypes( game, turnNumber, types ) === 0; },
 		timesPassOTypes: function( game:Game, turnNumber:number, types:string[] ):number
 		{
 			return this.numberOPassesWithConditions
@@ -222,16 +222,12 @@ import { Turn } from './turn';
 					}
 				}
 			}
-			if ( list.length === 0 )
-			{
-				throw "getSecondForkBranchData should ne’er have no data.";
-			}
 			return list;
 		},
-		hasTakenLeftPathOnSecondBranch: function( data:Array<object> ):boolean
+		hasTakenPathOnSecondBranch: function( data:Array<object>, target:boolean ):boolean
 		{
 			for ( const item of data ) {
-				if ( data[ 'path' ] ) {
+				if ( data[ 'path' ] === target ) {
 					return true;
 				}
 			}
@@ -259,6 +255,7 @@ import { Turn } from './turn';
 				}
 			}
 			return gottenLeft && gottenRight;
-		}
+		},
+		dawns2ndBranchAlgorithm: ( funds:number, turn:number ) => ( ( ( funds % turn ) % 2 ) === 1 ) ? true : false
 	});
 })();

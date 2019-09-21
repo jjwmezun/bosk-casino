@@ -15,7 +15,50 @@ module.exports = function( config )
 
 	const testCharacterChooseBranch = function( game:Game, currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus {
 		const currentPlayer:number = analyze.getTurnPlayer( game, currentTurn );
-		const path:boolean = Bosk.randBoolean();
+		const currentPlayerString:string = config.players[ currentPlayer ];
+		const secondForkBranchData:Array<object> = analyze.getSecondForkBranchData( game, currentTurn.number - 1 );
+		const isFirstTime:boolean = secondForkBranchData.length === 0;
+		const path:boolean = ( function()
+		{
+			switch ( currentPlayerString )
+			{
+				case ( `Autumn` ):
+				{
+					const hasTakenLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true );
+					const hasTakenRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false )
+					const hasGottenFuckedByLeftPath:boolean = hasTakenLeftPath && analyze.timesLandOTypes( game, currentTurn.number, `warpToStart` ) > 0;
+					const hasGottenFuckedByRightPath:boolean = hasTakenRightPath && analyze.timesPassOTypes( game, currentTurn.number, `secondBranchPathStart` ) > 0;
+					const gottenBothPathsBefore:boolean = analyze.secondBranchHasGottenBothPaths( secondForkBranchData );
+					return ( isFirstTime ) ?
+						Bosk.randBoolean() :
+							( hasGottenFuckedByLeftPath && hasGottenFuckedByRightPath ) ?
+								Bosk.randBoolean() :
+									( hasGottenFuckedByLeftPath ) ?
+										false :
+											( hasGottenFuckedByRightPath ) ?
+												true :
+													( gottenBothPathsBefore ) ?
+														true :
+															secondForkBranchData[ secondForkBranchData.length - 1 ][ `path` ];
+				}
+				break;
+				case ( `Edgar` ):
+				{
+					return false;
+				}
+				break;
+				case ( `Dawn` ):
+				{
+					return analyze.dawns2ndBranchAlgorithm( lastStatus.funds, currentTurn.number );
+				}
+				break;
+				default:
+				{
+					throw "Invalid character for testCharacterChooseBranch.";
+				}
+				break;
+			}
+		})();
 		return Object.freeze( new TurnStatus
     	(
     		lastStatus.type,
