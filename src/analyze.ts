@@ -1,7 +1,6 @@
 const Bosk = require( `./bosk.js` );
 import { Game } from './game';
 import { MinigameInfo } from './minigame-info';
-import { MinigameStatus } from './minigame-status';
 import { Turn } from './turn';
 
 ( function()
@@ -256,6 +255,6 @@ import { Turn } from './turn';
 			}
 			return gottenLeft && gottenRight;
 		},
-		dawns2ndBranchAlgorithm: ( funds:number, turn:number ) => ( ( ( funds % turn ) % 2 ) === 1 ) ? true : false
+		dawns2ndBranchAlgorithm: ( funds:number, turn:number ) => ( ( funds % turn ) % 2 ) === 1
 	});
 })();

@@ -1044,17 +1044,42 @@ import { Text } from './text';
 							break;
 							case ( `Edgar` ):
 							{
+								const edgarHasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Dawn` ) );
+								text.add(
+									`<Looks like it’s your turn to pick${ ( edgarHasGoneBefore ) ? ` ’gain,` : `,` } Edgar>, said Dawn.`
+								);
+								text.addList(
+									( edgarHasGoneBefore ) ? [
+										`<Um, OK, I guess I choose ${ direction }>, said Edgar.`,
+										`Brightening, — presumably @ the speed @ which Edgar made his decision — Autumn said, <Great choice>, herself, & began immediately walking toward the ${ direction } path.`
+									] : [
+										`<Um, OK… Let me think…>, Edgar said as clasped his sleeve-covered hands together nervously.`,
+										`Dawn saw Autumn glance ’way, trying to hide her impatience.`,
+										`<No pressure. There’s no wrong answer>, said Dawn.`,
+										`<I guess I’ll choose ${ direction }>, said Edgar.`,
+										`<Great. Let’s go>, Dawn said as they all began walking toward the ${ direction } path.`
+									]
+								);
 							}
 							break;
 							case ( `Dawn` ):
 							{
-								const autumnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Autumn` ) );
 								const dawnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Dawn` ) );
 								text.addList([
-									`<You landed us on it, so you choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Autumn.`,
+									`<You landed us on it, so you choose${ ( dawnhasGoneBefore ) ? `’gain` : `` }>, said Autumn.`,
 									`<Great>. Dawn clapped her hands together. Then she stood there staring up @ the ceiling for a second, eyes fixed as if in a trance.`,
 								]);
 								if ( dawnhasGoneBefore )
+								{
+									text.addList([
+										`<¿This ’gain, Madame Cleo?>, Autumn said as she rolled her eyes.`,
+										`<We should go ${ direction }>, said Dawn.`,
+										`Autumn nodded & began walking in that direction.`,
+										`<¿Still not curious what my secret algorithm is?>, asked Dawn.`,
+										`<Maybe later>, said Autumn.`
+									]);
+								}
+								else
 								{
 									text.addList([
 										`<¿Dare I ask why — ?>.`,
@@ -1062,13 +1087,6 @@ import { Text } from './text';
 										`< — No, thank you for cutting that short. I’d rather not know what you were doing there>, continued Autumn.`,
 										`<¿Want to know my intricate algorithm — ?>.`,
 										`<No, I’m good>, Autumn said as she began walking toward the ${ direction } path. <Let’s just mosey on>.`
-									]);
-								}
-								else
-								{
-									text.addList([
-										`<¿This ’gain, Madame Cleo?>, Autumn said as she rolled her eyes.`,
-										
 									]);
 								}
 							}
