@@ -819,8 +819,9 @@ import { Text } from './text';
 					const totalForkCount:number = analyze.totalForkCount( forkValues );
 					if ( totalForkCount === 0 )
 					{
+						const beginning:string = ( turn.number > 1 ) ? `@ the end o’ ${ ( turn.number < 3 ) ? `the` : `each` } previous turn, ` : ``;
 						return [
-							`@ the end o’ each previous turn, Autumn noticed a green door with a “?” icon on it that flapped back & forth o’er 2 side-by-side entryways. Now they were heading right for it, with the door covering the ${ ( pass.currentSpace === config.importantSpaces.firstBranch.bottomPathStart ) ? `right` : `left` } passageway.`,
+							`${ beginning }Autumn noticed a green door with a “?” icon on it that flapped back & forth o’er 2 side-by-side entryways. Now they were heading right for it, with the door covering the ${ ( pass.currentSpace === config.importantSpaces.firstBranch.bottomPathStart ) ? `right` : `left` } passageway.`,
 							`<¿Is this door to say we can’t go through the right passageway @ this point>.`,
 							`<Yeah, I remember this: the door switches which path we can take every turn>.`,
 							`<I take it there’s a significant different ’tween these 2 paths. 1 — probably the 1 we were lucky to get — likely sends us straight down into a volcano while the other leads to chests full o’ gold>.`,
