@@ -34,7 +34,7 @@ test
 		for ( let i = 0; i < 1000; i++ )
 		{
 			const game:MinigameGame = minigame.getRandomMinigame();
-			expect([ 'karts', 'tower', 'count' ]).toContain( game.type );
+			expect([ 'balls', 'tower', 'count' ]).toContain( game.type );
 		}
     }
 );

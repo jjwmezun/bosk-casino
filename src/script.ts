@@ -1047,6 +1047,7 @@ import { Text } from './text';
 							break;
 							case ( `Dawn` ):
 							{
+								const autumnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Autumn` ) );
 								const dawnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Dawn` ) );
 								text.addList([
 									`<You landed us on it, so you choose${ ( function() { return ( autumnhasGoneBefore ) ? `’gain` : ``; } )() }>, said Autumn.`,

@@ -31,7 +31,7 @@ test
             {
                 const path:boolean = analyze.dawns2ndBranchAlgorithm( funds, turn );
                 table.push( new AlgorithmOutcome( funds, turn, path ) );
-                console.log( `FUNDS: ${ funds }\tTURN: ${ turn }\tPATH: ${ path }` );
+                //console.log( `FUNDS: ${ funds }\tTURN: ${ turn }\tPATH: ${ path }` );
                 if ( path )
                 {
                     totalTrues++;
@@ -45,7 +45,7 @@ test
             turn++;
         }
 
-        console.log( `TOTAL TRUE: ${ totalTrues }\tTOTAL FALSES: ${ totalFalses }` );
+        //console.log( `TOTAL TRUE: ${ totalTrues }\tTOTAL FALSES: ${ totalFalses }` );
         expect( true ).toEqual( true );
     }
 );

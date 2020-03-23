@@ -46,8 +46,6 @@ test
 
 );
 
-*/
-
 test
 (
     'Test Max & Min',
@@ -60,8 +58,18 @@ test
             const endingFunds : number = game.turnList[ game.turnList.length - 1 ].land.funds;
             m = Math.max( m, endingFunds );
         }
-        console.log( m );
         expect( true ).toEqual( true );
     }
 
+);
+
+*/
+
+test
+(
+    'Ignore',
+    function()
+    {
+        expect( true ).toEqual( true );
+    }
 );

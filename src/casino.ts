@@ -25,6 +25,7 @@ import { ChanceDeck } from './chance-deck';
 			while( !turns[ turns.length - 1 ].finished )
 			{
 				const game:Game = new Game( playerOrder, turns );
+				if ( game === undefined ) { throw "NOOOO!"; }
 				turns.push( this.getNextTurn( turns, game ) );
 			}
 			return turns;
