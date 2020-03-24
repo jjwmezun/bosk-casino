@@ -909,18 +909,19 @@ import { Text } from './text';
 
 					if ( isFirstTime )
 					{
-						const firstOAnyBranch:boolean = analyze.noPassOTypesYet( game, turn.number, [ `firstForkOddOrEven`, `secondForkCharactersChoose`, `thirdForkRandom` ]);
-						if ( !firstOAnyBranch )
+						const firstOAnyBranch:boolean = analyze.noPassOTypesYet( game, turn.number + 1, [ `firstForkOddOrEven`, `thirdForkRandom` ]) ||
+							analyze.noPassOTypesYet( game, turn.number, [ `firstForkOddOrEven`, `secondForkCharactersChoose`, `thirdForkRandom` ]);
+						if ( firstOAnyBranch )
 						{
 							text.addList([
-								`Then they found themselves faced with ’nother forking path, but this time without any closed doors to block them.`,
+								`Then they found themselves faced with a forking path.`,
 								`<¿How will they fuck us now?>, asked Autumn.`
 							]);
 						}
 						else
 						{
 							text.addList([
-								`Then they found themselves faced with a forking path.`,
+								`Then they found themselves faced with ’nother forking path, but this time without any closed doors to block them.`,
 								`<¿How will they fuck us now?>, asked Autumn.`
 							]);
 						}
