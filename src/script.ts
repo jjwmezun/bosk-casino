@@ -994,7 +994,7 @@ import { Text } from './text';
 								const hasTakenLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true );
 								const hasTakenRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false )
 								const hasGottenFuckedByLeftPath:boolean = hasTakenLeftPath && analyze.timesLandOTypes( game, turn.number, `warpToStart` ) > 0;
-								const hasGottenFuckedByRightPath:boolean = hasTakenRightPath && analyze.timesPassOTypes( game, turn.number, `secondBranchPathStart` ) > 0;
+								const hasGottenFuckedByRightPath:boolean = hasTakenRightPath && analyze.timesPassOTypes( game, turn.number, [ `secondBranchPathStart` ] ) > 0;
 								const autumnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Autumn` ) );
 								if ( hasGottenFuckedByLeftPath && hasGottenFuckedByRightPath )
 								{
@@ -1113,9 +1113,26 @@ import { Text } from './text';
 
 				case ( `secondBranchPathStart` ):
 				{
-					return [
-						``
-					];
+					const numberOfTimesFuckedByRightPath:number = analyze.timesPassOTypes( game, turn.number, [ `secondBranchPathStart` ] );
+					const toStartCount:number = analyze.timesPassOTypes( game, turn.number, [ `toStart` ] );
+					return ( numberOfTimesFuckedByRightPath === 0 ) ?
+						( ( toStartCount === 0 ) ?
+							[
+								`Then Autumn noticed that the path they were entering was a familiar 1…`,
+								`<We’re going a circle, I think>, she said.`,
+								`<I was thinking that, too>, replied Dawn. <That’s probably what those !-mark spaces are for — we probably need to land on 1 to ’scape the loop>.`,
+								`<What a fun game this is>, said Autumn.`
+							] :
+							[
+								`Then Autumn noticed that the path they were entering was a familiar 1…`,
+								`<God damn it, I think we’ve stumbled into ’nother loop>, she said.`,
+								`<Yeah, I was thinking that, too>, replied Dawn. <That’s probably what those !-mark spaces are for — we probably need to land on 1 to ’scape the loop>.`,
+								`<What a fun game this is>, said Autumn.`
+							]
+						) :
+						[
+							`& the loop continued…`
+						];
 				}
 				break;
 

@@ -44,7 +44,7 @@ test
     'run returns string',
     function()
     {
-		const text = program.run();
+		const text:string = program.run();
 		expect( text ).not.toEqual( '' );
 		console.log( text );
     }
