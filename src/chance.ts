@@ -11,10 +11,15 @@ module.exports = Object.freeze
 	cards:
 	[
 		new ChanceCard( `lose-money1`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, -20 ) ),
+		new ChanceCard( `lose-money2`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, -200 ) ),
 		new ChanceCard( `gain-money1`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 200 ) ),
+		new ChanceCard( `gain-money2`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 20 ) ),
+		new ChanceCard( `double-money`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, lastStatus.funds * 2 ) ),
 		new ChanceCard( `half-money`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, Math.floor( lastStatus.funds / 2 ) ) ),
 		new ChanceCard( `warp-to-final-stretch`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.thirdBranch.pathsMeet ) ),
 		new ChanceCard( `warp-to-start`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.start ) ),
+		new ChanceCard( `warp-to-2nd-fork`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.firstBranch.topPathStart ) ),
+		new ChanceCard( `back-3-spaces`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, lastStatus.currentSpace - 3 ) ),
 		new ChanceCard( `pay-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, ( -10 ) * currentTurn.number ) ),
 		new ChanceCard( `gain-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 10 * currentTurn.number ) )
 	],

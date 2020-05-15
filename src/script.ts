@@ -167,7 +167,7 @@ import { Text } from './text';
 										`<This is where the less-fun part comes> — Dawn hastily continued — <but don’t panic too much: it’s mo’ jolting than painful>.`,
 										`Autumn glared up @ the arm heading for her & steeled her legs. <¿What, is this thing going to outright attack me now? ¿That’s legal?>.`,
 										`<It’ll just shake you up a bit. Think o’ it like a wild ride>, said Dawn`,
-										`She backed ’way from the looming hand, but the hand rushed forward & snatched her in less than a second. The hand began shaking her, causing chips to fly out o’ her pockets. After only a few seconds o’ this, the hand slowly lowered Autumn back to the floor & then began scooping up some o’ the chips lying on the floor. Autumn looked on, holding her forehead still feeling the ghost o’ the throttling. After collecting a few chips, the hand began flicking the rest o’ the chips toward Autumn’s feet. Keeping her eyes locked on the hand, she bent down & cupped the chips into her hands & returned them to her pocket. The hand slowly rose back into its ceiling hole & its ceiling tile “door” slid back o’er the hole.`,
+										`Autumn backed ’way from the looming hand, but the hand rushed forward & snatched her in less than a second. The hand began shaking her, causing chips to fly out o’ her pockets. After only a few seconds o’ this, the hand slowly lowered Autumn back to the floor & then began scooping up some o’ the chips lying on the floor. Autumn looked on, holding her forehead still feeling the ghost o’ the throttling. After collecting a few chips, the hand began flicking the rest o’ the chips toward Autumn’s feet. Keeping her eyes locked on the hand, she bent down & cupped the chips into her hands & returned them to her pocket. The hand slowly rose back into its ceiling hole & its ceiling tile “door” slid back o’er the hole.`,
 										`Dawn walked up to Autumn & said, <I’m truly sorry ’bout that, Autumn. I would’ve offered to have endured that ordeal, but the hand insists on doing that to the person who rolled>.`,
 										`<It’s fine; I’ve endured worse>, Autumn said without looking @ Dawn, still staring @ the ceiling. <¿How many chips did that lose us?>.`,
 										`<The sign on the space said “${ amount }”>.`,
@@ -1335,7 +1335,7 @@ import { Text } from './text';
 		},
 		toOrdinal: function( number:number ):string
 		{
-			switch ( parseInt( number.toString().slice( -1 ) ) )
+			switch ( parseInt( number.toString().slice( -1 ) ) ) // Get rightmost digit.
 			{
 				case ( 1 ): { return `${ number }st`; } break;
 				case ( 2 ): { return `${ number }nd`; } break;
@@ -1347,20 +1347,30 @@ import { Text } from './text';
 		chanceCardText: Object.freeze
 		({
 			"lose-money1": `Get tricked into joining a religious cult scam. Pay 20 chips`,
+			"lose-money2": `You’re sued by Parker Bros. for plagiarizing their famous board game. Pay 200 chips`,
 			"gain-money1": `200 chips for being an asshole`,
-			"half-money": `Your cat, Patches, gets a divorce. Pay half your chips.`,
+			"gain-money2": `Your video o’ you playing a 20-year-ol’ video game gets a subscriber. Win 20 chips`,
+			"half-money": `Your cat, Patches, gets a divorce. Pay half your chips`,
+			"double-money": `¡Your moneybag tree has grown fruit! Your chips double`,
 			"warp-to-final-stretch": `¡Take a train trip straight to the final road!`,
 			"warp-to-start": `¡Spring back to the start!`,
+			"warp-to-2nd-fork": `¡Take a bus to the 2nd fork!`,
+			"back-3-spaces": `A strong wind pushes you back 3 spaces`,
 			"pay-every-turn": `Your thimble token was caught in in private parking. Pay 10 chips for every turn passed`,
 			"gain-every-turn": `Attain capitalist class. Win 10 chips for every turn passed`
 		}),
 		chanceCardImages: Object.freeze
 		({
-			"lose-money1": `a man covered in a blue sheet like a ghost`,
+			"lose-money1": `2 people covered in blue sheets like ghosts`,
+			"lose-money2": `an ol’ turtle with a distraught expression shrugging @ 2 angry men in business suits`,
 			"gain-money1": `an ol’ turtle in a plain black T-shirt, short stubble o’ a beard & combed back white hair facing the reader & shrugging`,
+			"gain-money2": `a Danish baker jumping from 1 box with an interrobang on it to ’nother with a box in the corner shopping an ol’ turtle in a top hat & white walrus moustache wearing headphones with a zany expression on his face`,
+			"double-money": `an ol’ turtle with in an ink-black top hat & colorless walrus moustache smiling brightly with a watering can in his hand next to a maple tree with 3 bags with “₧” symbols on each in the tree’s leaves`,
 			"half-money": `an ol’ turtle in an ink-black top hat & colorless walrus moustache with a long face o’ shock while next to him is a white cat holding a piece o’ paper that says “DIVORCE”`,
-			"warp-to-final-stretch": `an ol’ turtle in an ink-black top hat & colorless walrus moustache skipping down a line o’ sidewalk`,
+			"warp-to-final-stretch": `an ol’ turtle in an ink-black top hat & colorless walrus moustache leaning out o’ the window o’ a locomotive`,
 			"warp-to-start": `an ol’ turtle in an ink-black top hat & colorless walrus moustache leaping on a spring with a jovial smile`,
+			"warp-to-2nd-fork": `an ol’ turtle in an ink-black top hat & colorless walrus moustache leaning out o’ the window o’ a bus`,
+			"back-3-spaces": `an ol’ turtle in an ink-black top hat & colorless walrus moustache cringing back with an arm held o’er his face while gust lines & rolling leaves surround him`,
 			"pay-every-turn": `a man in a police uniform waving a baton toward a thimble next to a sign labeled, “PRIVATE PARKING”`,
 			"gain-every-turn": `an ol’ turtle in an ink-black top hat & colorless walrus moustache with a fist raised into the air & the words “¡LEVEL UP!” floating ’bove their head`
 		}),
@@ -1369,8 +1379,17 @@ import { Text } from './text';
 			"lose-money1": ( game:Game, turn:Turn ) => [
 				`LOSE1`
 			],
+			"lose-money2": ( game:Game, turn:Turn ) => [
+				`LOSE3`
+			],
 			"gain-money1": ( game:Game, turn:Turn ) => [
 				`GAIN1`
+			],
+			"gain-money2": ( game:Game, turn:Turn ) => [
+				`GAIN3`
+			],
+			"double-money": ( game:Game, turn:Turn ) => [
+				`DOUBLE1`
 			],
 			"half-money": ( game:Game, turn:Turn ) => [
 				`HALF1`
@@ -1380,6 +1399,12 @@ import { Text } from './text';
 			],
 			"warp-to-start":  ( game:Game, turn:Turn ) => [
 				`WARP2`
+			],
+			"warp-to-2nd-fork":  ( game:Game, turn:Turn ) => [
+				`WARP3`
+			],
+			"back-3-spaces":  ( game:Game, turn:Turn ) => [
+				`BACK1`
 			],
 			"pay-every-turn":  ( game:Game, turn:Turn ) => [
 				`LOSE2`
