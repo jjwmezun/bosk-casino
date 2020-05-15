@@ -354,16 +354,16 @@ import { Text } from './text';
 				{
 					const cardType:string = chance.cards[ turn.land.chanceDeck.latestCard ].type;
 					const firstChance:boolean = analyze.firstLandOTypes( game, turn.number, [ "chance" ] );
-					return ( firstChance ) ?
+					return (( firstChance ) ?
 						[
 							`Then they landed on an orange space with a “?” icon on it, before which was a sentinel o’ a machine that cast a shadow gainst the ceiling’s hot lights. It had been golem-still till just then, when it suddenly started to life, releasing an orange card from its mouth like a serpent tongue.`,
 							`Dawn took the card & showed it ’mong Autumn & Edgar. Said card showed ${ this.chanceCardImages[ cardType ] } next to the words “${ this.chanceCardText[ cardType ] }”.`
 						]
 					:
 						[
-							`They landed on the orange chance space ’gain & received a card that showed  ${ this.chanceCardImages[ cardType ] } next to the words “${ this.chanceCardText[ cardType ] }”.`
+							`They landed on the orange chance space ’gain & received a card that showed ${ this.chanceCardImages[ cardType ] } next to the words “${ this.chanceCardText[ cardType ] }”.`
 						]
-					;
+					).concat( this.chanceCardResponses[ cardType ]( game, turn ) );
 				}
 				break;
 
@@ -1363,6 +1363,30 @@ import { Text } from './text';
 			"warp-to-start": `an ol’ turtle in an ink-black top hat & colorless walrus moustache leaping on a spring with a jovial smile`,
 			"pay-every-turn": `a man in a police uniform waving a baton toward a thimble next to a sign labeled, “PRIVATE PARKING”`,
 			"gain-every-turn": `an ol’ turtle in an ink-black top hat & colorless walrus moustache with a fist raised into the air & the words “¡LEVEL UP!” floating ’bove their head`
+		}),
+		chanceCardResponses: Object.freeze
+		({
+			"lose-money1": ( game:Game, turn:Turn ) => [
+				`LOSE1`
+			],
+			"gain-money1": ( game:Game, turn:Turn ) => [
+				`GAIN1`
+			],
+			"half-money": ( game:Game, turn:Turn ) => [
+				`HALF1`
+			],
+			"warp-to-final-stretch": ( game:Game, turn:Turn ) => [
+				`WARP1`
+			],
+			"warp-to-start":  ( game:Game, turn:Turn ) => [
+				`WARP2`
+			],
+			"pay-every-turn":  ( game:Game, turn:Turn ) => [
+				`LOSE2`
+			],
+			"gain-every-turn":  ( game:Game, turn:Turn ) => [
+				`GAIN2`
+			]
 		}),
 		minigames: Object.freeze
 		({
