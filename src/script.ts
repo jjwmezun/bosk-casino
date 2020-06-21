@@ -421,19 +421,12 @@ import { Text } from './text';
 								:
 									[]
 						);
-					const intro:string[] = ( currentMinigame.type === `balls` && analyze.hasPlayedMinigameBefore( minigameInfo, `balls` ) )
-					?
-						[
-							`<I’m guessing we’d better stay on these things or else they’ll disqualify us immediately>, said Dawn.`,
-							`<Can’t think o’ any other reasons to start us standing on these things>, replied Autumn.`
-						]
-					:
-						[
-							`The announcer continued, <The game you’ll be playing tonight is ‘${ this.minigames[ currentMinigame.type ].name }’, & you’ll be betting ${ currentMinigame.bet } chips>.`,
-							`Before Autumn had a chance to reply, the floor opened under them like a maw, dropping them into an abyss.`,
-							`@ the end o’ the tunnel they found themselves falling ${ this.minigames[ currentMinigame.type ].area }.`
-						];
-					const afterIntro:string[] = ( currentMinigame.type === `balls` ) ?
+					const intro:string[] = [
+						`The announcer continued, <The game you’ll be playing tonight is ‘${ this.minigames[ currentMinigame.type ].name }’, & you’ll be betting ${ currentMinigame.bet } chips>.`,
+						`Before Autumn had a chance to reply, the floor opened under them like a maw, dropping them into an abyss.`,
+						`@ the end o’ the tunnel they found themselves falling ${ this.minigames[ currentMinigame.type ].area }.`
+					];
+					const afterIntro:string[] = ( currentMinigame.type === `balls` ) && analyze.hasPlayedMinigameBefore( minigameInfo, `balls` ) ?
 						[
 							`<I’m guessing we’d better stay on these things or else they’ll disqualify us immediately>, said Dawn.`,
 							`<Can’t think o’ any other reasons to start us standing on these things>, replied Autumn.`
@@ -466,7 +459,7 @@ import { Text } from './text';
 										break;
 										case ( `tower` ):
 										{
-											return [ `Dawn put her hand on Autumn’s shoulder & said, <C’mon, with your thief skills @ parkour, you’ll be a shoe-in>.` ];
+											return [ `Dawn put her hand on Autumn’s shoulder & said, <C’mon, with your thief skills @ parkour, you’ll be a boot-in>.` ];
 										}
 										break;
 										case ( `count` ):
@@ -519,29 +512,12 @@ import { Text } from './text';
 								}
 								else
 								{
-									/*
-									let DawnMakesArgument = false;
-									let SecondLineEnd = `>.`;
-									const Previous = Stats.Misc.GetPrevious();
-									if ( Stats.Misc.GetPrevious() !== null && Stats.Misc.GetPrevious() !== undefined )
-									{
-										if ( Previous.Win && Previous.CharacterWins.Autumn )
-										{
-											SecondLineEnd = `. You got it right last time>.`;
-											DawnMakesArgument = true;
-										}
-										else if ( !Previous.Win && !Previous.CharacterWins.Dawn )
-										{
-											SecondLineEnd = `. I was wrong last time>.`;
-											DawnMakesArgument = true;
-										}
-									}*/
 									const dawnMakesArgument:boolean = false;
 									const secondLineEnd:string = `>.`;
 
 									text.addList([
-										`<O, shit>. Dawn paused with her mouth open. <Well, we should probably go with your guess${ secondLineEnd }`,
-										`Autumn grunted. <I don’t know. I think close to that>. She took a deep breath. Her attention kept flicking back to the clock, which now said they had barely mo’ than 10 minutes left. She squinted her eyes as she pointed @ the Rockmen. <¿Are you sure there are that many? I count ${ guesses.autumn }>.`
+										`<I don’t know. I think close to that>. She took a deep breath. Her attention kept flicking back to the clock, which now said they had barely mo’ than 15 seconds left. She squinted her eyes as she pointed @ the Rockmen. <¿Are you sure there are that many? I count ${ guesses.autumn }>.`,
+										`<O, shit>. Dawn paused with her mouth open. <Well, we should probably go with your guess${ secondLineEnd }`
 									]);
 
 									if ( guesses.chosen.character === "autumn" )
@@ -556,7 +532,7 @@ import { Text } from './text';
 											`<¿You sure? I don’t want to get it wrong & make you feel bad>.`,
 											`<I thought you were the one who was saying this was just for funsies>.`,
 											`Dawn laughed. <I certainly didn’t say “funsies”>.`,
-											`<Sorry>, Autumn mumbled with a smirk. <I’m no Mark Twain when it comes to capturing natural vernacular>.`,
+											`<Sorry>, Autumn mumbled. <I’m no Mark Twain when it comes to capturing natural vernacular>.`,
 											`<Anyway, I insist on you making the choice this time. You seem to find this mo’ fun, after all>.`,
 											`Dawn shrugged. <If you say so>. She began etching ${ guesses.dawn } into the touch screen. <But don’t blame me if I get it wrong>.`,
 											`<¿When have I e’er blamed anyone other than myself for anything that goes wrong?>, asked Autumn.`,
@@ -624,8 +600,7 @@ import { Text } from './text';
 										text.addList(
 											[
 												`With a smirk aimed @ Dawn, Autumn said, <This is your fault for insisting on using my guess${ ( guesses.dawn === guesses.correct ) ? ` &mdash; ’specially since yours was actually right` : `` }>.`,
-												`<${ ( guesses.dawn === guesses.correct ) ? `But I didn’t choose to use it, so I guess ’twas still wrong` : `But my guess was wrong, too, so I guess it doesn’t matter` }>, replied Dawn.`,
-												`<Guess you got a point there>.`
+												`<${ ( guesses.dawn === guesses.correct ) ? `But I didn’t choose to use it, so I guess ’twas still wrong` : `But my guess was wrong, too, so I guess it doesn’t matter` }>, replied Dawn.`
 											]
 										);
 									}
@@ -639,9 +614,9 @@ import { Text } from './text';
 							case `balls`:
 							{
 								const text:Text = new Text([
-									`A clock on a wooden stick rose from the bushes right ’cross from them on the other side o’ the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <¡Start!>, & the clock dinging & beginning to tick.`,
+									`A clock on a wooden stick rose out o’ the sea o’ plastic balls. Then & stopped & the announcer squawking, <¡Start!>, just before the clock dinged & began to tick down.`,
 									`Not a second passed before the corner cannons began blasting out metal balls as big as the ones they stood on, but covered in spikes.`,
-									`Dawn scrambled ’way @ a rapid roll, jerking ’way from spike ball to spike ball while Edgar stood paralyzed like a hare before a truck. Autumn’s eyes moved as quickly as Dawn did, but her movements were rarer & slower.’`
+									`Dawn scrambled ’way @ a rapid roll, jerking ’way from spike ball to spike ball while Edgar stood paralyzed like a hare before a truck. Autumn’s eyes moved as quickly as Dawn did, but her movements were rarer & slower.`
 								]);
 
 								const survival = new BallSurvival( false, false, false );
@@ -708,7 +683,7 @@ import { Text } from './text';
 									text.add( `Edgar noticed this in the corner o’ his eyes & turned to see Dawn swim back up to the surface.` );
 									text.add( `<¿Are you OK?>, he asked.` );
 									text.add( `<Edgar, watch ’hind you>.` );
-									text.add( `Autumn, who had been too focused on keeping herself up to notice Dawn get hit till she heard Edgar call out, was now looking up @ seeing a spike ball head right for Edgar & was rolling toward him to push him out o’ its way.` );
+									text.add( `Autumn, who had been too focused on keeping herself up to notice Dawn get hit till she heard Edgar call out, was now looking up & witnessing a spike ball head right for Edgar & was rolling toward him to push him out o’ its way.` );
 									text.add( `’Pon hearing Autumn, Edgar swung his head round in panic. He saw a spike ball only half a meter ’way from him.` );
 
 									if ( survival.edgar )
@@ -1424,7 +1399,7 @@ import { Text } from './text';
 			"balls":
 			{
 				name: `Having a Ball on a Roll`,
-				area: `on colored balls with stars on them in a small, circular island covered in short hills & snow surrounded by an ocean o’ plastic balls in every color o’ the rainbow. Attached to 4 corners o’ the island were metal boxes. They — ’specially Edgar — struggled to keep their balance on the balls`,
+				area: `on colored balls with stars on them in a small, circular island covered in short hills & snow surrounded by an ocean o’ plastic balls in every color o’ the rainbow. Attached to 4 corners o’ the island were metal boxes. The trio — ’specially Edgar — struggled to keep their balance on the balls`,
 				desc: `A’least 1 o’ you must stay standing on your ball, still on the island, for a whole minute. During that time, avoid the spike balls being shot @ you`
 			},
 			"tower":
