@@ -122,18 +122,26 @@ import { ChanceDeck } from './chance-deck';
 		},
 		runLand: function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 		{
-			const action:string = ( lastStatus.currentSpace < this.board.length ) ? this.board[ lastStatus.currentSpace ].land : null;
-			const finalStatus:TurnStatus = Object.freeze( new TurnStatus(
-				"land",
-				action,
-				lastStatus.funds,
-				lastStatus.currentSpace,
-				lastStatus.chanceDeck,
-				lastStatus.reachedEnd
-			));
-			return ( finalStatus.action === null )
-				? this.spaces.land.final( currentTurn, finalStatus )
-				: this.applyAction( "land", currentTurn, finalStatus, game );
+			try {
+				const action:string = ( lastStatus.currentSpace < this.board.length ) ? this.board[ lastStatus.currentSpace ].land : null;
+				const finalStatus:TurnStatus = Object.freeze( new TurnStatus(
+					"land",
+					action,
+					lastStatus.funds,
+					lastStatus.currentSpace,
+					lastStatus.chanceDeck,
+					lastStatus.reachedEnd
+				));
+				return ( finalStatus.action === null )
+					? this.spaces.land.final( currentTurn, finalStatus, game )
+					: this.applyAction( "land", currentTurn, finalStatus, game );
+			}
+			catch {
+				console.log( lastStatus.currentSpace );
+				console.log( currentTurn );
+				console.log( lastStatus );
+				console.log( game.turnList[ game.turnList.length - 1 ] );
+			}
 		},
 		applyAction: function( type:string, currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 		{

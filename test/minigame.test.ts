@@ -1,4 +1,9 @@
+const analyze = require( `../src/analyze.ts` );
+const casino = require( '../src/casino.ts' );
+import { Game } from '../src/game';
 import { MinigameGame } from '../src/minigame-game';
+import { Turn } from '../src/turn';
+import { TurnStatus } from '../src/turn-status';
 const minigame = require( '../src/minigame.ts' );
 
 test
@@ -16,7 +21,7 @@ test
     'Bet values are right.',
     function()
     {
-		for ( let i = 0; i < 1000; i++ )
+		for ( let i = 0; i < 100; i++ )
 		{
 			const bet:number = minigame.getRandomBet();
 			expect( bet ).toBeGreaterThanOrEqual( 5 );
@@ -31,10 +36,28 @@ test
     'getRandomMinigame works',
     function()
     {
-		for ( let i = 0; i < 1000; i++ )
+		for ( let i = 0; i < 100; i++ )
 		{
 			const game:MinigameGame = minigame.getRandomMinigame();
-			expect([ 'balls', 'tower', 'count' ]).toContain( game.type );
+			expect([ 'balls', 'bomb', 'count' ]).toContain( game.type );
+		}
+    }
+);
+
+test
+(
+    'Bomb player always matches turn player',
+    function()
+    {
+		for ( let i = 0; i < 100; i++ ) {
+			const game:Game = casino.run();
+			for ( const turn of game.turnList ) {
+				const landStatus:TurnStatus = turn.land;
+				if ( landStatus.action === 'minigame' && landStatus.extra.type === 'bomb' ) {
+					const turnPlayer:number = analyze.getTurnPlayer( game, turn );
+					expect( landStatus.extra.misc.chooser ).toEqual( turnPlayer );
+				}
+			}
 		}
     }
 );

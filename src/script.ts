@@ -391,6 +391,7 @@ import { Text } from './text';
 							return wins > losses;
 						}
 					})();
+					const hasPlayedThisMinigameBefore:boolean = analyze.hasPlayedMinigameBefore( minigameInfo, currentMinigame.type );
 
 					const start:string[] = ( isFirstMinigame ) ?
 						[
@@ -403,7 +404,7 @@ import { Text } from './text';
 						this.addParagraphs
 						(
 							[
-								`When they landed on the next space, that buzzer Autumn recalled from before went off; & with it was the similarly familiar kooky voice shouting, <Minigame time!>.`,
+								`When they landed on the next space, that buzzer Autumn recalled from before went off; & with it was the similarly familiar kooky voice shouting, <¡Minigame time!>.`,
 								`<Cool: ’nother 1>, said Dawn.`
 							],
 							( wasLastMinigameLost ) ?
@@ -411,7 +412,7 @@ import { Text } from './text';
 									(
 										[ `<Great, ’nother chance to lose>, replied Autumn.` ],
 										( wereMoreWinsThanLosses ) ?
-												[ `Dawn grabbed Autumn’s shoulder. <Don’t be such a soggy waffle: we’ve <em>won</em> mo’ than we’ve lost>.` ]
+												[ `Dawn grabbed Autumn’s shoulder. <Don’t be such a soggy waffle: we’ve [i]won[/i] mo’ than we’ve lost>.` ]
 											:
 												[
 													`Dawn grabbed Autumn’s shoulder. <Don’t be such a soggy waffle: the law o’ averages says we have to win this time>.`,
@@ -421,12 +422,13 @@ import { Text } from './text';
 								:
 									[]
 						);
+
 					const intro:string[] = [
 						`The announcer continued, <The game you’ll be playing tonight is ‘${ this.minigames[ currentMinigame.type ].name }’, & you’ll be betting ${ currentMinigame.bet } chips>.`,
 						`Before Autumn had a chance to reply, the floor opened under them like a maw, dropping them into an abyss.`,
 						`@ the end o’ the tunnel they found themselves falling ${ this.minigames[ currentMinigame.type ].area }.`
 					];
-					const afterIntro:string[] = ( currentMinigame.type === `balls` ) && analyze.hasPlayedMinigameBefore( minigameInfo, `balls` ) ?
+					const afterIntro:string[] = ( currentMinigame.type === `balls` ) && hasPlayedThisMinigameBefore ?
 						[
 							`<I’m guessing we’d better stay on these things or else they’ll disqualify us immediately>, said Dawn.`,
 							`<Can’t think o’ any other reasons to start us standing on these things>, replied Autumn.`
@@ -436,7 +438,7 @@ import { Text } from './text';
 						`The announcer spoke ’gain: <¿Want to hear instructions?>.`
 					];
 
-					const instructions:string[] = ( analyze.hasPlayedMinigameBefore( minigameInfo, currentMinigame.type ) ) ?
+					const instructions:string[] = ( hasPlayedThisMinigameBefore ) ?
 						[ `Autumn turned to Dawn. Dawn said, <No>.` ]
 					:
 						this.addParagraphs
@@ -446,44 +448,42 @@ import { Text } from './text';
 								`The announcer continued: <${ this.minigames[ currentMinigame.type ].desc }>.`,
 								`Autumn could only say, <Ugh>.`
 							],
-							this.addParagraphs
-							(
-								( function()
-								{
-									switch( currentMinigame.type )
+							(( currentMinigame.type !== 'bomb' ) ?
+								this.addParagraphs
+								(
+									( function()
 									{
-										case ( `balls` ):
+										switch( currentMinigame.type )
 										{
-											return [ `With her eyes still on her legs wobbling o’er her green ball, Dawn said, <With your great self control, you should have no problem with this>.` ];
+											case ( `balls` ):
+											{
+												return [ `With her eyes still on her legs wobbling o’er her green ball, Dawn said, <With your great self control, you should have no problem with this>.` ];
+											}
+											break;
+											case ( `count` ):
+											{
+												return [ `Dawn put her hand on Autumn’s shoulder & said, <C’mon, this is a brainy, math game: you should be great @ this>.` ];
+											}
+											break;
+											default:
+											{
+												throw `¡Invalid Minigame Type: ${ currentMinigame.type }!`;
+											}
+											break;
 										}
-										break;
-										case ( `tower` ):
-										{
-											return [ `Dawn put her hand on Autumn’s shoulder & said, <C’mon, with your thief skills @ parkour, you’ll be a boot-in>.` ];
-										}
-										break;
-										case ( `count` ):
-										{
-											return [ `Dawn put her hand on Autumn’s shoulder & said, <C’mon, this is a brainy, math game: you should be great @ this>.` ];
-										}
-										break;
-										default:
-										{
-											throw `¡Invalid Minigame Type: ${ currentMinigame.type }!`;
-										}
-										break;
-									}
-								})(),
-								( !isFirstMinigame ) ?
-									[ `<Yeah, yeah, let’s just get on with this>, replied Autumn.` ]
-								:
-									[
-										`<I feel much better knowing I have a reason to be extra disappointed if I lose>, said Autumn.`,
-										`<It’s just a game meant for fun>, said Dawn.`,
-										`<For chips is ne’er for fun>, replied Autumn.`
-									]
-							)
+									})(),
+									( !isFirstMinigame ) ?
+										[ `<Yeah, yeah, let’s just get on with this>, replied Autumn.` ]
+									:
+										[
+											`<I feel much better knowing I have a reason to be extra disappointed if I lose>, said Autumn.`,
+											`<It’s just a game meant for fun>, said Dawn.`,
+											`<For chips is ne’er for fun>, replied Autumn.`
+										]
+								) :
+							`` )
 						);
+
 					const readyToStart:string[] = [
 						`The announcer said, <¿Ready to start?>.`,
 						`Autumn nodded & Dawn said, <Yup>.`
@@ -496,122 +496,124 @@ import { Text } from './text';
 							case ( `count` ):
 							{
 								const guesses:Guesses = currentMinigame.misc.guesses;
-								const text:Text = new Text([
-									`A clock on a wooden stick rose from the bushes right ’cross from them on the other side o’ the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <¡Start!>, & the clock dinging & beginning to tick.`,
-									`All 3 immediately leaned forward, an index pointing @ various stones while the other hand ticked finger after finger in count. But before they had a chance to count them all, the Rockmen already began to crumble.`,
-									`<Shit>, mumbled Autumn.`,
-									`<I think I have ${ guesses.dawn }. ¿How ’bout you?>, said Dawn.`
-								]);
-
-								if ( guesses.autumn === guesses.dawn )
-								{
-									text.addList([
-										`Autumn grunted. <Yeah. I got the same>.`,
-										`<Cool: then let’s go with that>, Dawn said as she etched ${ guesses.dawn } into the touch screen.`
-									]);
-								}
-								else
-								{
-									const dawnMakesArgument:boolean = false;
-									const secondLineEnd:string = `>.`;
-
-									text.addList([
-										`<I don’t know. I think close to that>. She took a deep breath. Her attention kept flicking back to the clock, which now said they had barely mo’ than 15 seconds left. She squinted her eyes as she pointed @ the Rockmen. <¿Are you sure there are that many? I count ${ guesses.autumn }>.`,
-										`<O, shit>. Dawn paused with her mouth open. <Well, we should probably go with your guess${ secondLineEnd }`
+								return ( function() {
+									const text:Text = new Text([
+										`A clock on a wooden stick rose from the bushes right ’cross from them on the other side o’ the field. Then gray stones rained down from the sky a second, followed just after by the announcer squawking, <¡Start!>, & the clock dinging & beginning to tick.`,
+										`All 3 immediately leaned forward, an index pointing @ various stones while the other hand ticked finger after finger in count. But before they had a chance to count them all, the Rockmen already began to crumble.`,
+										`<Shit>, mumbled Autumn.`,
+										`<I think I have ${ guesses.dawn }. ¿How ’bout you?>, said Dawn.`
 									]);
 
-									if ( guesses.chosen.character === "autumn" )
+									if ( guesses.autumn === guesses.dawn )
 									{
-										text.add( `<Sure, why not>.` );
+										text.addList([
+											`Autumn grunted. <Yeah. I got the same>.`,
+											`<Cool: then let’s go with that>, Dawn said as she etched ${ guesses.dawn } into the touch screen.`
+										]);
 									}
 									else
 									{
+										const dawnMakesArgument:boolean = false;
+										const secondLineEnd:string = `>.`;
 
 										text.addList([
-											`<${ (( dawnMakesArgument ) ? `Yeah, but that doesn’t guarantee anything. ` : ``) }You ought to get a turn. ’Less Edgar wants to make a decision for once>. Autumn turned to Edgar only to see him shake his head as if asking him to walk the plank.`,
-											`<¿You sure? I don’t want to get it wrong & make you feel bad>.`,
-											`<I thought you were the one who was saying this was just for funsies>.`,
-											`Dawn laughed. <I certainly didn’t say “funsies”>.`,
-											`<Sorry>, Autumn mumbled. <I’m no Mark Twain when it comes to capturing natural vernacular>.`,
-											`<Anyway, I insist on you making the choice this time. You seem to find this mo’ fun, after all>.`,
-											`Dawn shrugged. <If you say so>. She began etching ${ guesses.dawn } into the touch screen. <But don’t blame me if I get it wrong>.`,
-											`<¿When have I e’er blamed anyone other than myself for anything that goes wrong?>, asked Autumn.`,
-											`Dawn replied with a sigh.`
+											`<I don’t know. I think close to that>. She took a deep breath. Her attention kept flicking back to the clock, which now said they had barely mo’ than 15 seconds left. She squinted her eyes as she pointed @ the Rockmen. <¿Are you sure there are that many? I count ${ guesses.autumn }>.`,
+											`<O, shit>. Dawn paused with her mouth open. <Well, we should probably go with your guess${ secondLineEnd }`
 										]);
-									}
 
-								}
-
-								text.addList([
-									`Then Dawn looked up @ the timer as she gripped the touch screen tightly & bit her lips just as tightly while Edgar shivered in the suprisingly cool breeze for summer ( though now that Edgar thought ’bout it, that ’twas daylight here when ’twas clearly night outside was e’en mo’ peculiar ) & Autumn stood with her hands in her pockets & an expression that belied her frets o’er losing as they all waited for the timer to tick down to 0.`,
-									`When it did with a buzz, the clock on the sign ’cross from the field flipped its face into a 2-digit #, “00”. Then the Rockmen began crumbling to dust, each 1 causing the digits on the sign to count up. All 3 held their breaths as they watched it near their final guess.`
-								]);
-
-								if ( guesses.chosen.number === guesses.correct )
-								{
-									text.addList(
-										[
-											`Then it stopped on ${ guesses.chosen.number }, causing their hearts to stop.`,
-											`& then it began blinking, & the announced exclaimed, <¡Congratulations! ¡You won!>.`,
-											`Dawn wrapped an arm round Autumn & squeezed her to her chest. <¿See? I told you we could do it>.`,
-											`<${ ( guesses.chosen.character === "Dawn" ) ? `Thanks to <em>your</em> guess` : `Lucky guess` }>, murmured Autumn, her voice slightly muffled by getting her chest crushed by the force o’ Dawn’s embrace.`,
-											`<O, stop>, Dawn lightly chided.`
-										]
-									);
-								}
-								else
-								{
-									if ( guesses.chosen.number > guesses.correct )
-									{
-										text.add( `Then it stopped on ${ guesses.correct }, causing their hearts to stop.` );
-									}
-									else if ( guesses.chosen.number < guesses.correct )
-									{
-										text.add( `Then it went past ${ guesses.chosen.number }, causing Dawn & Edgar to look down in disappointment & Autumn to mumbled, <Fuck>.` );
-									}
-
-									text.addList(
-										[
-											`Then it fell into a pale gray, followed by the blaring o’ a weak horn somewhere in the unseen distance, which was itself followed by the announcer calling out, <O... ¡You lost!>.`,
-											`<Well, a’least they let us down easy>, mumbled Autumn.`
-										]
-									);
-
-									if ( guesses.chosen.character === "dawn" )
-									{
-										text.add( `Dawn laughed. <I knew we shouldn’t have picked my guess…>.` );
-
-										if ( guesses.autumn === guesses.correct )
+										if ( guesses.chosen.character === "autumn" )
 										{
-											text.add( `Autumn shrugged. <No use whining ’bout it now. Better we &mdash;>.` );
+											text.add( `<Sure, why not>.` );
 										}
 										else
 										{
-											text.addList(
-												[
-													`<My guess was no better than yours>, replied Autumn.`,
-													`<Yeah, I guess you’re right>.`
-												]
-											);
+
+											text.addList([
+												`<${ (( dawnMakesArgument ) ? `Yeah, but that doesn’t guarantee anything. ` : ``) }You ought to get a turn. ’Less Edgar wants to make a decision for once>. Autumn turned to Edgar only to see him shake his head as if asking him to walk the plank.`,
+												`<¿You sure? I don’t want to get it wrong & make you feel bad>.`,
+												`<I thought you were the one who was saying this was just for funsies>.`,
+												`Dawn laughed. <I certainly didn’t say “funsies”>.`,
+												`<Sorry>, Autumn mumbled. <I’m no Mark Twain when it comes to capturing natural vernacular>.`,
+												`<Anyway, I insist on you making the choice this time. You seem to find this mo’ fun, after all>.`,
+												`Dawn shrugged. <If you say so>. She began etching ${ guesses.dawn } into the touch screen. <But don’t blame me if I get it wrong>.`,
+												`<¿When have I e’er blamed anyone other than myself for anything that goes wrong?>, asked Autumn.`,
+												`Dawn replied with a sigh.`
+											]);
 										}
+
 									}
-									else if ( guesses.chosen.character === "autumn" )
+
+									text.addList([
+										`Then Dawn looked up @ the timer as she gripped the touch screen tightly & bit her lips just as tightly while Edgar shivered in the suprisingly cool breeze for summer ( though now that Edgar thought ’bout it, that ’twas daylight here when ’twas clearly night outside was e’en mo’ peculiar ) & Autumn stood with her hands in her pockets & an expression that belied her frets o’er losing as they all waited for the timer to tick down to 0.`,
+										`When it did with a buzz, the clock on the sign ’cross from the field flipped its face into a 2-digit #, “00”. Then the Rockmen began crumbling to dust, each 1 causing the digits on the sign to count up. All 3 held their breaths as they watched it near their final guess.`
+									]);
+
+									if ( guesses.chosen.number === guesses.correct )
 									{
 										text.addList(
 											[
-												`With a smirk aimed @ Dawn, Autumn said, <This is your fault for insisting on using my guess${ ( guesses.dawn === guesses.correct ) ? ` &mdash; ’specially since yours was actually right` : `` }>.`,
-												`<${ ( guesses.dawn === guesses.correct ) ? `But I didn’t choose to use it, so I guess ’twas still wrong` : `But my guess was wrong, too, so I guess it doesn’t matter` }>, replied Dawn.`
+												`Then it stopped on ${ guesses.chosen.number }, causing their hearts to stop.`,
+												`& then it began blinking, & the announced exclaimed, <¡Congratulations! ¡You won!>.`,
+												`Dawn wrapped an arm round Autumn & squeezed her to her chest. <¿See? I told you we could do it>.`,
+												`<${ ( guesses.chosen.character === "Dawn" ) ? `Thanks to <em>your</em> guess` : `Lucky guess` }>, murmured Autumn, her voice slightly muffled by getting her chest crushed by the force o’ Dawn’s embrace.`,
+												`<O, stop>, Dawn lightly chided.`
 											]
 										);
 									}
+									else
+									{
+										if ( guesses.chosen.number > guesses.correct )
+										{
+											text.add( `Then it stopped on ${ guesses.correct }, causing their hearts to stop.` );
+										}
+										else if ( guesses.chosen.number < guesses.correct )
+										{
+											text.add( `Then it went past ${ guesses.chosen.number }, causing Dawn & Edgar to look down in disappointment & Autumn to mumbled, <Fuck>.` );
+										}
 
-								}
-								text.add( `Before anyone could say anything further, a hole opened ’neath them, causing them to fall into a black chasm. After a few seconds falling through darkness, they fell out, back onto the board. ${ ( currentMinigame.win ) ? `Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps` : `The fall was so hard that it caused ${ currentMinigame.bet } chips to fall out o’ their pockets` }.` );
-								return text.get();
+										text.addList(
+											[
+												`Then it fell into a pale gray, followed by the blaring o’ a weak horn somewhere in the unseen distance, which was itself followed by the announcer calling out, <O... ¡You lost!>.`,
+												`<Well, a’least they let us down easy>, mumbled Autumn.`
+											]
+										);
+
+										if ( guesses.chosen.character === "dawn" )
+										{
+											text.add( `Dawn laughed. <I knew we shouldn’t have picked my guess…>.` );
+
+											if ( guesses.autumn === guesses.correct )
+											{
+												text.add( `Autumn shrugged. <No use whining ’bout it now. Better we &mdash;>.` );
+											}
+											else
+											{
+												text.addList(
+													[
+														`<My guess was no better than yours>, replied Autumn.`,
+														`<Yeah, I guess you’re right>.`
+													]
+												);
+											}
+										}
+										else if ( guesses.chosen.character === "autumn" )
+										{
+											text.addList(
+												[
+													`With a smirk aimed @ Dawn, Autumn said, <This is your fault for insisting on using my guess${ ( guesses.dawn === guesses.correct ) ? ` &mdash; ’specially since yours was actually right` : `` }>.`,
+													`<${ ( guesses.dawn === guesses.correct ) ? `But I didn’t choose to use it, so I guess ’twas still wrong` : `But my guess was wrong, too, so I guess it doesn’t matter` }>, replied Dawn.`
+												]
+											);
+										}
+
+									}
+									text.add( `Before anyone could say anything further, a hole opened ’neath them, causing them to fall into a black chasm. After a few seconds falling through darkness, they fell out, back onto the board. ${ ( currentMinigame.win ) ? `Trailing a few meters after fell ${ currentMinigame.bet } chips onto their laps` : `The fall was so hard that it caused ${ currentMinigame.bet } chips to fall out o’ their pockets` }.` );
+									return text.get();
+								})()
 							}
 							break;
 
-							case `balls`:
+							case ( `balls` ):
 							{
 								const text:Text = new Text([
 									`A clock on a wooden stick rose out o’ the sea o’ plastic balls. Then & stopped & the announcer squawking, <¡Start!>, just before the clock dinged & began to tick down.`,
@@ -748,9 +750,80 @@ import { Text } from './text';
 							}
 							break;
 
-							case `tower`:
+							case ( `bomb` ):
 							{
-								return [ '' ];
+								const dawnHasDoneSecondBranch:boolean = analyze.characterHasGottenSecondBranch( analyze.getSecondForkBranchData( game, turn.number ), config.playerNumberFromName( `Dawn` ) );
+								const chooserName:string = this.playerNameText( currentMinigame.misc.chooser );
+								const chosenColor:string = currentMinigame.misc.color;
+								const text:Text = new Text([
+									`The digital clock on the back wall blinked “1:00” as the announcer squawked, <¡Start!>, & then began ticking down.`
+								]);
+
+								if ( hasPlayedThisMinigameBefore ) {
+								}
+								else {
+									text.addList([
+										`Dawn looked @ Autumn & Edgar & said, <Well, ¿who wants to volunteer to make the choice?>.`
+									]);
+
+									switch ( chooserName )
+									{
+										case ( `Autumn` ):
+										{
+											text.addList([
+												`When nobody spoke, Dawn turned to Autumn & said, <It’s your turn. You should choose>.`,
+												`Autumn shrugged. <It’s probably random, anyway, so it probably doesn’t matter what we pick>.`,
+												`Autumn stepped up to the table, picked up the card, & then leaned o’er to the side that seemed closest, which was the ${ chosenColor } side, & slipped the card inside.`
+											])
+										}
+										break;
+										case ( `Dawn` ):
+										{
+											text.addList([
+												`When nobody spoke, Dawn said, <Well, since it’s my turn, I guess I ought to volunteer>. Then she turned to the table & said, <Now, let me think…>.`
+											]);
+											if ( dawnHasDoneSecondBranch ) {
+												text.addList([
+													`<O, god, not this ’gain>, Autumn said as she held her hand o’er her forehead.`,
+													`<I’ll pick this 1>, Dawn said as she took the card & slipped it into the ${ chosenColor } slot.`
+												])
+											}
+											else {
+												text.addList([
+													`When nobody spoke, Dawn said, <Well, since it’s my turn, I guess I ought to volunteer>. Then she turned to the table & said, <Now, let me think…>.`,
+													`<Remember, we only have a minute to pick…>, Autumn said with a nervous frown.`,
+													`<¡I got it!>. Then Dawn skipped up to the table, grabbed the card, & slipped it into the ${ chosenColor } box.`
+												]);
+											}
+										}
+										break;
+										case ( `Edgar` ):
+										{
+											
+										}
+										break;
+										default:
+										{
+											throw `Invalid bomb minigame chooser.`;
+										}
+										break;
+									}
+
+									text.addList([
+										`Then the announcer squawked, <¡Finish!>, & Autumn & the rest held their breaths as the engines below the room revved & revved, becoming louder & faster.`
+									]);
+
+									if ( currentMinigame.win ) {
+										text.addList([
+											`& then they all heard a soft sizzle, followed by the announcer squawking, <¡You win!>.`
+										]);
+									}
+									else {
+										`& then they & the entire room were suddenly engulfed in a huge explosion.`
+									}
+								}
+
+								return text.get();
 							}
 							break;
 
@@ -1402,11 +1475,11 @@ import { Text } from './text';
 				area: `on colored balls with stars on them in a small, circular island covered in short hills & snow surrounded by an ocean o’ plastic balls in every color o’ the rainbow. Attached to 4 corners o’ the island were metal boxes. The trio — ’specially Edgar — struggled to keep their balance on the balls`,
 				desc: `A’least 1 o’ you must stay standing on your ball, still on the island, for a whole minute. During that time, avoid the spike balls being shot @ you`
 			},
-			"tower":
+			"bomb":
 			{
-				name: `Treacherous Tower`,
-				area: `into a stormy dark place, just before a brown-stoned, dusty crenellated tower that rose so high its head faded in the distance`,
-				desc: ``
+				name: `Electroshock`,
+				area: `into a white office that looked ordinary ’cept for the mountain o’ rusted yellow barrels with ☢s on them, connected to the walls with translucent glass pipes filling with some unknown orange fluid. Other than a few fake-looking plants round the corners, the only furniture inside was a curtain, which opened by itself before them, revealing 2 podiums — 1 red, 1 blue — with a box with a slit ’bove each 1, their color matching their respective podium, & an ordinary brown table ’tween them with a single white card on it`,
+				desc: `Within a minute, take the card in the middle table & put it in 1 o’ the 2 voting boxes. 1 will cause the radioactive kegs to explode, which will make you lose, while the other will power down the bombs, protecting the office & winning the game. If nobody puts the card into any o’ the voting boxes before time runs out, the bombs explode & you lose`
 			}
 		})
 	});

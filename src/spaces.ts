@@ -75,33 +75,33 @@ module.exports = function( config )
 	({
 		"land":
 		{
-			"gain5": ( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus => action.changeFunds( lastStatus, 5 ),
-			"gain10": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"gain5": ( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus => action.changeFunds( lastStatus, 5 ),
+			"gain10": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
 				return action.changeFunds( lastStatus, 10 );
 			},
-			"lose5": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"lose5": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
 				return action.changeFunds( lastStatus, -5 );
 			},
-			"lose10": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"lose10": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
 				return action.changeFunds( lastStatus, -10 );
 			},
-			"chance": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"chance": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
 				return chance.run( currentTurn, lastStatus );
 			},
-			"minigame": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"minigame": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
-				return minigame.run( lastStatus );
+				return minigame.run( currentTurn, lastStatus, game );
 			},
-			"warpToStart": ( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus => action.changeCurrentSpace( lastStatus, config.importantSpaces.start ),
-			"goPastCycle": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"warpToStart": ( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus => action.changeCurrentSpace( lastStatus, config.importantSpaces.start ),
+			"goPastCycle": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
 				return action.changeCurrentSpace( lastStatus, config.importantSpaces.secondBranch.pathsMeet );
 			},
-			"final": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+			"final": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
 			{
 				return ( currentTurn.number <= config.endingBonus.bestBonus.turns )
 					? action.changeFunds( lastStatus, config.endingBonus.bestBonus.bonus )

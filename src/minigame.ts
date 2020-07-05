@@ -1,28 +1,31 @@
 import { BallSurvival } from './ball-survival';
+import { Game } from './game';
 import { Guesses } from './guesses';
 import { MinigameGame } from './minigame-game';
 import { MinigameStatus } from './minigame-status';
+import { Turn } from './turn';
 import { TurnStatus } from './turn-status';
 
 ( function()
 {
+	const analyze = require( `./analyze.ts` );
 	const Bosk = require( '../src/bosk.js' );
 
 	module.exports = Object.freeze
 	({
 		minigames:
 		[
-			new MinigameGame( 'balls', 50 ),
-			new MinigameGame( 'tower', 75 ),
+			new MinigameGame( 'balls', 75 ),
+			new MinigameGame( 'bomb', 50 ),
 			new MinigameGame( 'count', 25 )
 		],
-		run: function( latestStatus:TurnStatus ):TurnStatus
+		run: function( currentTurn:Turn, latestStatus:TurnStatus, game:Game ):TurnStatus
 		{
 			const selectedMinigame:MinigameGame = this.getRandomMinigame();
 			const win:boolean = this.testWin( selectedMinigame );
 			const bet:number = this.getRandomBet();
 			const newFunds:number = ( win ) ? latestStatus.funds + bet : latestStatus.funds - bet;
-			const misc:object = this.miscGenerators[ selectedMinigame.type ]( win, bet );
+			const misc:object = this.miscGenerators[ selectedMinigame.type ]( win, bet, currentTurn, game );
 			const minigameStatus:MinigameStatus = new MinigameStatus( selectedMinigame.type, win, bet, misc );
 			return Object.freeze( new TurnStatus
 			(
@@ -57,7 +60,7 @@ import { TurnStatus } from './turn-status';
 			return list;
 		},
 		miscGenerators: {
-			balls: ( win:boolean, bet:number ):object => {
+			balls: ( win:boolean, bet:number, currentTurn:Turn, game:Game ):object => {
 				const autumnSurvives:boolean = ( win ) ? Bosk.randPercent( 65 ) : false;
 				const dawnSurvives:boolean = ( function() {
 					const winChance:number = ( autumnSurvives ) ? 45 : 80;
@@ -68,8 +71,11 @@ import { TurnStatus } from './turn-status';
 					survives: new BallSurvival( autumnSurvives, edgarSurvives, dawnSurvives )
 				};
 			},
-			tower: ( win:boolean, bet:number ):object => {
-				return {};
+			bomb: ( win:boolean, bet:number, currentTurn:Turn, game:Game ):object => {
+				const player:number = analyze.getTurnPlayer( game, currentTurn );
+				return {
+					chooser: player
+				};
 			},
 			count: ( function()
 			{
