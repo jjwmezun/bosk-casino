@@ -19,7 +19,13 @@ module.exports = Object.freeze
 		new ChanceCard( `warp-to-final-stretch`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.thirdBranch.pathsMeet ) ),
 		new ChanceCard( `warp-to-start`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.start ) ),
 		new ChanceCard( `warp-to-2nd-fork`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.firstBranch.topPathStart ) ),
-		new ChanceCard( `back-3-spaces`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, lastStatus.currentSpace - 3 ) ),
+		new ChanceCard( `back-3-spaces`, ( currentTurn:Turn, lastStatus:TurnStatus ) => {
+			let newSpace:number = lastStatus.currentSpace - 3;
+			if ( newSpace < 0 ) {
+				newSpace = 11 + newSpace;
+			}
+			return action.changeCurrentSpace( lastStatus, newSpace );
+		}),
 		new ChanceCard( `pay-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, ( -10 ) * currentTurn.number ) ),
 		new ChanceCard( `gain-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 10 * currentTurn.number ) )
 	],
