@@ -771,7 +771,7 @@ import { Text } from './text';
 										case ( `Autumn` ):
 										{
 											text.addList([
-												`When nobody spoke, Dawn turned to Autumn & said, <It’s your turn. You should choose>.`,
+												`When nobody spoke, Dawn turned to Autumn & said, <It’s your turn, so you should choose>.`,
 												`Autumn shrugged. <It’s probably random, anyway, so it probably doesn’t matter what we pick>.`,
 												`Autumn stepped up to the table, picked up the card, & then leaned o’er to the side that seemed closest, which was the ${ chosenColor } side, & slipped the card inside.`
 											])
@@ -799,7 +799,12 @@ import { Text } from './text';
 										break;
 										case ( `Edgar` ):
 										{
-											
+											text.addList([
+												`When nobody spoke, Dawn turned to Edgar & said, <It’s your turn, so you should choose>.`,
+												`Edgar nodded, & then said, <OK, um…>. He looked ’mong the 2 boxes, & then finally said, <I guess I choose ${ chosenColor }>.`,
+												`<You’ve got to put the card into the box>, said Dawn.`,
+												`Edgar nodded ’gain & then stepped up to the middle table to pick up the card & do just that.`
+											])
 										}
 										break;
 										default:
