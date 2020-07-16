@@ -10,6 +10,7 @@ import { TurnStatus } from './turn-status';
 {
 	const analyze = require( `./analyze.ts` );
 	const Bosk = require( '../src/bosk.js' );
+	const config = require( `./config.ts` );
 
 	module.exports = Object.freeze
 	({
@@ -25,7 +26,7 @@ import { TurnStatus } from './turn-status';
 			const win:boolean = this.testWin( selectedMinigame );
 			const bet:number = this.getRandomBet();
 			const newFunds:number = ( win ) ? latestStatus.funds + bet : latestStatus.funds - bet;
-			const misc:object = this.miscGenerators[ selectedMinigame.type ]( win, bet, currentTurn, game );
+			const misc:object = this.miscGenerators[ selectedMinigame.type ]( win, bet, currentTurn, latestStatus, game );
 			const minigameStatus:MinigameStatus = new MinigameStatus( selectedMinigame.type, win, bet, misc );
 			return Object.freeze( new TurnStatus
 			(
@@ -60,7 +61,7 @@ import { TurnStatus } from './turn-status';
 			return list;
 		},
 		miscGenerators: {
-			balls: ( win:boolean, bet:number, currentTurn:Turn, game:Game ):object => {
+			balls: ( win:boolean, bet:number, currentTurn:Turn, latestStatus:TurnStatus, game:Game ):object => {
 				const autumnSurvives:boolean = ( win ) ? Bosk.randPercent( 65 ) : false;
 				const dawnSurvives:boolean = ( function() {
 					const winChance:number = ( autumnSurvives ) ? 45 : 80;
@@ -71,10 +72,50 @@ import { TurnStatus } from './turn-status';
 					survives: new BallSurvival( autumnSurvives, edgarSurvives, dawnSurvives )
 				};
 			},
-			bomb: ( win:boolean, bet:number, currentTurn:Turn, game:Game ):object => {
+			bomb: ( win:boolean, bet:number, currentTurn:Turn, latestStatus:TurnStatus, game:Game ):object => {
+				const options:string[] = [ `red`, `blue` ];
 				const player:number = analyze.getTurnPlayer( game, currentTurn );
+				const previousGames:object[] = game.turnList.map(
+					( turn:Turn, index:number ) => ( turn.land.action === 'minigame' && turn.land.extra.type === 'bomb' ) ? turn.land.extra.misc : null
+				).filter( ( value, index:number ) => value !== null );
+				const color:string = ( function() {
+					switch ( config.players[ player ] ) {
+						case ( `Autumn` ): {
+							const total:number = previousGames.length;
+							if ( total === 0 ) {
+								return Bosk.randListEntry( options );
+							} else {
+								let redCount:number = 0;
+								for ( const g of previousGames ) {
+									if ( g[ `color` ] === `red` ) {
+										++redCount;
+									}
+								}
+								const blueCount = total - redCount;
+								return ( redCount === blueCount ) ?
+									Bosk.randListEntry( options ) : (
+										( redCount > blueCount ) ? `red` : `blue`
+									);
+							}
+						}
+						break;
+						case ( `Edgar` ): {
+							return `blue`;
+						}
+						break;
+						case ( `Dawn` ): {
+							return options[ ( ( latestStatus.funds * 3 ) % currentTurn.number ) % 2 ];
+						}
+						break;
+						default: {
+							throw `Invalid bomb minigame chooser.`;
+						}
+						break;
+					}
+				})();
 				return {
-					chooser: player
+					chooser: player,
+					color: color
 				};
 			},
 			count: ( function()

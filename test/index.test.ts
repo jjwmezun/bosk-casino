@@ -24,7 +24,7 @@ test
     }
 );
 */
-
+/*
 test
 (
     `script for every chance card & only for chance cards`,
@@ -37,7 +37,7 @@ test
         expect( chanceKeys.length ).toEqual( chanceTextKeys.length )
         expect( chanceKeys.length ).toEqual( chanceImagesKeys.length );
     }
-);
+);*/
 
 test
 (

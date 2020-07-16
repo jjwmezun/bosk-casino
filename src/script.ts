@@ -760,16 +760,41 @@ import { Text } from './text';
 								]);
 
 								if ( hasPlayedThisMinigameBefore ) {
+									switch ( chooserName ) {
+										case ( `Autumn` ): {
+											text.addList([
+												`<Well, Autumn, ’twas your turn, so you get to vote>.`,
+												`Autumn shrugged, stepped up to the table, picked up the card, & slipped it inside the ${ chosenColor } box.`
+											]);
+										}
+										break;
+										case ( `Edgar` ): {
+											text.addList([
+												`<Well, Edgar, ’twas your turn, so you get to vote>.`,
+												`Edgar nodded & then stepped up to the table, picked up the card, & slipped it inside the ${ chosenColor } box.`
+											]);
+										}
+										break;
+										case ( `Dawn` ): {
+											text.addList([
+												`<Well, ’twas my turn, so I guess I get to vote. Now let me think…>.`,
+												`Autumn rolled her eyes as she waited a few minutes before Dawn finally stepped up to the table, picked up the card, & slipped it inside the ${ chosenColor } box.`
+											]);
+										}
+										break;
+										default: {
+											throw `Invalid bomb minigame chooser.`;
+										}
+										break;
+									}
 								}
 								else {
 									text.addList([
 										`Dawn looked @ Autumn & Edgar & said, <Well, ¿who wants to volunteer to make the choice?>.`
 									]);
 
-									switch ( chooserName )
-									{
-										case ( `Autumn` ):
-										{
+									switch ( chooserName ) {
+										case ( `Autumn` ): {
 											text.addList([
 												`When nobody spoke, Dawn turned to Autumn & said, <It’s your turn, so you should choose>.`,
 												`Autumn shrugged. <It’s probably random, anyway, so it probably doesn’t matter what we pick>.`,
@@ -777,8 +802,7 @@ import { Text } from './text';
 											])
 										}
 										break;
-										case ( `Dawn` ):
-										{
+										case ( `Dawn` ): {
 											text.addList([
 												`When nobody spoke, Dawn said, <Well, since it’s my turn, I guess I ought to volunteer>. Then she turned to the table & said, <Now, let me think…>.`
 											]);
@@ -797,8 +821,7 @@ import { Text } from './text';
 											}
 										}
 										break;
-										case ( `Edgar` ):
-										{
+										case ( `Edgar` ): {
 											text.addList([
 												`When nobody spoke, Dawn turned to Edgar & said, <It’s your turn, so you should choose>.`,
 												`Edgar nodded, & then said, <OK, um…>. He looked ’mong the 2 boxes, & then finally said, <I guess I choose ${ chosenColor }>.`,
@@ -807,8 +830,7 @@ import { Text } from './text';
 											])
 										}
 										break;
-										default:
-										{
+										default: {
 											throw `Invalid bomb minigame chooser.`;
 										}
 										break;
