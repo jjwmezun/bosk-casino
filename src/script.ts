@@ -40,7 +40,7 @@ import { Text } from './text';
 		},
 		generateParagraphs: function( data:Game ):readonly string[]
 		{
-			let paragraphs:string[] = this.addParagraphs( [], this.firstRollText( data ) );
+			let paragraphs:string[] = this.addParagraphs( this.generateIntroText(), this.firstRollText( data ) );
 			for ( const turn of data.turnList )
 			{
 				paragraphs = this.addParagraphs( paragraphs, this.getRollText( data, turn ) );
@@ -80,6 +80,18 @@ import { Text } from './text';
 				paragraphs = this.addParagraphs( paragraphs, list );
 			}
 			return paragraphs;
+		},
+		generateIntroText: function():readonly string[]
+		{
+			return [
+				`<Here it is>, Dawn said cheerily.`,
+				`Autumn instantly saw it isolate itself ’mong its fellow buildings: a short but wide building with gold curving crenellations with a neon sign hanging off the side that said, “Codfish Casino”, & below that, “Boskeopolis’s original casino since 1922”.`,
+				`<¿How did I e’er let you convince me to come here?>, asked Autumn.`,
+				`<My sexy charm>, said Dawn.`,
+				`<Ah, yes, now I remember>.`,
+				`<C’mon,> — Dawn wrapped an arm round Autumn’s shoulder, which Autumn accepted like a loose rag — <a game like this is a perfect fit for you>.`,
+				`Still in Dawn’s arm, Autumn replied, <¿Luck is a perfect fit for me? Clearly you don’t know me well>.`
+			];
 		},
 		generateLandText: function( game:Game, turn:Turn ):readonly string[]
 		{
