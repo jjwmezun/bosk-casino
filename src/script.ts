@@ -1452,40 +1452,40 @@ import { Text } from './text';
 		chanceCardResponses: Object.freeze
 		({
 			"lose-money1": ( game:Game, turn:Turn ) => [
-				`LOSE1`
+				``
 			],
 			"lose-money2": ( game:Game, turn:Turn ) => [
-				`LOSE3`
+				``
 			],
 			"gain-money1": ( game:Game, turn:Turn ) => [
-				`GAIN1`
+				``
 			],
 			"gain-money2": ( game:Game, turn:Turn ) => [
-				`GAIN3`
+				``
 			],
 			"double-money": ( game:Game, turn:Turn ) => [
-				`DOUBLE1`
+				``
 			],
 			"half-money": ( game:Game, turn:Turn ) => [
-				`HALF1`
+				``
 			],
 			"warp-to-final-stretch": ( game:Game, turn:Turn ) => [
-				`WARP1`
+				``
 			],
 			"warp-to-start":  ( game:Game, turn:Turn ) => [
-				`WARP2`
+				``
 			],
 			"warp-to-2nd-fork":  ( game:Game, turn:Turn ) => [
-				`WARP3`
+				``
 			],
 			"back-3-spaces":  ( game:Game, turn:Turn ) => [
-				`BACK1`
+				``
 			],
 			"pay-every-turn":  ( game:Game, turn:Turn ) => [
-				`LOSE2`
+				``
 			],
 			"gain-every-turn":  ( game:Game, turn:Turn ) => [
-				`GAIN2`
+				``
 			]
 		}),
 		minigames: Object.freeze
