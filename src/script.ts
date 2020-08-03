@@ -90,7 +90,8 @@ import { Text } from './text';
 				`<My sexy charm>, said Dawn.`,
 				`<Ah, yes, now I remember>.`,
 				`<C’mon,> — Dawn wrapped an arm round Autumn’s shoulder, which Autumn accepted like a loose rag — <a game like this is a perfect fit for you>.`,
-				`Still in Dawn’s arm, Autumn replied, <¿Luck is a perfect fit for me? Clearly you don’t know me well>.`
+				`Still in Dawn’s arm, Autumn replied, <¿Luck is a perfect fit for me? Clearly you don’t know me well>.`,
+				`Autumn let Dawn lead them inside the building, where she was assaulted on all sides by bright flashing lights from all o’er the color spectrum. E’en the floor, which would would expect to be gray or white, with checkered pattern being the most extravagant, was a carpet tiled with incomprehensible abstract designs in yellow & purple.`
 			];
 		},
 		generateLandText: function( game:Game, turn:Turn ):readonly string[]
