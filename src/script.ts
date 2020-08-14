@@ -84,14 +84,29 @@ import { Text } from './text';
 		generateIntroText: function():readonly string[]
 		{
 			return [
-				`<Here it is>, Dawn said cheerily.`,
-				`Autumn instantly saw it isolate itself ’mong its fellow buildings: a short but wide building with gold curving crenellations with a neon sign hanging off the side that said, “Codfish Casino”, & below that, “Boskeopolis’s original casino since 1922”.`,
-				`<¿How did I e’er let you convince me to come here?>, asked Autumn.`,
+				`Dawn announced, as if to the whole world, <Here it is>.`,
+				`Autumn instantly saw it isolate itself ’mong its fellow buildings: a short but wide building with gold curving crenellations with a neon sign hanging off the side that said, “Codfish Casino”, & below that, “Boskeopolis’s original casino since 1922”, surrounded on both sides by billboards for a Piston SUV & an anti-drug PSA with an emaciated dog who apparently starved to death ’cause their owner was too stoned to feed them.`,
+				`<¿How did I e’er let you convince me to come here?>, Autumn asked as she winced under all the lights.`,
 				`<My sexy charm>, said Dawn.`,
 				`<Ah, yes, now I remember>.`,
 				`<C’mon,> — Dawn wrapped an arm round Autumn’s shoulder, which Autumn accepted like a loose rag — <a game like this is a perfect fit for you>.`,
-				`Still in Dawn’s arm, Autumn replied, <¿Luck is a perfect fit for me? Clearly you don’t know me well>.`,
-				`Autumn let Dawn lead them inside the building, where she was assaulted on all sides by bright flashing lights from all o’er the color spectrum. E’en the floor, which would would expect to be gray or white, with checkered pattern being the most extravagant, was a carpet tiled with incomprehensible abstract designs in yellow & purple.`
+				`<¿Luck is a perfect fit for me? Clearly you don’t know me well>.`,
+				`Autumn let Dawn lead them inside the building, where she was assaulted on all sides by bright flashing lights from all o’er the color spectrum. E’en the floor, which would would expect to be gray or white, with checkered pattern being the most extravagant, was a carpet tiled with incomprehensible abstract designs in yellow & purple. While the dada canvas o’ noodle-shaped lights hung ’bove them like spying spotlights, they were surrounded on all sides laterally by machines with faces that glowed furiously like monsters from a science fiction B movie.`,
+				`<¿Did you bring us here just so we could feed these machines coins for the privilege to yanking on a level every so oft? ¿Couldn’t you get that @ home for free?>.`,
+				`<That’s not why I brought you guys here. It’s right up ’head>.`,
+				`Autumn looked o’er the counter they were heading toward & gawked @ the field o’ giant pairs o’ dice & stacks o’ cards & plastic chips. ’Mong the field slithered sleek metallic streets pocked with hexagons o’ different colors. She watched as Dawn went right up to the counter & asked for a game for 3.`,
+				`<Dawn, this looks extravagant for our funds>, Autumn said as she felt her eyes already become hollow & tired from excess stimulation.`,
+				`<It’s not too expensive>, Dawn said as she handed the attendant a handful o’ bills. <Now, come on. You’ll love this — you’ll be too cool to let me know you’ll love it, ’course; but I know that deep ’hind that constant sardonic frown o’ yours you’ll love it>.`,
+				`The attendant opened the counter & Dawn led Autumn & Edgar toward the start o’ the metallic road.`,
+				`<¿What is this?>, asked Autumn.`,
+				`<It’s a board game>.`,
+				`Autumn looked @ Dawn with horror. <¿A live 1?>.`,
+				`Dawn nodded excitedly. <Uh huh. We need to make it to the end, collecting chips ’long the way. Look, we start out with 20>. Dawn held a hand out to show Autumn 2 white plastic chips with yellow stripes all ’long the rim. <If we collect ’nough chips, we can get a nifty prize>.`,
+				`<¿& what if we don’t collect ’nough chips?>.`,
+				`<Then we have a good time, a’least>.`,
+				`<¿How much did you pay for this experience?>.`,
+				`<It’s only a couple thousand per player>.`,
+				`Autumn shook her head, but said nothing mo’. { The money’s already been paid, so I might as well just play ’long }.`
 			];
 		},
 		generateLandText: function( game:Game, turn:Turn ):readonly string[]
@@ -1378,7 +1393,17 @@ import { Text } from './text';
 								`¡Unbelievable! ¡We have ne’er seen anyone make so many chips in the whole history o’ this casino’s existence! ¡For that much, you get Codfish Casino itself! ¡Congratulations, our new presidents!`;
 						})()
 					}>.`
-				]
+				],
+				( finalTurn.land.funds < 0 ) ?
+					[
+						`& with that the tutle man turned & went while Autumn just stood there with a pursed frown.`,
+						`She saw Dawn move toward her &, as anticipated, heard her say, <Don’t beat yourself up ’bout it, Autumn — we can always come back ’nother night & give it ’nother try>.`,
+						`Autumn’s eyes dilated in horror @ this prospect, causing Dawn to laugh.`,
+						`Thru her laughter, Dawn said, <We’d better get going before the security comes after us>.`
+					] :
+					[
+
+					]
 			);
 		},
 		firstRollText: function( game:Game ):readonly string[]
