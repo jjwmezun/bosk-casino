@@ -1388,8 +1388,8 @@ import { Text } from './text';
 								( finalTurn.land.funds < 350 ) ? `¡What an amazing game!` :
 								( finalTurn.land.funds < 400 ) ? `¡What an amazing game!` :
 								( finalTurn.land.funds < 450 ) ? `¡What an amazing game!` :
-								( finalTurn.land.funds < 500 ) ? `¡What an incredible game!` :
-								( finalTurn.land.funds < 550 ) ? `¡What a perfect game! ¡Couldn’t have done better! With that much you win this breathplundering silver moon, which glows in the night & sometimes turns various shades o’ yellow — or e’en red or blue in very rare circumstances — on different nights, as well as having mystical terrain-shifting powers that allows you to stymie your enemies by filling their lawns with chomper plant infestations. We hope you enjoy & hope to see you come round ’gain. ¡Have a great day!` :
+								( finalTurn.land.funds < 500 ) ? `¡What an incredible game! With that much you win this diamond ring personally engraved with “Codfish Casino”. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
+								( finalTurn.land.funds < 550 ) ? `¡What a perfect game! ¡Couldn’t have done better! With that much you win this breathplundering silver moon, which glows in the night & sometimes turns various shades o’ yellow — or e’en red or blue in very rare circumstances — on different nights, as well as having mystical terrain-shifting powers that allows you to stymie your enemies by filling their lawns with chomper plant infestations. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
 								`¡Unbelievable! ¡We have ne’er seen anyone make so many chips in the whole history o’ this casino’s existence! ¡For that much, you get Codfish Casino itself! ¡Congratulations, our new presidents!`;
 						})()
 					}>.`
@@ -1399,7 +1399,8 @@ import { Text } from './text';
 						`& with that the tutle man turned & went while Autumn just stood there with a pursed frown.`,
 						`She saw Dawn move toward her &, as anticipated, heard her say, <Don’t beat yourself up ’bout it, Autumn — we can always come back ’nother night & give it ’nother try>.`,
 						`Autumn’s eyes dilated in horror @ this prospect, causing Dawn to laugh.`,
-						`Thru her laughter, Dawn said, <We’d better get going before the security comes after us>.`
+						`Thru her laughter, Dawn said, <We’d better get going before security comes after us. If it makes you feel better, they owe us a complimentary dinner by now. Come, let’s eat>.`,
+						`Autumn followed Dawn back thru the casino, feeling like she had a hango’er under the onslaught o’ all the neon lights.`
 					] :
 					[
 
