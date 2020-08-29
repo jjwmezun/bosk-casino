@@ -1377,24 +1377,24 @@ import { Text } from './text';
 					`<It looks like you have ${ finalTurn.land.funds } chips. ${
 						( function()
 						{
-							return ( finalTurn.land.funds < 0 ) ? `We’re so sorry for such rotten luck. We wish you better luck next time you come play. ¡Have a great day!` :
+							return ( finalTurn.land.funds <= 0 ) ? `We’re so sorry for such rotten luck. We wish you better luck next time you come play. ¡Have a great day!` :
 								( finalTurn.land.funds < 10 ) ? `With that much you win a wonderfully laminated business card for Codfish Casino. We hope you’ll play ’gain & have a great day!` :
 								( finalTurn.land.funds < 50 ) ? `With that much you win a beautiful medium-sized T-shirt with Codfish Casino’s logo. We hope you’ll play ’gain & have a great day!` :
 								( finalTurn.land.funds < 100 ) ? `¡Not bad! With that many chips you win this stuffed plush o’ our mascot, Capital Codfish. We hope you like it & hope we see you ’gain. ¡Have a great day!` :
 								( finalTurn.land.funds < 150 ) ? `¡Good job! With that many chips you win this wondersome Codfish Casino mug. We hope you enjoy it with your morning coffee & how we see you ’gain. ¡Have a great day!` :
 								( finalTurn.land.funds < 200 ) ? `¡Great job! With that many chips you win a copy o’ our high-tech multimedia disk with an interactive simulation o’ our casino, so you can play it anytime @ home, including a VR headset & a program for exploring a 3D replica o’ the Codfish Casino building. We hope you enjoy & how to see you come round ’gain soon. ¡Have a great day!` :
 								( finalTurn.land.funds < 250 ) ? `¡Excellent job! With that much you win this stupendous 300-page book ’bout Codfish Casino that tells all ’bout our history, with plenty o’ colorful photos, smooth pages, & e’en the source code to this casino. We hope you enjoy it with your mugs o’ tea & hope to see you ’gain. ¡Have a great day!` :
-								( finalTurn.land.funds < 300 ) ? `¡Wow, that’s impressive!` :
-								( finalTurn.land.funds < 350 ) ? `¡What an amazing game!` :
-								( finalTurn.land.funds < 400 ) ? `¡What an amazing game!` :
-								( finalTurn.land.funds < 450 ) ? `¡What an amazing game!` :
-								( finalTurn.land.funds < 500 ) ? `¡What an incredible game! With that much you win this diamond ring personally engraved with “Codfish Casino”. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
+								( finalTurn.land.funds < 300 ) ? `¡Wow, that’s impressive! With that much you win this silver card, which will grant you access to our VIP area, with extra games you can play. ¡We hope to see you there! ¡Have a great day!` :
+								( finalTurn.land.funds < 350 ) ? `¡What an amazing game! With that much you win this gold card, which will give you lifetime access to “Codfish Casino”, ¡free o’ charge! ¡We hope to see you 'gain soon & hope you have a great day!` :
+								( finalTurn.land.funds < 400 ) ? `¡What a spectacular game! With that much you win this platinum card, which will give you lifetime access to “Codfish Casino”, ¡free o’ charge!, as well as access to our VIP area, with extra games you can play ¡We hope to see you there & hope you have a great day!` :
+								( finalTurn.land.funds < 450 ) ? `¡What pros you guys are! With that much you win this diamond ring personally engraved with “Codfish Casino”. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
+								( finalTurn.land.funds < 500 ) ? `¡What an incredible game! With that much you win a 2-meter-tall stone sculpture o’ our mascot, Capital Codfish. We hope you enjoy it & hope you see you come round ’gain. ¡Have a great day!` :
 								( finalTurn.land.funds < 550 ) ? `¡What a perfect game! ¡Couldn’t have done better! With that much you win this breathplundering silver moon, which glows in the night & sometimes turns various shades o’ yellow — or e’en red or blue in very rare circumstances — on different nights, as well as having mystical terrain-shifting powers that allows you to stymie your enemies by filling their lawns with chomper plant infestations. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
 								`¡Unbelievable! ¡We have ne’er seen anyone make so many chips in the whole history o’ this casino’s existence! ¡For that much, you get Codfish Casino itself! ¡Congratulations, our new presidents!`;
 						})()
 					}>.`
 				],
-				( finalTurn.land.funds < 0 ) ?
+				( finalTurn.land.funds <= 0 ) ?
 					[
 						`& with that the tutle man turned & went while Autumn just stood there with a pursed frown.`,
 						`She saw Dawn move toward her &, as anticipated, heard her say, <Don’t beat yourself up ’bout it, Autumn — we can always come back ’nother night & give it ’nother try>.`,
