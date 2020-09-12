@@ -1348,64 +1348,105 @@ import { Text } from './text';
 		getEndingScript: function( finalTurn:Turn, game:Game ):readonly string[]
 		{
 			const currentPlayer:string = this.playerNameText( analyze.getTurnNumberPlayer( game, finalTurn.number + 1 ) );
-			return this.addParagraphs
-			(
-				(
-					( finalTurn.reachedEnd )
-					? [
-							"Though Autumn had noticed it coming long before they reached it, Autumn was still surprised to find her nerves stir in a pleasant pulse for once as they all walked up to the last space, adorned with a checkered flag towering o’er their heads, emblazoning 1 bold word: “FINISH”.",
-							"& just as Dawn ’head o’ them made her 1st step on the chrome-shine space, all but she were startled by a burst o’ sudden ska horns, followed by rain o’ rainbow confetti.",
-							"Autumn couldn’t keep herself from craning neck in all directions, only for her attention to find its stop sign on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.",
-							`<¡Congratulations on making it to the end, kids! ${
-								( function()
-								{
-									return ( finalTurn.number <= config.endingBonus.bestBonus.turns )
-										? `¡Wow! I can’t believe you got here in only ${ finalTurn.number } turns! For such an impressive accomplishment, take ${ config.endingBonus.bestBonus.bonus } chips`
-										: ( ( finalTurn.number <= config.endingBonus.middleBonus.turns )
-											? `¡Good job getting here in only ${ finalTurn.number } turns! For such an accomplishment, take ${ config.endingBonus.middleBonus.bonus } chips`
-											: `Here’s ${ config.endingBonus.minimumBonus } chips for your accomplishment` );
-								})()
-							}>.`
-						]
-					: [
-							`Before ${ currentPlayer } could roll the next turn, all 3 were startled by the cry o’ a parrot, <¡FINIIIIISH!>. They looked round themselves to find the source, only to stop on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.`,
-							`<That’s the last turn, guys. Sorry you couldn’t make it to the end>.`,
-							`Autumn was ’bout to think, { Cool. Glad to get fucked in the ass as always }, but stopped that thought when the turtle continued, <But let’s see what you can win with the money you’ve made>.`
-						]
-				),
-				[
-					`<It looks like you have ${ finalTurn.land.funds } chips. ${
-						( function()
-						{
-							return ( finalTurn.land.funds <= 0 ) ? `We’re so sorry for such rotten luck. We wish you better luck next time you come play. ¡Have a great day!` :
-								( finalTurn.land.funds < 10 ) ? `With that much you win a wonderfully laminated business card for Codfish Casino. We hope you’ll play ’gain & have a great day!` :
-								( finalTurn.land.funds < 50 ) ? `With that much you win a beautiful medium-sized T-shirt with Codfish Casino’s logo. We hope you’ll play ’gain & have a great day!` :
-								( finalTurn.land.funds < 100 ) ? `¡Not bad! With that many chips you win this stuffed plush o’ our mascot, Capital Codfish. We hope you like it & hope we see you ’gain. ¡Have a great day!` :
-								( finalTurn.land.funds < 150 ) ? `¡Good job! With that many chips you win this wondersome Codfish Casino mug. We hope you enjoy it with your morning coffee & how we see you ’gain. ¡Have a great day!` :
-								( finalTurn.land.funds < 200 ) ? `¡Great job! With that many chips you win a copy o’ our high-tech multimedia disk with an interactive simulation o’ our casino, so you can play it anytime @ home, including a VR headset & a program for exploring a 3D replica o’ the Codfish Casino building. We hope you enjoy & how to see you come round ’gain soon. ¡Have a great day!` :
-								( finalTurn.land.funds < 250 ) ? `¡Excellent job! With that much you win this stupendous 300-page book ’bout Codfish Casino that tells all ’bout our history, with plenty o’ colorful photos, smooth pages, & e’en the source code to this casino. We hope you enjoy it with your mugs o’ tea & hope to see you ’gain. ¡Have a great day!` :
-								( finalTurn.land.funds < 300 ) ? `¡Wow, that’s impressive! With that much you win this silver card, which will grant you access to our VIP area, with extra games you can play. ¡We hope to see you there! ¡Have a great day!` :
-								( finalTurn.land.funds < 350 ) ? `¡What an amazing game! With that much you win this gold card, which will give you lifetime access to “Codfish Casino”, ¡free o’ charge! ¡We hope to see you 'gain soon & hope you have a great day!` :
-								( finalTurn.land.funds < 400 ) ? `¡What a spectacular game! With that much you win this platinum card, which will give you lifetime access to “Codfish Casino”, ¡free o’ charge!, as well as access to our VIP area, with extra games you can play ¡We hope to see you there & hope you have a great day!` :
-								( finalTurn.land.funds < 450 ) ? `¡What pros you guys are! With that much you win this diamond ring personally engraved with “Codfish Casino”. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
-								( finalTurn.land.funds < 500 ) ? `¡What an incredible game! With that much you win a 2-meter-tall stone sculpture o’ our mascot, Capital Codfish. We hope you enjoy it & hope you see you come round ’gain. ¡Have a great day!` :
-								( finalTurn.land.funds < 550 ) ? `¡What a perfect game! ¡Couldn’t have done better! With that much you win this breathplundering silver moon, which glows in the night & sometimes turns various shades o’ yellow — or e’en red or blue in very rare circumstances — on different nights, as well as having mystical terrain-shifting powers that allows you to stymie your enemies by filling their lawns with chomper plant infestations. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
-								`¡Unbelievable! ¡We have ne’er seen anyone make so many chips in the whole history o’ this casino’s existence! ¡For that much, you get Codfish Casino itself! ¡Congratulations, our new presidents!`;
-						})()
-					}>.`
-				],
-				( finalTurn.land.funds <= 0 ) ?
-					[
-						`& with that the tutle man turned & went while Autumn just stood there with a pursed frown.`,
-						`She saw Dawn move toward her &, as anticipated, heard her say, <Don’t beat yourself up ’bout it, Autumn — we can always come back ’nother night & give it ’nother try>.`,
-						`Autumn’s eyes dilated in horror @ this prospect, causing Dawn to laugh.`,
-						`Thru her laughter, Dawn said, <We’d better get going before security comes after us. If it makes you feel better, they owe us a complimentary dinner by now. Come, let’s eat>.`,
-						`Autumn followed Dawn back thru the casino, feeling like she had a hango’er under the onslaught o’ all the neon lights.`
-					] :
-					[
-
+			return (
+				( finalTurn.reachedEnd )
+				? [
+						"Though Autumn had noticed it coming long before they reached it, Autumn was still surprised to find her nerves stir in a pleasant pulse for once as they all walked up to the last space, adorned with a checkered flag towering o’er their heads, emblazoning 1 bold word: “FINISH”.",
+						"& just as Dawn ’head o’ them made her 1st step on the chrome-shine space, all but she were startled by a burst o’ sudden ska horns, followed by rain o’ rainbow confetti.",
+						"Autumn couldn’t keep herself from craning neck in all directions, only for her attention to find its stop sign on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.",
+						`<¡Congratulations on making it to the end, kids! ${
+							( function()
+							{
+								return ( finalTurn.number <= config.endingBonus.bestBonus.turns )
+									? `¡Wow! I can’t believe you got here in only ${ finalTurn.number } turns! For such an impressive accomplishment, take ${ config.endingBonus.bestBonus.bonus } chips`
+									: ( ( finalTurn.number <= config.endingBonus.middleBonus.turns )
+										? `¡Good job getting here in only ${ finalTurn.number } turns! For such an accomplishment, take ${ config.endingBonus.middleBonus.bonus } chips`
+										: `Here’s ${ config.endingBonus.minimumBonus } chips for your accomplishment` );
+							})()
+						}>.`
 					]
-			);
+				: [
+						`Before ${ currentPlayer } could roll the next turn, all 3 were startled by the cry o’ a parrot, <¡FINIIIIISH!>. They looked round themselves to find the source, only to stop on the abrupt appearance o’ an elderly turtle man wearing a tuxedo & top hat, face adorned with pinky-sized bifocals & a walrus white moustache o’er his beak nose. He craned o’er a cane grasped tightly in white-glove bedecked hands as he hobbled o’er to them.`,
+						`<That’s the last turn, guys. Sorry you couldn’t make it to the end>.`,
+						`Autumn was ’bout to think, { Cool. Glad to get fucked in the ass as always }, but stopped that thought when the turtle continued, <But let’s see what you can win with the money you’ve made>.`
+					]
+			).concat([
+				`<It looks like you have ${ finalTurn.land.funds } chips. ${
+					( function()
+					{
+						return ( finalTurn.land.funds <= 0 ) ? `We’re so sorry for such rotten luck. We wish you better luck next time you come play. ¡Have a great day!` :
+							( finalTurn.land.funds < 10 ) ? `With that much you win a wonderfully laminated business card for Codfish Casino. We hope you’ll play ’gain & have a great day!` :
+							( finalTurn.land.funds < 50 ) ? `With that much you win a beautiful medium-sized T-shirt with Codfish Casino’s logo. We hope you’ll play ’gain & have a great day!` :
+							( finalTurn.land.funds < 100 ) ? `¡Not bad! With that many chips you win this stuffed plush o’ our mascot, Capital Codfish. We hope you like it & hope we see you ’gain. ¡Have a great day!` :
+							( finalTurn.land.funds < 150 ) ? `¡Good job! With that many chips you win this wondersome Codfish Casino mug. We hope you enjoy it with your morning coffee & how we see you ’gain. ¡Have a great day!` :
+							( finalTurn.land.funds < 200 ) ? `¡Great job! With that many chips you win a copy o’ our high-tech multimedia disk with an interactive simulation o’ our casino, so you can play it anytime @ home, including a VR headset & a program for exploring a 3D replica o’ the Codfish Casino building. We hope you enjoy & how to see you come round ’gain soon. ¡Have a great day!` :
+							( finalTurn.land.funds < 250 ) ? `¡Excellent job! With that much you win this stupendous 300-page book ’bout Codfish Casino that tells all ’bout our history, with plenty o’ colorful photos, smooth pages, & e’en the source code to this casino. We hope you enjoy it with your mugs o’ tea & hope to see you ’gain. ¡Have a great day!` :
+							( finalTurn.land.funds < 300 ) ? `¡Wow, that’s impressive! With that much you win this silver card, which will grant you access to our VIP area, with extra games you can play. ¡We hope to see you there! ¡Have a great day!` :
+							( finalTurn.land.funds < 350 ) ? `¡What an amazing game! With that much you win this gold card, which will give you lifetime access to “Codfish Casino”, ¡free o’ charge! ¡We hope to see you 'gain soon & hope you have a great day!` :
+							( finalTurn.land.funds < 400 ) ? `¡What a spectacular game! With that much you win this platinum card, which will give you lifetime access to “Codfish Casino”, ¡free o’ charge!, as well as access to our VIP area, with extra games you can play ¡We hope to see you there & hope you have a great day!` :
+							( finalTurn.land.funds < 450 ) ? `¡What pros you guys are! With that much you win this diamond ring personally engraved with “Codfish Casino”. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
+							( finalTurn.land.funds < 500 ) ? `¡What an incredible game! With that much you win a 2-meter-tall stone sculpture o’ our mascot, Capital Codfish. We hope you enjoy it & hope you see you come round ’gain. ¡Have a great day!` :
+							( finalTurn.land.funds < 550 ) ? `¡What a perfect game! ¡Couldn’t have done better! With that much you win this breathplundering silver moon, which glows in the night & sometimes turns various shades o’ yellow — or e’en red or blue in very rare circumstances — on different nights, as well as having mystical terrain-shifting powers that allows you to stymie your enemies by filling their lawns with chomper plant infestations. We hope you enjoy it & hope to see you come round ’gain. ¡Have a great day!` :
+							`¡Unbelievable! ¡We have ne’er seen anyone make so many chips in the whole history o’ this casino’s existence! ¡For that much, you get Codfish Casino itself! ¡Congratulations, our new presidents!`;
+					})()
+				}>.`
+			]).concat(
+				( finalTurn.land.funds <= 0 ) ? [
+					`The tutle man turned & went while Autumn just stood there with a pursed frown.`,
+					`She saw Dawn move toward her &, as anticipated, heard her say, <Don’t beat yourself up ’bout it, Autumn — we can always come back ’nother night & give it ’nother try>.`,
+					`Autumn’s eyes dilated in horror @ this prospect, causing Dawn to laugh.`,
+					`Thru her laughter, Dawn said, <We’d better get going before security comes after us. If it makes you feel better, they owe us a complimentary dinner by now. Come, let’s eat>.`,
+					`Autumn followed Dawn back thru the casino, feeling like she had a hango’er under the onslaught o’ all the neon lights.`
+				] :
+				( finalTurn.land.funds < 100 ) ? [
+					`The tutle man turned & went while Autumn just stood there & shook her head.`,
+					`<Well, that was an utter waste o’ time. ¿Who would’ve guessed?>, she said.`,
+					`<It’s the experience that matters>, said Dawn. <’Sides, we can always come back ’nother night & give it ’nother try>.`,
+					`Autumn’s eyes dilated in horror @ this prospect, causing Dawn to laugh.`,
+					`Thru her laughter, Dawn said, <We’d better get going before security comes after us. If it makes you feel better, they owe us a complimentary dinner by now. Come, let’s eat>.`,
+					`Autumn followed Dawn back thru the casino, feeling like she had a hango’er under the onslaught o’ all the neon lights.`
+				] :
+				( finalTurn.land.funds < 150 ) ? [
+					`The tutle man turned & went while Autumn just stood there saying nothing.`,
+					`<You have to admit, that was a kinda cool reward we got>, said Dawn.`,
+					`<I guess ’twas better than nothing>, said Autumn. <Probably wasn’t worth the effort, tho>.`,
+					`<We can always come back ’nother night & give it ’nother try>.`,
+					`<Wasting our time a 2nd time sounds like a great idea>.`,
+					`& with that Autumn followed Dawn back thru the casino, this time feeling inoculated from all the lights.`
+				] :
+				( finalTurn.land.funds < 400 ) ? [
+					`The tutle man turned & went while Autumn just stood there saying nothing.`,
+					`<You have to admit, that was a kinda cool reward we got>, said Dawn.`,
+					`Autumn shrugged. <Maybe we could sell it for some o’ our money back>.`
+				].concat(
+					( finalTurn.land.funds >= 200 && finalTurn.land.funds < 250 ) ? [
+						`<¿You telling me you’re not excited to read this book cover-to-back?>.`, `<’Fraid not>.` ] :
+					( finalTurn.land.funds >= 250 && finalTurn.land.funds < 300 ) ? [
+						`<¿You telling me you’re not itching to come back & see their swanky VIP room?>.`, `With a frown o’ distate, Autumn said, <No, I’m good>.` ] :
+					( finalTurn.land.funds >= 300 ) ? [
+						`<¿You telling me you’re not dying to come back every night to get the best o’ these lifetime free visits?>.`, `Autumn looked @ Dawn with horror. <God, no>` ] :
+						[]
+				).concat([
+					`& with that Autumn followed Dawn back thru the casino, this time feeling inoculated from all the lights.`
+				]) :
+				( finalTurn.land.funds < 550 ) ? [
+					`The tutle man turned & went while Autumn just stood there with eyes as wide as basketballs.`,
+					`<¿See? I told you they gave us great rewards for doing well — & I told you we would do well>, said Dawn.`,
+					`<¿How much did you pay for entry?>, Autumn asked as she turned a look o’ confusion toward Dawn.`,
+					`<Far less than these rewards are worth>.`,
+					`<Well, ¿are we done? We should hurry out o’ here before they have a chance to weasel it back due to some technicality or someone else robs us>.`,
+					`<Yeah. We should get home soon, anyway — it’s late>. Dawn yawned.`,
+					`& with that Autumn followed Dawn back thru the casino, her nerves feeling as if they’d been flooded with pots o’ coffee @ the riches hung so close to her like a carrot on a stick.`
+				] :
+				[
+					`The tutle man turned & went while Autumn just stood there with eyes as wide as basketballs.`,
+					`Dawn grasped Autumn & cried, <¿See? ¡I told you we would do great! ¡Look @ us now!>.`,
+					`See paused & looked @ Autumn just standing there, feeling limp in her arms, & began to worry.`,
+					`<¿Autumn? ¿You there — ? ¡O!>.`,
+					`Dawn felt Autumn’s weight push down toward her like a corpse. But when she looked @ Autumn’s face, its eyes were still open, staring straight into the ceiling.`,
+					`She turned to Edgar & said, <I think she passed out>.`
+				]
+		);
 		},
 		firstRollText: function( game:Game ):readonly string[]
 		{
