@@ -26,26 +26,6 @@ test
 
 );
 
-
-test
-(
-    'Test Max & Min',
-    function()
-    {
-        const endingFunds:number[] = [];
-        for ( let i = 0; i < 9999999999; i++ )
-        {
-            const game = casino.run();
-            endingFunds.push( game.turnList[ game.turnList.length - 1 ].land.funds );
-        }
-        console.log( `MAX: ${ Math.max.apply( null, endingFunds ) }` );
-        console.log( `MIN: ${ Math.min.apply( null, endingFunds ) }` );
-        console.log( `AVG: ${ endingFunds.reduce( ( a, b ) => a + b ) / endingFunds.length }`)
-        expect( true ).toEqual( true );
-    }
-
-);
-
 test
 (
     'Test Max & Min',
@@ -65,11 +45,22 @@ test
 
 */
 
+
 test
 (
-    'Ignore',
+    'Test Max & Min',
     function()
     {
+        const endingFunds:number[] = [];
+        for ( let i = 0; i < 9999; i++ )
+        {
+            const game = casino.run();
+            endingFunds.push( game.turnList[ game.turnList.length - 1 ].land.funds );
+        }
+        console.log( `MAX: ${ Math.max.apply( null, endingFunds ) }` );
+        console.log( `MIN: ${ Math.min.apply( null, endingFunds ) }` );
+        console.log( `AVG: ${ endingFunds.reduce( ( a, b ) => a + b ) / endingFunds.length }`)
         expect( true ).toEqual( true );
     }
+
 );

@@ -1392,14 +1392,14 @@ import { Text } from './text';
 				}>.`
 			]).concat(
 				( finalTurn.land.funds <= 0 ) ? [
-					`The tutle man turned & went while Autumn just stood there with a pursed frown.`,
+					`The turtle man turned & went while Autumn just stood there with a pursed frown.`,
 					`She saw Dawn move toward her &, as anticipated, heard her say, <Don’t beat yourself up ’bout it, Autumn — we can always come back ’nother night & give it ’nother try>.`,
 					`Autumn’s eyes dilated in horror @ this prospect, causing Dawn to laugh.`,
 					`Thru her laughter, Dawn said, <We’d better get going before security comes after us. If it makes you feel better, they owe us a complimentary dinner by now. Come, let’s eat>.`,
 					`Autumn followed Dawn back thru the casino, feeling like she had a hango’er under the onslaught o’ all the neon lights.`
 				] :
 				( finalTurn.land.funds < 100 ) ? [
-					`The tutle man turned & went while Autumn just stood there & shook her head.`,
+					`The turtle man turned & went while Autumn just stood there & shook her head.`,
 					`<Well, that was an utter waste o’ time. ¿Who would’ve guessed?>, she said.`,
 					`<It’s the experience that matters>, said Dawn. <’Sides, we can always come back ’nother night & give it ’nother try>.`,
 					`Autumn’s eyes dilated in horror @ this prospect, causing Dawn to laugh.`,
@@ -1407,7 +1407,7 @@ import { Text } from './text';
 					`Autumn followed Dawn back thru the casino, feeling like she had a hango’er under the onslaught o’ all the neon lights.`
 				] :
 				( finalTurn.land.funds < 150 ) ? [
-					`The tutle man turned & went while Autumn just stood there saying nothing.`,
+					`The turtle man turned & went while Autumn just stood there saying nothing.`,
 					`<You have to admit, that was a kinda cool reward we got>, said Dawn.`,
 					`<I guess ’twas better than nothing>, said Autumn. <Probably wasn’t worth the effort, tho>.`,
 					`<We can always come back ’nother night & give it ’nother try>.`,
@@ -1415,7 +1415,7 @@ import { Text } from './text';
 					`& with that Autumn followed Dawn back thru the casino, this time feeling inoculated from all the lights.`
 				] :
 				( finalTurn.land.funds < 400 ) ? [
-					`The tutle man turned & went while Autumn just stood there saying nothing.`,
+					`The turtle man turned & went while Autumn just stood there saying nothing.`,
 					`<You have to admit, that was a kinda cool reward we got>, said Dawn.`,
 					`Autumn shrugged. <Maybe we could sell it for some o’ our money back>.`
 				].concat(
@@ -1430,7 +1430,7 @@ import { Text } from './text';
 					`& with that Autumn followed Dawn back thru the casino, this time feeling inoculated from all the lights.`
 				]) :
 				( finalTurn.land.funds < 550 ) ? [
-					`The tutle man turned & went while Autumn just stood there with eyes as wide as basketballs.`,
+					`The turtle man turned & went while Autumn just stood there with eyes as wide as basketballs.`,
 					`<¿See? I told you they gave us great rewards for doing well — & I told you we would do well>, said Dawn.`,
 					`<¿How much did you pay for entry?>, Autumn asked as she turned a look o’ confusion toward Dawn.`,
 					`<Far less than these rewards are worth>.`,
@@ -1439,14 +1439,14 @@ import { Text } from './text';
 					`& with that Autumn followed Dawn back thru the casino, her nerves feeling as if they’d been flooded with pots o’ coffee @ the riches hung so close to her like a carrot on a stick.`
 				] :
 				[
-					`The tutle man turned & went while Autumn just stood there with eyes as wide as basketballs.`,
+					`The turtle man turned & went while Autumn just stood there with eyes as wide as basketballs.`,
 					`Dawn grasped Autumn & cried, <¿See? ¡I told you we would do great! ¡Look @ us now!>.`,
 					`See paused & looked @ Autumn just standing there, feeling limp in her arms, & began to worry.`,
 					`<¿Autumn? ¿You there — ? ¡O!>.`,
 					`Dawn felt Autumn’s weight push down toward her like a corpse. But when she looked @ Autumn’s face, its eyes were still open, staring straight into the ceiling.`,
 					`She turned to Edgar & said, <I think she passed out>.`
 				]
-		);
+			);
 		},
 		firstRollText: function( game:Game ):readonly string[]
 		{
