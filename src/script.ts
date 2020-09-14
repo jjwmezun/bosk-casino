@@ -1454,7 +1454,15 @@ import { Text } from './text';
 		dinnerText: function( game:Game ):readonly string[]
 		{
 			return [
-				``
+				`Then Autumn heard a bell ring, followed by a voice squawking out, <¡Break time!>. Autumn then turned to Dawn for answers & received them:`,
+				`<It’s referring to us. Come, they offer us a complimentary dinner>.`,
+				`Autumn followed Dawn off the board’s path, — & then off the board itself & thru the gate out into the rest o’ the casino — but asked ’long the way, <¿How much did you pay ’gain?>.`,
+				`<Not too much, don’t worry>, said Dawn. <I’m flattered that you think I’d have a lot o’ money>.`,
+				`<You forget that spending money has time-travelling powers to spend not only the money you have now, but your future self’s money as well>.`,
+				`<Well, I didn’t do that, so don’t worry ’bout it>.`,
+				`<It’s just that I can’t imagine a business offering free food beyond what’s paid for the whole service that wasn’t inundated with ’nough customers to eat them out o’ business>.`,
+				`<You’ll be relieved to know that the food quality is not beyond what we paid>.`,
+				`<I am relieved: while a business being able to break the iron laws o’ cutthroat economics is as shocking as encountering Shoggoth, being ripped off is as familiar as sunny days in July>.`
 			];
 		},
 		firstRollText: function( game:Game ):readonly string[]
