@@ -147,8 +147,8 @@ test
     'Only minigame land turn statuses have extra info',
     function()
     {
-        const output:Array<Turn> = casino.run();
-        for ( const turn of output )
+        const game:Game = casino.run();
+        for ( const turn of game.turnList )
         {
             if ( turn.land.action === "minigame" )
             {
