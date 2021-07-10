@@ -1,3 +1,4 @@
+/*
 const analyze = require( `../src/analyze.ts` );
 const casino = require( '../src/casino.ts' );
 import { Game } from '../src/game';
@@ -61,3 +62,4 @@ test
 		}
     }
 );
+*/

@@ -1,3 +1,4 @@
+/*
 const analyze = require( '../src/analyze.ts' );
 
 class AlgorithmOutcome
@@ -49,3 +50,4 @@ test
         expect( true ).toEqual( true );
     }
 );
+*/

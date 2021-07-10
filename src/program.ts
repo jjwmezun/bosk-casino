@@ -1,17 +1,1284 @@
-import { BallSurvival } from './ball-survival';
-import { Game } from './game';
-import { Guesses } from './guesses';
-import { MinigameInfo } from './minigame-info';
-import { MinigameStatus } from './minigame-status';
-import { Turn } from './turn';
-import { TurnStatus } from './turn-status';
-import { Text } from './text';
-
-( function()
+module.exports = ( function()
 {
-	const analyze = require( `./analyze.ts` );
-	const config = require( `./config.ts` );
-	const chance = require( `./chance.ts` );
+	class BoskT
+	{
+		constructor()
+		{
+
+		}
+
+		public isArray( thing:any ):any
+		{
+			return thing instanceof Array;
+		}
+
+		public dirUploads():string
+		{
+			return 'http://localhost/bosk2/public/';
+		}
+
+		public isEven( n:number ):boolean
+		{
+			return n % 2 === 0;
+		}
+
+		public shuffleList<T>( list:readonly T[] ):T[]
+		{
+			return list.slice( 0 ).sort( function() { return 0.5 - Math.random() } );
+		}
+	
+		public inList<T>( list:readonly T[], val:T ):boolean
+		{
+			return list.some
+			(
+				function( currentValue )
+				{
+					return currentValue === val;
+				}
+			);
+		}
+	
+		public rand( closure:()=>any, ignore:any ):any
+		{
+			if ( ignore === undefined )
+			{
+				ignore = null;
+			}
+	
+			if ( !this.isArray( ignore ) )
+			{
+				ignore = [ ignore ];
+			}
+	
+			var x = null;
+	
+			do
+			{
+				x = closure();
+			}
+			while ( this.inList( ignore, x ) )
+	
+			return x;
+		}
+	
+		public randInt( max:number, min:number, ignore:any = undefined ):number
+		{
+			if ( max === undefined )
+			{
+				max = 1;
+			}
+			if ( min === undefined )
+			{
+				min = 0;
+			}
+			if ( ignore === undefined )
+			{
+				ignore = null;
+			}
+	
+			return this.rand( function() { return Math.floor( ( Math.random() * ( max + 1 - min ) ) + min ); }, ignore );
+		}
+	
+		public randListIndex<T>( list:readonly T[], ignore:T ):number
+		{
+			return this.randInt( list.length - 1, 0, ignore );
+		}
+	
+		public randListEntry<T>( list:readonly T[], ignore:T = undefined ):any
+		{
+			console.log( this );
+			return this.rand( function() { return list[ this.randListIndex( list ) ]; }.bind( this ), ignore );
+		}
+	
+		public randBoolean():boolean
+		{
+			return 1 === this.randInt( 1, 0 );
+		}
+	
+		public randPercent( percent )
+		{
+			return this.randInt( 100, 0 ) < percent;
+		}
+	
+		public average( list )
+		{
+			var sum = 0;
+	
+			for ( var i = 0; i < list.length; i++ )
+			{
+				sum += list[ i ];
+			}
+	
+			return sum / list.length;
+		}
+	
+		public listMaxorMix( list, comp )
+		{
+			var v = undefined;
+	
+			for ( var i = 0; i < list.length; i++ )
+			{
+				if ( undefined === v || comp( v, list[ i ] ) )
+				{
+					v = list[ i ];
+				}
+			}
+	
+			return v;
+		}
+	
+		public listMax( list )
+		{
+			return this.listMaxorMix( list, function( max, item ) { return max < item; } );
+		}
+	
+		public getEndOfList( list )
+		{
+			return list[ list.length - 1 ];
+		}
+	};
+
+	const Bosk:BoskT = new BoskT();
+
+	class ChanceDeck
+	{
+		readonly deck:number[];
+		readonly latestCard:number;
+		constructor( deck:number[], latestCard:number )
+		{
+			this.deck = deck;
+			this.latestCard = latestCard;
+		}
+	};
+
+	class MinigameGame
+	{
+		readonly type:string;
+		readonly name:string;
+		readonly difficulty:number;
+		constructor( type:string, difficulty:number )
+		{
+			this.type = type;
+			this.difficulty = difficulty;
+		}
+	};
+
+	class MinigameStatus
+	{
+		readonly type:string;
+		readonly win:boolean;
+		readonly bet:number;
+		readonly misc;
+		constructor( type:string, win:boolean, bet:number, misc = null )
+		{
+			this.type = type;
+			this.win = win;
+			this.bet = bet;
+			this.misc = misc;
+		}
+	};
+
+	class MinigameInfo
+	{
+		statuses:Array<MinigameStatus>
+		numbers:object
+		constructor()
+		{
+			this.statuses = [];
+			this.numbers = { karts: 0, tower: 0, count: 0 };
+		}
+
+		getStatuses():Array<MinigameStatus>
+		{
+			return this.statuses;
+		}
+
+		getNumber( type:string ):number
+		{
+			return this.numbers[ type ];
+		}
+
+		addMinigame( status:MinigameStatus ):void
+		{
+			this.addStatus( status );
+			this.increaseNumber( status.type );
+		}
+
+		addStatus( status:MinigameStatus ):void
+		{
+			this.statuses.push( status );
+		}
+
+		increaseNumber( type:string ):void
+		{
+			this.numbers[ type ]++;
+		}
+	};
+
+	class BallSurvival
+	{
+		readonly autumn:boolean;
+		readonly edgar:boolean;
+		readonly dawn:boolean;
+		constructor( autumn:boolean, edgar:boolean, dawn:boolean )
+		{
+			this.autumn = autumn;
+			this.edgar = edgar;
+			this.dawn = dawn;
+		}
+	};
+
+	class Guesses
+	{
+		readonly correct:number;
+		readonly autumn:number;
+		readonly dawn:number;
+		readonly chosen;
+		constructor( correct:number, autumn:number, dawn:number, chosen )
+		{
+			this.correct = correct;
+			this.autumn = autumn;
+			this.dawn = dawn;
+			this.chosen = chosen;
+		}
+	};
+
+	class ChanceCard
+	{
+		readonly type:string;
+		readonly action;
+
+		constructor( type:string, action )
+		{
+			this.type = type;
+			this.action = action;
+		}
+	};
+
+	class TurnStatus
+	{
+		readonly type:string;
+		readonly action:string;
+		readonly funds:number;
+		readonly currentSpace:number;
+		readonly chanceDeck:ChanceDeck;
+		readonly reachedEnd:boolean;
+		readonly extra:any;
+		constructor( type:string, action:string, funds:number, currentSpace:number, chanceDeck:ChanceDeck, reachedEnd:boolean = false, extra:any = null )
+		{
+			this.type = type;
+			this.action = action;
+			this.funds = funds;
+			this.currentSpace = currentSpace;
+			this.chanceDeck = chanceDeck;
+			this.reachedEnd = reachedEnd;
+			this.extra = extra;
+		}
+	};
+
+	class Turn
+	{
+		readonly number:number;
+		readonly roll:number;
+		readonly finished:boolean;
+		readonly reachedEnd:boolean;
+		readonly startingStatus:TurnStatus;
+		readonly passes:Array<TurnStatus>;
+		readonly land:TurnStatus;
+		constructor
+		(
+			number:number,
+			roll:number,
+			finished:boolean,
+			reachedEnd:boolean,
+			startingStatus:TurnStatus,
+			passes:Array<TurnStatus>,
+			land:TurnStatus
+		)
+		{
+			this.number = number;
+			this.roll = roll;
+			this.finished = finished;
+			this.reachedEnd = reachedEnd;
+			this.startingStatus = startingStatus;
+			this.passes = passes;
+			this.land = land;
+		}
+	};
+
+	class Text
+	{
+		text:Array<string>;
+
+		constructor( text:any = '' )
+		{
+			if ( typeof text === 'string' )
+			{
+				this.text = [ text ];
+			}
+			else if ( typeof text === 'object' && Array.isArray( text ) )
+			{
+				this.text = text;
+			}
+			else
+			{
+				throw `Invalid type given to Text constructor: ${ text }`
+			}
+		}
+
+		add( text:string )
+		{
+			this.text.push( text );
+		}
+
+		addList( text:Array<string> )
+		{
+			for ( const line of text )
+			{
+				this.add( line );
+			}
+		}
+
+		get()
+		{
+			return this.text;
+		}
+	};
+
+	class Game
+	{
+		readonly playerOrder:number[];
+		readonly turnList:Array<Turn>
+
+		constructor( playerOrder:number[], turnList:Array<Turn> )
+		{
+			this.playerOrder = playerOrder;
+			this.turnList = turnList;
+		}
+	};
+
+	class BranchChoice
+	{
+		readonly player:number;
+		readonly choice:boolean;
+
+		constructor( player:number, choice:boolean )
+		{
+			this.player = player;
+			this.choice = choice;
+		}
+	};
+
+	const config = Object.freeze
+	({
+		startingFunds: 20,
+		maxTurns: 25,
+		players: [ `Autumn`, `Edgar`, `Dawn` ],
+		playerNumberFromName: function( name:string ):number
+		{
+			for ( let i = 0; i < this.players.length; i++ )
+			{
+				const player = this.players[ i ];
+				if ( player === name )
+				{
+					return i;
+				}
+			}
+			throw `Invalid character name: ${ name }.`;
+		},
+		importantSpaces: Object.freeze
+		({
+			start: 0,
+			firstBranch:
+			{
+				topPathStart: 11,
+				bottomPathStart: 7
+			},
+			secondBranch:
+			{
+				leftPathStart: 12,
+				rightPathStart: 19,
+				pathsMeet: 28
+			},
+			thirdBranch:
+			{
+				topPathStart: 45,
+				bottomPathStart: 30,
+				pathsMeet: 53
+			}
+		}),
+		endingBonus:
+		{
+			bestBonus:
+			{
+				turns: 10,
+				bonus: 100
+			},
+			middleBonus:
+			{
+				turns: 15,
+				bonus: 50
+			},
+			minimumBonus: 25
+		}
+	});
+
+	const action = Object.freeze
+	({
+		changeFunds: function( lastStatus:TurnStatus, amount:number ):TurnStatus
+		{
+			return Object.freeze( new TurnStatus
+			(
+				lastStatus.type,
+				lastStatus.action,
+				lastStatus.funds + amount,
+				lastStatus.currentSpace,
+				lastStatus.chanceDeck,
+				lastStatus.reachedEnd
+			));
+		},
+		changeCurrentSpace: function( lastStatus:TurnStatus, newSpace:number ):TurnStatus
+		{
+			return Object.freeze( new TurnStatus
+			(
+				lastStatus.type,
+				lastStatus.action,
+				lastStatus.funds,
+				newSpace,
+				lastStatus.chanceDeck,
+				lastStatus.reachedEnd
+			));
+		}
+	});
+
+	const analyze = Object.freeze
+	({
+		getTurnPlayer: function( game:Game, turn:Turn ):number
+		{
+			return this.getTurnNumberPlayer( game, turn.number );
+		},
+		getTurnNumberPlayer: function( game:Game, turnNumber:number ):number
+		{
+			return game.playerOrder[ ( turnNumber - 1 ) % config.players.length ];
+		},
+		firstLandOTypes: function( game:Game, turnNumber:number, types:string[] ):boolean
+		{
+			return this.firstTurnOCondition
+			(
+				game,
+				turnNumber,
+				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
+			);
+		},
+		timesLandOTypes: function( game:Game, turnNumber:number, types:string[] ):number
+		{
+			return this.numberOConditions
+			(
+				game,
+				turnNumber,
+				( turn ) => turn.land !== null && Bosk.inList( types, turn.land.action )
+			);
+		},
+		noPassOTypesYet: function( game:Game, turnNumber:number, types:string[] ):boolean { return this.timesPassOTypes( game, turnNumber, types ) === 0; },
+		timesPassOTypes: function( game:Game, turnNumber:number, types:string[] ):number
+		{
+			return this.numberOPassesWithConditions
+			(
+				game,
+				turnNumber,
+				( pass ) => Bosk.inList( types, pass.action )
+			);
+		},
+		firstLandOTypesWithCharacter: function( game:Game, turnNumber:number, types:string[], character:number ):boolean
+		{
+			return this.firstTurnOCondition
+			(
+				game,
+				turnNumber,
+				( turn ) => turn.land !== null &&
+					Bosk.inList( types, turn.land.action ) &&
+					character === this.getTurnNumberPlayer( game, turn.number )
+			);
+		},
+		firstLandOTypesWithCharacters: function( game:Game, turnNumber:number, types:string[] ):boolean[]
+		{
+			const charactersHadType:boolean[] = [];
+			for ( let character = 0; character < config.players.length; character++ )
+			{
+				charactersHadType[ character ] = true;
+			}
+	
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					for ( let character = 0; character < config.players.length; character++ )
+					{
+						if
+						(
+							turn.land !== null &&
+							Bosk.inList( types, turn.land.action ) &&
+							character === this.getTurnNumberPlayer( game, turn.number )
+						)
+						{
+							charactersHadType[ character ] = false;
+						}
+					}
+				}
+			}
+			return charactersHadType;
+		},
+		firstTurnOCondition: function( game:Game, turnNumber:number, condition ):boolean
+		{
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					return true;
+				}
+				else if ( condition( turn ) )
+				{
+					return false;
+				}
+			}
+			return true;
+		},
+		numberOConditions: function( game:Game, turnNumber:number, condition ):number
+		{
+			let numberOConditions:number = 0;
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else if ( condition( turn ) )
+				{
+					numberOConditions++;
+				}
+			}
+			return numberOConditions;
+		},
+		numberOPassesWithConditions: function( game:Game, turnNumber:number, condition ):number
+		{
+			let numberOConditions:number = 0;
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					for ( const pass of turn.passes )
+					{
+						if ( pass !== null && condition( pass ) )
+						{
+							numberOConditions++;
+						}
+					}
+				}
+			}
+			return numberOConditions;
+		},
+		forkValues: function( game:Game, turnNumber:number, type:string ):object
+		{
+			const forkValues:object = { last: null };
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					for ( const pass of turn.passes )
+					{
+						if ( pass !== null && pass.action === type )
+						{
+							if ( forkValues[ pass.currentSpace ] === undefined )
+							{
+								forkValues[ pass.currentSpace ] = 0;
+							}
+							forkValues[ pass.currentSpace ]++;
+							forkValues[ `last` ] = pass.currentSpace;
+						}
+					}
+				}
+			}
+			return forkValues;
+		},
+		totalForkCount: function( forkValues:object ):number
+		{
+			let total:number = 0;
+			for ( const type in forkValues )
+			{
+				total += forkValues[ type ];
+			}
+			return total;
+		},
+		minigameInfo: function( game:Game, turnNumber:number ):MinigameInfo
+		{
+			const minigameInfo:MinigameInfo = new MinigameInfo();
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number >= turnNumber )
+				{
+					break;
+				}
+				else
+				{
+					if ( turn.land.action === "minigame" )
+					{
+						minigameInfo.addMinigame( turn.land.extra );
+					}
+				}
+			}
+			return minigameInfo;
+		},
+		hasPlayedMinigameBefore: function( minigameInfo:MinigameInfo, type:string ):boolean
+		{
+			return minigameInfo.getNumber( type ) > 0;
+		},
+		getSecondForkBranchData: function( game:Game, currentTurn:number ):Array<object>
+		{
+			const list:Array<object> = [];
+			for ( const turn of game.turnList )
+			{
+				if ( turn.number > currentTurn )
+				{
+					break;
+				}
+	
+				for ( const pass of turn.passes )
+				{
+					if ( pass.action === `secondForkCharactersChoose` )
+					{
+						list.push({
+							player: pass.extra[ 'player' ],
+							path: pass.extra[ 'path' ]
+						});
+					}
+				}
+			}
+			return list;
+		},
+		hasTakenPathOnSecondBranch: function( data:Array<object>, target:boolean ):boolean
+		{
+			for ( const item of data ) {
+				if ( data[ 'path' ] === target ) {
+					return true;
+				}
+			}
+			return false;
+		},
+		characterHasGottenSecondBranch: function( data:Array<object>, playerNumber:number ):boolean
+		{
+			for ( const item in data ) {
+				if ( item[ 'player' ] === playerNumber ) {
+					return true;
+				}
+			}
+			return false;
+		},
+		secondBranchHasGottenBothPaths: function( data:Array<object> ):boolean
+		{
+			let gottenLeft:boolean = false;
+			let gottenRight:boolean = false;
+			for ( const item in data ) {
+				if ( item[ 'path' ] ) {
+					gottenLeft = true;
+				}
+				else {
+					gottenRight = true;
+				}
+			}
+			return gottenLeft && gottenRight;
+		},
+		dawns2ndBranchAlgorithm: ( funds:number, turn:number ) => ( ( funds % turn ) % 2 ) === 1
+	});
+
+	const board = Object.freeze
+	([
+		/* 00 */ { land: `gain5`,       pass: null },
+		/* 01 */ { land: `chance`,      pass: null },
+		/* 02 */ { land: `lose5`,       pass: null },
+		/* 03 */ { land: `gain5`,       pass: null },
+		/* 04 */ { land: `lose5`,       pass: null },
+		/* 05 */ { land: `gain5`,       pass: null },
+		/* 06 */ { land: `chance`,      pass: `firstForkOddOrEven` },
+		/* 07 */ { land: `gain5`,       pass: null },
+		/* 08 */ { land: `minigame`,    pass: null },
+		/* 09 */ { land: `gain5`,       pass: null },
+		/* 10 */ { land: `chance`,      pass: `toStart` },
+		/* 11 */ { land: `chance`,      pass: `secondForkCharactersChoose` },
+		/* 12 */ { land: `lose5`,       pass: null },
+		/* 13 */ { land: `warpToStart`, pass: null },
+		/* 14 */ { land: `gain5`,       pass: null },
+		/* 15 */ { land: `warpToStart`, pass: null },
+		/* 16 */ { land: `chance`,      pass: null },
+		/* 17 */ { land: `warpToStart`, pass: null },
+		/* 18 */ { land: `gain5`,       pass: `secondBranchPathsMeet` },
+		/* 19 */ { land: `lose5`,       pass: null },
+		/* 20 */ { land: `gain5`,       pass: null },
+		/* 21 */ { land: `chance`,      pass: null },
+		/* 22 */ { land: `goPastCycle`, pass: null },
+		/* 23 */ { land: `gain5`,       pass: null },
+		/* 24 */ { land: `gain5`,       pass: null },
+		/* 25 */ { land: `minigame`,    pass: null },
+		/* 26 */ { land: `lose5`,       pass: null },
+		/* 27 */ { land: `goPastCycle`, pass: `secondBranchPathStart` },
+		/* 28 */ { land: `chance`,      pass: null },
+		/* 29 */ { land: `lose5`,       pass: `thirdForkRandom` },
+		/* 30 */ { land: `gain5`,       pass: null },
+		/* 31 */ { land: `chance`,      pass: null },
+		/* 32 */ { land: `lose5`,       pass: null },
+		/* 33 */ { land: `minigame`,    pass: null },
+		/* 34 */ { land: `gain5`,       pass: null },
+		/* 35 */ { land: `lose5`,       pass: null },
+		/* 36 */ { land: `gain5`,       pass: null },
+		/* 37 */ { land: `chance`,      pass: null },
+		/* 38 */ { land: `gain5`,       pass: null },
+		/* 39 */ { land: `chance`,      pass: null },
+		/* 40 */ { land: `lose5`,       pass: null },
+		/* 41 */ { land: `minigame`,    pass: null },
+		/* 42 */ { land: `lose5`,       pass: null },
+		/* 43 */ { land: `chance`,      pass: null },
+		/* 44 */ { land: `lose5`,       pass: `thirdBranchPathsMeet` },
+		/* 45 */ { land: `lose5`,       pass: null },
+		/* 46 */ { land: `gain5`,       pass: null },
+		/* 47 */ { land: `chance`,      pass: null },
+		/* 48 */ { land: `lose5`,       pass: null },
+		/* 49 */ { land: `lose5`,       pass: null },
+		/* 50 */ { land: `chance`,      pass: null },
+		/* 51 */ { land: `lose5`,       pass: null },
+		/* 52 */ { land: `lose5`,       pass: null },
+		/* 53 */ { land: `gain10`,      pass: null },
+		/* 54 */ { land: `chance`,      pass: null },
+		/* 55 */ { land: `minigame`,    pass: null },
+		/* 56 */ { land: `gain10`,      pass: null },
+		/* 57 */ { land: `lose10`,      pass: null },
+		/* 58 */ { land: `minigame`,    pass: null },
+		/* 59 */ { land: `chance`,      pass: null },
+		/* 60 */ { land: `lose10`,      pass: null }
+	]);
+
+	const chance = Object.freeze
+	({
+		cards:
+		[
+			new ChanceCard( `lose-money1`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, -20 ) ),
+			new ChanceCard( `lose-money2`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, -200 ) ),
+			new ChanceCard( `gain-money1`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 200 ) ),
+			new ChanceCard( `gain-money2`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 20 ) ),
+			new ChanceCard( `double-money`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, lastStatus.funds * 2 ) ),
+			new ChanceCard( `half-money`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, Math.floor( lastStatus.funds / 2 ) ) ),
+			new ChanceCard( `warp-to-final-stretch`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.thirdBranch.pathsMeet ) ),
+			new ChanceCard( `warp-to-start`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.start ) ),
+			new ChanceCard( `warp-to-2nd-fork`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeCurrentSpace( lastStatus, config.importantSpaces.firstBranch.topPathStart ) ),
+			new ChanceCard( `back-3-spaces`, ( currentTurn:Turn, lastStatus:TurnStatus ) => {
+				let newSpace:number = lastStatus.currentSpace - 3;
+				if ( newSpace < 0 ) {
+					newSpace = 11 + newSpace;
+				}
+				return action.changeCurrentSpace( lastStatus, newSpace );
+			}),
+			new ChanceCard( `pay-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, ( -10 ) * currentTurn.number ) ),
+			new ChanceCard( `gain-every-turn`, ( currentTurn:Turn, lastStatus:TurnStatus ) => action.changeFunds( lastStatus, 10 * currentTurn.number ) )
+		],
+		run: function( currentTurn:Turn, latestStatus:TurnStatus ):TurnStatus
+		{
+			const newDeck:ChanceDeck = this.getNextCard( latestStatus.chanceDeck );
+			return this.cards[ newDeck.latestCard ].action
+			(
+				currentTurn,
+				new TurnStatus
+				(
+					"land",
+					"chance",
+					latestStatus.funds,
+					latestStatus.currentSpace,
+					newDeck
+				)
+			);
+		},
+		getNextCard: function( deck:ChanceDeck ):ChanceDeck
+		{
+			const newDeck:number[] = ( deck.deck.length <= 1 )
+				? this.getShuffledDeck() // If deck is on last card, get reshuffled deck.
+				: deck.deck.slice( 0, deck.deck.length - 1 ); // Else, get last deck, but without the last entry ( equivalent o' pop ).
+			return Object.freeze( new ChanceDeck(
+				newDeck,
+				Bosk.getEndOfList( deck.deck )
+			));
+		},
+		createDeck: function():ChanceDeck
+		{
+			return Object.freeze( new ChanceDeck(
+				this.getShuffledDeck(),
+				null
+			));
+		},
+		getShuffledDeck: function():number[]
+		{
+			return Bosk.shuffleList( Array.from( this.cards.keys() ) );
+		}
+	});
+
+	const minigame = Object.freeze
+	({
+		minigames:
+		[
+			new MinigameGame( 'balls', 75 ),
+			new MinigameGame( 'bomb', 50 ),
+			new MinigameGame( 'count', 25 )
+		],
+		run: function( currentTurn:Turn, latestStatus:TurnStatus, game:Game ):TurnStatus
+		{
+			const selectedMinigame:MinigameGame = this.getRandomMinigame();
+			const win:boolean = this.testWin( selectedMinigame );
+			const bet:number = this.getRandomBet();
+			const newFunds:number = ( win ) ? latestStatus.funds + bet : latestStatus.funds - bet;
+			const misc:object = this.miscGenerators[ selectedMinigame.type ]( win, bet, currentTurn, latestStatus, game );
+			const minigameStatus:MinigameStatus = new MinigameStatus( selectedMinigame.type, win, bet, misc );
+			return Object.freeze( new TurnStatus
+			(
+				"land",
+				"minigame",
+				newFunds,
+				latestStatus.currentSpace,
+				latestStatus.chanceDeck,
+				latestStatus.reachedEnd,
+				minigameStatus
+			));
+		},
+		getRandomMinigame: function():MinigameGame
+		{
+			console.log( this.minigames );
+			return Bosk.randListEntry( this.minigames );
+		},
+		testWin: function( minigame:MinigameGame ):boolean
+		{
+			return Bosk.randInt( 99, 0 ) > minigame.difficulty;
+		},
+		getRandomBet: function():number
+		{
+			return Bosk.randListEntry( this.generateListOfIncrements( 5, 5, 100 ) );
+		},
+		generateListOfIncrements: function( increment:number, min:number, max:number ):number[]
+		{
+			const list:number[] = [];
+			for ( let i = min; i <= max; i += increment )
+			{
+				list.push( i );
+			}
+			return list;
+		},
+		miscGenerators: {
+			balls: ( win:boolean, bet:number, currentTurn:Turn, latestStatus:TurnStatus, game:Game ):object => {
+				const autumnSurvives:boolean = ( win ) ? Bosk.randPercent( 65 ) : false;
+				const dawnSurvives:boolean = ( function() {
+					const winChance:number = ( autumnSurvives ) ? 45 : 80;
+					return ( win ) ? ( Bosk.randPercent( winChance ) ) : false;
+				})();
+				const edgarSurvives:boolean = ( win ) ? ( ( !autumnSurvives && !dawnSurvives ) ? true : Bosk.randPercent( 30 ) ) : false;
+				return {
+					survives: new BallSurvival( autumnSurvives, edgarSurvives, dawnSurvives )
+				};
+			},
+			bomb: ( win:boolean, bet:number, currentTurn:Turn, latestStatus:TurnStatus, game:Game ):object => {
+				const options:string[] = [ `red`, `blue` ];
+				const player:number = analyze.getTurnPlayer( game, currentTurn );
+				const previousGames:object[] = game.turnList.map(
+					( turn:Turn, index:number ) => ( turn.land.action === 'minigame' && turn.land.extra.type === 'bomb' ) ? turn.land.extra.misc : null
+				).filter( ( value, index:number ) => value !== null );
+				const color:string = ( function() {
+					switch ( config.players[ player ] ) {
+						case ( `Autumn` ): {
+							const total:number = previousGames.length;
+							if ( total === 0 ) {
+								return Bosk.randListEntry( options );
+							} else {
+								let redCount:number = 0;
+								for ( const g of previousGames ) {
+									if ( g[ `color` ] === `red` ) {
+										++redCount;
+									}
+								}
+								const blueCount = total - redCount;
+								return ( redCount === blueCount ) ?
+									Bosk.randListEntry( options ) : (
+										( redCount > blueCount ) ? `red` : `blue`
+									);
+							}
+						}
+						break;
+						case ( `Edgar` ): {
+							return `blue`;
+						}
+						break;
+						case ( `Dawn` ): {
+							return options[ ( ( latestStatus.funds * 3 ) % currentTurn.number ) % 2 ];
+						}
+						break;
+						default: {
+							throw `Invalid bomb minigame chooser.`;
+						}
+						break;
+					}
+				})();
+				return {
+					chooser: player,
+					color: color
+				};
+			},
+			count: ( function()
+			{
+				const testBothWin = () => Bosk.randPercent( 35 );
+				const testBothLose = testBothWin;
+				const testAutumnWins = () => Bosk.randPercent( 60 );
+				const testAutumnLoses = () => !testAutumnWins();
+	
+				return ( win:boolean, bet:number ):object => {
+					const playersWithCorrectGuesses = ( win )
+					?
+						(
+							( testBothWin() )
+							? { autumn: true, dawn: true }
+							: (
+								( testAutumnWins() )
+								? { autumn: true, dawn: false }
+								: { autumn: false, dawn: true }
+								)
+						)
+					:
+						(
+							( testBothLose() )
+							? { autumn: false, dawn: false }
+							: (
+								( testAutumnLoses() )
+								? { autumn: false, dawn: true }
+								: { autumn: true, dawn: false }
+								)
+						);
+	
+					const correctNumber:number = Bosk.randInt( 48, 24 );
+					const autumnsGuess:number = ( playersWithCorrectGuesses.autumn ) ? correctNumber : correctNumber + Bosk.randInt( 2, -4, 0 );
+					const dawnsGuess:number = ( playersWithCorrectGuesses.dawn ) ? correctNumber : correctNumber + Bosk.randInt( 4, -2, 0 );
+					const chosenNumber = ( function()
+					{
+						const autumnsChosen = { character: "autumn", number: autumnsGuess };
+						const dawnsChosen = { character: "dawn", number: dawnsGuess }
+						return ( autumnsGuess === dawnsGuess )
+						? { character: "both", number: autumnsGuess }
+						: (
+							( playersWithCorrectGuesses.autumn )
+							? ( win ) ? autumnsChosen : dawnsChosen
+							: ( win ) ? dawnsChosen : autumnsChosen
+						);
+					})();
+					return {
+						guesses: new Guesses( correctNumber, autumnsGuess, dawnsGuess, chosenNumber )
+					};
+				}
+			})()
+		}
+	});
+
+	const spaces = ( function()
+	{
+		const testCharacterChooseBranch = function( game:Game, currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus {
+			const currentPlayer:number = analyze.getTurnPlayer( game, currentTurn );
+			const currentPlayerString:string = config.players[ currentPlayer ];
+			const secondForkBranchData:Array<object> = analyze.getSecondForkBranchData( game, currentTurn.number - 1 );
+			const isFirstTime:boolean = secondForkBranchData.length === 0;
+			const path:boolean = ( function()
+			{
+				switch ( currentPlayerString )
+				{
+					case ( `Autumn` ):
+					{
+						const hasTakenLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true );
+						const hasTakenRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false )
+						const hasGottenFuckedByLeftPath:boolean = hasTakenLeftPath && analyze.timesLandOTypes( game, currentTurn.number, [ `warpToStart` ] ) > 0;
+						const hasGottenFuckedByRightPath:boolean = hasTakenRightPath && analyze.timesPassOTypes( game, currentTurn.number, [ `secondBranchPathStart` ] ) > 0;
+						const gottenBothPathsBefore:boolean = analyze.secondBranchHasGottenBothPaths( secondForkBranchData );
+						return ( isFirstTime ) ?
+							Bosk.randBoolean() :
+								( hasGottenFuckedByLeftPath && hasGottenFuckedByRightPath ) ?
+									Bosk.randBoolean() :
+										( hasGottenFuckedByLeftPath ) ?
+											false :
+												( hasGottenFuckedByRightPath ) ?
+													true :
+														( gottenBothPathsBefore ) ?
+															true :
+																secondForkBranchData[ secondForkBranchData.length - 1 ][ `path` ];
+					}
+					break;
+					case ( `Edgar` ):
+					{
+						return false;
+					}
+					break;
+					case ( `Dawn` ):
+					{
+						return analyze.dawns2ndBranchAlgorithm( lastStatus.funds, currentTurn.number );
+					}
+					break;
+					default:
+					{
+						throw "Invalid character for testCharacterChooseBranch.";
+					}
+					break;
+				}
+			})();
+			return Object.freeze( new TurnStatus
+			(
+				lastStatus.type,
+				lastStatus.action,
+				lastStatus.funds,
+				( path ) ? config.importantSpaces.secondBranch.leftPathStart : config.importantSpaces.secondBranch.rightPathStart,
+				lastStatus.chanceDeck,
+				lastStatus.reachedEnd,
+				{ player: currentPlayer, path: path }
+			));
+		};
+	
+		return Object.freeze
+		({
+			"land":
+			{
+				"gain5": ( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus => action.changeFunds( lastStatus, 5 ),
+				"gain10": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return action.changeFunds( lastStatus, 10 );
+				},
+				"lose5": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return action.changeFunds( lastStatus, -5 );
+				},
+				"lose10": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return action.changeFunds( lastStatus, -10 );
+				},
+				"chance": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return chance.run( currentTurn, lastStatus );
+				},
+				"minigame": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return minigame.run( currentTurn, lastStatus, game );
+				},
+				"warpToStart": ( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus => action.changeCurrentSpace( lastStatus, config.importantSpaces.start ),
+				"goPastCycle": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return action.changeCurrentSpace( lastStatus, config.importantSpaces.secondBranch.pathsMeet );
+				},
+				"final": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return ( currentTurn.number <= config.endingBonus.bestBonus.turns )
+						? action.changeFunds( lastStatus, config.endingBonus.bestBonus.bonus )
+						: ( ( currentTurn.number <= config.endingBonus.middleBonus.turns )
+							? action.changeFunds( lastStatus, config.endingBonus.middleBonus.bonus )
+							: action.changeFunds( lastStatus, config.endingBonus.minimumBonus ) )
+				}
+			},
+			"pass":
+			{
+				"firstForkOddOrEven": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return action.changeCurrentSpace
+					(
+						lastStatus,
+						( currentTurn.number % 2 === 0 ) ? config.importantSpaces.firstBranch.bottomPathStart : config.importantSpaces.firstBranch.topPathStart
+					);
+				},
+				"toStart": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+				{
+					return action.changeCurrentSpace( lastStatus, config.importantSpaces.start );
+				},
+				"secondForkCharactersChoose": function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+				{
+					return testCharacterChooseBranch( game, currentTurn, lastStatus );
+				},
+				"secondBranchPathsMeet": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+				{
+					return action.changeCurrentSpace( lastStatus, config.importantSpaces.secondBranch.pathsMeet );
+				},
+				"secondBranchPathStart": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+				{
+					return action.changeCurrentSpace( lastStatus, config.importantSpaces.secondBranch.rightPathStart );
+				},
+				"thirdForkRandom": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+				{
+					return action.changeCurrentSpace
+					(
+						lastStatus,
+						( Bosk.randBoolean() ) ? config.importantSpaces.thirdBranch.topPathStart : config.importantSpaces.thirdBranch.bottomPathStart
+					);
+				},
+				"thirdBranchPathsMeet": function( currentTurn:Turn, lastStatus:TurnStatus ):TurnStatus
+				{
+					return action.changeCurrentSpace( lastStatus, config.importantSpaces.thirdBranch.pathsMeet );
+				}
+			}
+		});
+	})();
+
+	const casino = Object.freeze
+	({
+		config: config,
+		run: function():Game
+		{
+			const playerOrder:number[] = this.getRandomPlayerOrder();
+			return new Game( playerOrder, this.getTurnsList( playerOrder ) );
+		},
+		getTurnsList: function( playerOrder:number[] ):Array<Turn>
+		{
+			const turns:Array<Turn> = [ this.createFirstTurn() ];
+			while( !turns[ turns.length - 1 ].finished )
+			{
+				const game:Game = new Game( playerOrder, turns );
+				if ( game === undefined ) { throw "NOOOO!"; }
+				turns.push( this.getNextTurn( turns, game ) );
+			}
+			return turns;
+		},
+		getRandomPlayerOrder: function():readonly number[]
+		{
+			const listOfIndices:number[] = ( function()
+			{
+				const list:number[] = [];
+				for ( let i = 0; i < this.config.players.length; i++ )
+				{
+					list.push( i );
+				}
+				return list;
+			}).bind( this )();
+			return Object.freeze( Bosk.shuffleList( listOfIndices ) );
+		},
+		createFirstTurn: function():Turn
+		{
+			const initialDeck:ChanceDeck = chance.createDeck();
+			return Object.freeze( new Turn
+			(
+				0,
+				0,
+				false,
+				false,
+				new TurnStatus( "land", null, config.startingFunds, config.importantSpaces.start, initialDeck ),
+				[],
+				new TurnStatus( "land", null, config.startingFunds, config.importantSpaces.start, initialDeck )
+			));
+		},
+		getNextTurn: function( turns:Array<Turn>, game:Game ):Turn
+		{
+			const previousTurn:Turn = Bosk.getEndOfList( turns );
+			const ranOutOfTurns:boolean = ( previousTurn.number >= this.config.maxTurns );
+			const roll:number = ( !ranOutOfTurns ) ? this.rollDie() : 0;
+			const number:number = ( ranOutOfTurns ) ? previousTurn.number : previousTurn.number + 1;
+			const startingStatus:TurnStatus = previousTurn.land;
+			const currentTurn:Turn = Object.freeze( new Turn
+			(
+				number,
+				roll,
+				previousTurn.finished,
+				previousTurn.reachedEnd,
+				startingStatus,
+				[],
+				null
+			));
+	
+			const passes:Array<TurnStatus> = ( function()
+			{
+				const list:Array<TurnStatus> = [];
+				for ( let i = 0; i < roll; i++ )
+				{
+					const lastStatus:TurnStatus = ( list.length === 0 ) ? startingStatus : list[ list.length - 1 ];
+					list.push( this.runPass( currentTurn, lastStatus, game ) );
+					if ( list[ list.length - 1 ].reachedEnd )
+					{
+						break;
+					}
+				}
+				return list;
+			}).bind( this )();
+			const reachedEnd:boolean = !ranOutOfTurns && passes[ passes.length - 1 ].reachedEnd;
+			const finished:boolean = ranOutOfTurns || reachedEnd;
+			const lastStatus:TurnStatus = ( passes.length > 0 ) ? passes[ passes.length - 1 ] : startingStatus;
+			const land:TurnStatus = this.runLand( currentTurn, lastStatus, game );
+	
+			return Object.freeze( new Turn
+			(
+				number,
+				roll,
+				finished,
+				reachedEnd,
+				startingStatus,
+				passes,
+				land
+			));
+		},
+		runPass: function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+		{
+			const currentSpace:number = lastStatus.currentSpace + 1;
+			const reachedEnd:boolean = currentSpace >= board.length;
+			const action:string = ( !reachedEnd && board[ lastStatus.currentSpace ] !== undefined ) ? board[ lastStatus.currentSpace ].pass : null;
+			const finalStatus:TurnStatus = Object.freeze( new TurnStatus(
+				"pass",
+				action,
+				lastStatus.funds,
+				currentSpace,
+				lastStatus.chanceDeck,
+				reachedEnd
+			));
+			return this.applyAction( "pass", currentTurn, finalStatus, game );
+		},
+		runLand: function( currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+		{
+			try {
+				const action:string = ( lastStatus.currentSpace < board.length ) ? board[ lastStatus.currentSpace ].land : null;
+				const finalStatus:TurnStatus = Object.freeze( new TurnStatus(
+					"land",
+					action,
+					lastStatus.funds,
+					lastStatus.currentSpace,
+					lastStatus.chanceDeck,
+					lastStatus.reachedEnd
+				));
+				const final:TurnStatus = ( finalStatus.action === null )
+					? spaces.land.final( currentTurn, finalStatus, game )
+					: this.applyAction( "land", currentTurn, finalStatus, game );
+				return final;
+			}
+			catch ( error ) {
+				console.log( error );
+				//console.log( lastStatus.currentSpace );
+				//console.log( currentTurn );
+				//console.log( lastStatus );
+				//console.log( game.turnList[ game.turnList.length - 1 ] );
+			}
+		},
+		applyAction: function( type:string, currentTurn:Turn, lastStatus:TurnStatus, game:Game ):TurnStatus
+		{
+			return ( lastStatus.action === null )
+				? lastStatus
+				: spaces[ type ][ lastStatus.action ]( currentTurn, lastStatus, game );
+		},
+		rollDie: function():number
+		{
+			return Bosk.randInt( 6, 1 );
+		},
+		getRandomPlayer: function():string
+		{
+			return Bosk.randListEntry( this.config.players )
+		}
+	});
 
 	const playerNames:object = Object.freeze
 	({
@@ -20,7 +1287,7 @@ import { Text } from './text';
 		Dawn: "Dawn"
 	});
 
-	module.exports = Object.freeze
+	const script = Object.freeze
 	({
 		generateForHTML: function( data:Game ):string
 		{
@@ -370,9 +1637,9 @@ import { Text } from './text';
 				{
 					const timesGottenBefore:number = analyze.timesLandOTypes( game, turn.number, [ `goPastCycle` ] );
 					return ( timesGottenBefore > 0 ) ?
-				    [
+					[
 						`Then they landed on the yellow space with the “!” etched on it, which caused the elevator to appear round them ’gain, pulling them up out o’ their circular trap.`
-				    ] :
+					] :
 					[
 						`Then they landed on a yellow space with an “!” etched on it, which, ’pon being stepped on, caused a escalator to fade into view under & next to them. Before they could act, the elevator’s steps began pulling them upward.`,
 						`Gripping the edge tightly & looking up & down, but not daring to try leaping off, Autumn said, <¿How’s this going to fuck us now?>.`,
@@ -1099,7 +2366,7 @@ import { Text } from './text';
 							{
 								const hasTakenLeftPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, true );
 								const hasTakenRightPath:boolean = analyze.hasTakenPathOnSecondBranch( secondForkBranchData, false )
-								const hasGottenFuckedByLeftPath:boolean = hasTakenLeftPath && analyze.timesLandOTypes( game, turn.number, `warpToStart` ) > 0;
+								const hasGottenFuckedByLeftPath:boolean = hasTakenLeftPath && analyze.timesLandOTypes( game, turn.number, [ `warpToStart` ] ) > 0;
 								const hasGottenFuckedByRightPath:boolean = hasTakenRightPath && analyze.timesPassOTypes( game, turn.number, [ `secondBranchPathStart` ] ) > 0;
 								const autumnhasGoneBefore:boolean = analyze.characterHasGottenSecondBranch( secondForkBranchData, config.playerNumberFromName( `Autumn` ) );
 								if ( hasGottenFuckedByLeftPath && hasGottenFuckedByRightPath )
@@ -1462,7 +2729,9 @@ import { Text } from './text';
 				`<Well, I didn’t do that, so don’t worry ’bout it>.`,
 				`<It’s just that I can’t imagine a business offering free food beyond what’s paid for the whole service that wasn’t inundated with ’nough customers to eat them out o’ business>.`,
 				`<You’ll be relieved to know that the food quality is not beyond what we paid>.`,
-				`<I am relieved: while a business being able to break the iron laws o’ cutthroat economics is as shocking as encountering Shoggoth, being ripped off is as familiar as sunny days in July>.`
+				`<I am relieved: while a business being able to break the iron laws o’ cutthroat economics is as shocking as encountering Shoggoth, being ripped off is as familiar as sunny days in July>.`,
+				`Dawn led them to a booth on the east side o’ the casino, next to a window looking out into the inky night lit with neon signs. Autumn kept her head turned, gazing into the lights, trying to ignore the embarrassing pining feeling she felt. If she were right in the head she’s be a professional working in 1 o’ those lit buildings, absorbed in some kind o’ productive intellectual work ’stead o’ the parasitical anticareer she’s had for almost her entire life; if she were right in the head she’d probably be enjoying this game they were playing a lot mo’.`,
+				`¿Was she not enjoying it?`
 			];
 		},
 		firstRollText: function( game:Game ):readonly string[]
@@ -1608,4 +2877,17 @@ import { Text } from './text';
 			}
 		})
 	});
+	
+	return Object.freeze
+	({
+		runForConsole: ():string => script.generateForConsole( casino.run() ),
+		runForWebsite: function():void
+		{
+			const canvas:HTMLElement|null = document.getElementById( `bosk-casino-board-game` );
+			if ( canvas !== null )
+			{
+				canvas.innerHTML = script.generateForHTML( casino.run() );
+			}
+		}
+	})
 })();

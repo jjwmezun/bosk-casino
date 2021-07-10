@@ -1,3 +1,4 @@
+/*
 const chance = require( '../src/chance.ts' );
 import { ChanceDeck } from '../src/chance-deck';
 
@@ -69,3 +70,5 @@ test
 		}
     }
 );
+
+*/

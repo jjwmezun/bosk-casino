@@ -1,4 +1,5 @@
-const program = require( '../src/index.ts' );
+/*
+const program = require( '../src/program.ts' );
 const chance = require( '../src/chance.ts' );
 const script = require( '../src/script.ts' );
 const minigame = require( '../src/minigame.ts' );
@@ -13,7 +14,7 @@ test
     {
         const wordCounts:number[] = [];
         for ( let i = 0; i < 1000; ++i ) {
-            wordCounts.push( countWords( program.run() ) );
+            wordCounts.push( countWords( program.runForConsole() ) );
 
         }
         expect( wordCounts ).not.toEqual( [] );
@@ -26,3 +27,4 @@ test
         console.log( `Average: ${ average }` );
     }
 );
+*/

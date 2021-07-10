@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "es2015",
+        "outDir": "dev/js",
+        "moduleResolution": "Node",
+        //"strict": true,
+        //"noUnusedLocals": true,
+        //"noUnusedParameters": true,
+        //"noImplicitReturns": true,
+        //"noFallthroughCasesInSwitch": true,
+        "target": "es2015"
+    }
+}
