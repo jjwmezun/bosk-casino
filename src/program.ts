@@ -184,25 +184,23 @@ module.exports = ( function()
 		isDiamond():boolean { return this.suitIndex === 0 };
 	};
 	
-	const poker:Poker = Object.freeze( ( function() {
-		const masterDeck:PokerCard[] = Bosk.shuffleList( ( function():PokerCard[] {
-			const list:PokerCard[] = [];
+	class PokerDeck
+	{
+		private deck:PokerCard[] = [];
+
+		constructor() {
 			for ( let suit = 0; suit < cardSuits.length; ++suit ) {
 				for ( let rank = 0; rank < cardRanks.length; ++rank ) {
-					list.push( new PokerCard( rank, suit ) );
+					this.deck.push( new PokerCard( rank, suit ) );
 				}
 			}
-			return list;
-		})());
-		const getCard = function():PokerCard {
-			const cardIndex:number = Bosk.randListIndex( masterDeck );
-			return masterDeck.splice( cardIndex, 1 )[ 0 ];
-		};
-		return {
-			getHand: ():PokerHand => new PokerHand( [ ...Array( 5 ).keys() ].map( getCard ) )
-		};
-	})());
-	
+		}
+
+		getHand():PokerHand {
+			return new PokerHand( [ ...Array( 5 ).keys() ].map( () => this.deck.splice( Bosk.randListIndex( this.deck ), 1 )[ 0 ] ) );
+		}
+	};
+
 	enum PokerHandType {
 		RoyalFlush,
 		StraightFlush,
@@ -433,6 +431,10 @@ module.exports = ( function()
 		beats( other:PokerHand ):boolean {
 			return this.comp( other ) < 0;
 		}
+
+		getText():string {
+			return this.cards.map( ( card:PokerCard ):string => card.getText() ).join( `, ` );
+		}
 	};
 
 	class ChanceDeck
@@ -643,12 +645,17 @@ module.exports = ( function()
 	class Game
 	{
 		readonly playerOrder:number[];
-		readonly turnList:Array<Turn>
+		readonly turnList:Array<Turn>;
+        readonly autumnsHand:PokerHand;
+        readonly dawnsHand:PokerHand;
 
 		constructor( playerOrder:number[], turnList:Array<Turn> )
 		{
 			this.playerOrder = playerOrder;
 			this.turnList = turnList;
+			const deck:PokerDeck = new PokerDeck();
+			this.autumnsHand = deck.getHand();
+			this.dawnsHand = deck.getHand();
 		}
 	};
 
@@ -1616,7 +1623,7 @@ module.exports = ( function()
 			}
 			const finalTurn:Turn = data.turnList[ data.turnList.length - 1 ];
 			paragraphs = this.addParagraphs( paragraphs, this.getEndingScript( finalTurn, data ) );
-			return Object.freeze( paragraphs );
+			return Object.freeze( this.dinnerText( data ) );
 		},
 		addParagraph: function( list:string[], newParagraph:string ):readonly string[]
 		{
@@ -3014,19 +3021,36 @@ module.exports = ( function()
 		},
 		dinnerText: function( game:Game ):readonly string[]
 		{
-			return [
-				`Then Autumn heard a bell ring, followed by a voice squawking out, <¡Break time!>. Autumn then turned to Dawn for answers & received them:`,
-				`<It’s referring to us. Come, they offer us a complimentary dinner>.`,
-				`Autumn followed Dawn off the board’s path, — & then off the board itself & thru the gate out into the rest o’ the casino — but asked ’long the way, <¿How much did you pay ’gain?>.`,
-				`<Not too much, don’t worry>, said Dawn. <I’m flattered that you think I’d have a lot o’ money>.`,
-				`<You forget that spending money has time-travelling powers to spend not only the money you have now, but your future self’s money as well>.`,
-				`<Well, I didn’t do that, so don’t worry ’bout it>.`,
-				`<It’s just that I can’t imagine a business offering free food beyond what’s paid for the whole service that wasn’t inundated with ’nough customers to eat them out o’ business>.`,
-				`<You’ll be relieved to know that the food quality is not beyond what we paid>.`,
-				`<I am relieved: while a business being able to break the iron laws o’ cutthroat economics is as shocking as encountering Shoggoth, being ripped off is as familiar as sunny days in July>.`,
-				`Dawn led them to a booth on the east side o’ the casino, next to a window looking out into the inky night lit with neon signs. Autumn kept her head turned, gazing into the lights, trying to ignore the embarrassing pining feeling she felt. If she were right in the head she’s be a professional working in 1 o’ those lit buildings, absorbed in some kind o’ productive intellectual work ’stead o’ the parasitical anticareer she’s had for almost her entire life; if she were right in the head she’d probably be enjoying this game they were playing a lot mo’.`,
-				`¿Was she not enjoying it?`
+			let p:string[] = [
+				`Dawn began tossing cards onto the table, alternating ’tween tossing 1 in front o’ Autumn & in front o’ herself, till each had a pile o’ 5 in front o’ her. They each scooped their piles into their hands & began to sort them by rank.`
 			];
+
+			switch ( game.dawnsHand.type )
+			{
+				case ( PokerHandType.RoyalFlush ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<¡No way!>.`,
+							`Autumn looked up from her cards with raised brows @ Dawn to see her wearing an embarrassed smile.`,
+							`<I hope that isn’t your attempt @ a poker face>, said Autumn.`,
+							`<Nope>.`,
+							`<¿What did you get? ¿An automatic win card?>.`,
+							`<No, but I got a royal flush>, Dawn said as she spread out her cards on the table: ${ game.dawnsHand.getText() }.`
+						]
+					);
+				break;
+				default:
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<I didn’t get anything>, Dawn said as she spread out her cards on the table: ${ game.dawnsHand.getText() }.`,
+						]
+					);
+				break;
+			}
+
+			return Object.freeze( p );
 		},
 		firstRollText: function( game:Game ):readonly string[]
 		{
