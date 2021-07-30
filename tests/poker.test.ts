@@ -85,7 +85,6 @@ class BoskT
 
     public randListEntry<T>( list:readonly T[], ignore:T = undefined ):any
     {
-        console.log( this );
         return this.rand( function() { return list[ this.randListIndex( list ) ]; }.bind( this ), ignore );
     }
 
@@ -166,6 +165,9 @@ const cardRanks:readonly string[] = Object.freeze([
     `2`
 ]);
 
+const randRank = ():number => Bosk.randInt( cardRanks.length - 1, 0 );
+const randSuit = ():number => Bosk.randInt( 3, 0 );
+
 class PokerCard {
     readonly rankIndex:number;
     readonly suitIndex:number;
@@ -176,6 +178,7 @@ class PokerCard {
 
     getRankText():string { return cardRanks[ this.rankIndex ]; }
     getSuitText():string { return cardSuits[ this.suitIndex ]; }
+    getText():string { return `${ this.getSuitText() }${ this.getRankText() }`; }
     isHeart():boolean { return this.suitIndex === 2 };
     isDiamond():boolean { return this.suitIndex === 0 };
 };
@@ -195,7 +198,7 @@ const poker:Poker = Object.freeze( ( function() {
         return masterDeck.splice( cardIndex, 1 )[ 0 ];
     };
     return {
-        getHand: ():PokerHand => new PokerHand( [ ...Array( 5 ).keys() ].map( getCard ).sort( ( a:PokerCard, b:PokerCard ):number => a.rankIndex - b.rankIndex ) )
+        getHand: ():PokerHand => new PokerHand( [ ...Array( 5 ).keys() ].map( getCard ) )
     };
 })());
 
@@ -204,34 +207,79 @@ enum PokerHandType {
     StraightFlush,
     FourOfAKind,
     FullHouse,
+    Flush,
+    Straight,
+    ThreeOfAKind,
+    TwoPair,
+    OnePair,
     HighCard
+};
+
+const testIsStraightFlush = function( cards:readonly PokerCard[] ):boolean {
+    let testRank:number = cards[ 0 ].rankIndex;
+    for ( let i = 1; i < cards.length; ++i ) {
+        // Make sure all cards after 1st share 1st’s suit & go up in rank sequence from 1st’s.
+        if ( cards[ 0 ].suitIndex !== cards[ i ].suitIndex || cards[ i ].rankIndex !== ++testRank ) {
+            return false;
+        }
+    }
+    return true;
+};
+
+const testIsFlush = function( cards:readonly PokerCard[] ):boolean {   
+    for ( let i = 1; i < cards.length; ++i ) {
+        if ( cards[ 0 ].suitIndex !== cards[ i ].suitIndex ) {
+            return false;
+        }
+    }
+    return true;
+};
+
+const testIsStraight = function( cards:readonly PokerCard[] ):boolean {
+    let testRank:number = cards[ 0 ].rankIndex;
+    for ( let i = 1; i < cards.length; ++i ) {
+        // Make sure all cards go up in rank sequence from 1st’s.
+        if ( cards[ i ].rankIndex !== ++testRank ) {
+            return false;
+        }
+    }
+    return true;
+};
+
+const findPairs = function( cards:readonly PokerCard[] ):number[][] {
+    const pairs:number[][] = [];
+    for ( let i = 0; i < cards.length; ++i ) {
+        for ( let j = i + 1; j < cards.length; ++j ) {
+            if ( cards[ i ].rankIndex === cards[ j ].rankIndex ) {
+                pairs.push( [ i, j ] );
+            }
+        }
+    }
+    return pairs;
 };
 
 class PokerHand {
     readonly cards:PokerCard[];
     readonly type:PokerHandType;
     readonly kicker:number;
+    readonly kickers:number[];
     readonly topRank:number;
+    readonly topRanks:number[];
 
-    constructor( cards:PokerCard[] ) {
-        this.cards = cards;
+    constructor( cards:readonly PokerCard[] ) {
+        if ( cards.length !== 5 ) {
+            throw `Invalid Deck size ${ cards.length }. Must be 5.`;
+        }
+
+        this.cards = cards.slice().sort( ( a:PokerCard, b:PokerCard ):number => a.rankIndex - b.rankIndex );
         this.type = PokerHandType.HighCard;
         this.kicker = 0;
         this.topRank = 0;
+        this.kickers = [];
+        this.topRanks = [];
 
         // Test for Straight Flush
-        let testRank:number = this.cards[ 0 ].rankIndex;
-        let testSuit:number = this.cards[ 0 ].suitIndex;
-        let isStraightFlush:boolean = true;
-        for ( let i = 1; i < this.cards.length; ++i ) {
-            // Make sure all cards after 1st share 1st’s suit & go up in rank sequence from 1st’s.
-            if ( this.cards[ i ].suitIndex !== testSuit || this.cards[ i ].rankIndex !== ++testRank ) {
-                isStraightFlush = false;
-                break;
-            }
-        }
-
-        if ( isStraightFlush ) {
+        if ( testIsStraightFlush( this.cards ) ) {
             this.type = ( this.cards[ 0 ].rankIndex === 0 ) ? PokerHandType.RoyalFlush : PokerHandType.StraightFlush;
             this.topRank = this.cards[ 0 ].rankIndex;
             return;
@@ -270,23 +318,112 @@ class PokerHand {
                         this.type = PokerHandType.FullHouse;
                         this.topRank = this.cards[ ( i === 2 ) ? 2 : 0 ].rankIndex;
                         this.kicker = this.cards[ ( i === 2 ) ? 0 : 3 ].rankIndex;
+                        return;
                     }
                 }
                 break;
             }
         }
-        
 
+        // Test for Flush
+        if ( testIsFlush( this.cards ) ) {
+            this.type = PokerHandType.Flush;
+            this.topRank = this.cards[ 0 ].rankIndex;
+            return;
+        }
+
+        // Test for Straight
+        if ( testIsStraight( this.cards ) ) {
+            this.type = PokerHandType.Straight;
+            this.topRank = this.cards[ 0 ].rankIndex;
+            return;
+        }
+
+        // Test for 3 o’ a Kind
+        for ( let i = 0; i < 3; ++i ) {
+            let isThreeKind:boolean = true;
+            for ( let j = i + 1; j < i + 3; ++j ) {
+                if ( this.cards[ j ].rankIndex !== this.cards[ i ].rankIndex ) {
+                    isThreeKind = false;
+                    break;
+                }
+            }
+            if ( isThreeKind ) {
+                this.type = PokerHandType.ThreeOfAKind;
+                this.topRank = this.cards[ i ].rankIndex;
+
+                // Find min ( highest o’ rank ) o’ 2 cards that aren’t part o’ triple.
+                const nonTriple:number[] = ( i === 1 ) ? [ 0, 4 ] : ( ( i === 2 ) ? [ 0, 1 ] : [ 3, 4 ] );
+                this.kickers = nonTriple.map( ( n:number ) => this.cards[ n ].rankIndex ).sort();
+                return;
+            }
+        }
+
+        // Test for 2 Pair
+        const pairs:number[][] = findPairs( this.cards );
+        switch ( pairs.length ) {
+            case ( 2 ):
+            {
+                this.type = PokerHandType.TwoPair;
+                this.topRanks = pairs.map( ( list:number[] ) => this.cards[ list[ 0 ] ].rankIndex ).sort();
+                const flatPairs:number[] = [].concat.apply( [], pairs );
+                for ( let i = 0; i < this.cards.length; ++i ) {
+                    if ( !flatPairs.includes( i ) ) {
+                        this.kicker = this.cards[ i ].rankIndex;
+                        return;
+                    }
+                }
+                return;
+            }
+            case ( 1 ):
+            {
+                this.type = PokerHandType.OnePair;
+                this.topRank = this.cards[ pairs[ 0 ][ 0 ] ].rankIndex;
+                // Set kickers as all cards not part o’ pair.
+                this.kickers = [ ...Array( 5 ).keys() ]
+                    .map( ( n:number ) => ( pairs[ 0 ].includes( n ) ) ? -1 : n )
+                    .filter( ( n:number ) => n >= 0 )
+                    .map( ( n:number ) => this.cards[ n ].rankIndex )
+                    .sort();
+            }
+        }
     }
 
     comp( other:PokerHand ):number {
         if ( this.type === other.type ) {
             switch ( this.type ) {
                 case ( PokerHandType.StraightFlush ):
+                case ( PokerHandType.Straight ):
                     return this.topRank - other.topRank;
                 case ( PokerHandType.FourOfAKind ):
                 case ( PokerHandType.FullHouse ):
                     return ( this.topRank === other.topRank ) ? this.kicker - other.kicker : this.topRank - other.topRank;
+                case ( PokerHandType.HighCard ):
+                case ( PokerHandType.Flush ):
+                    for ( let i = 0; i < this.cards.length; ++i ) {
+                        if ( this.cards[ i ].rankIndex !== other.cards[ i ].rankIndex ) {
+                            return this.cards[ i ].rankIndex - other.cards[ i ].rankIndex;
+                        }
+                    }
+                    return 0;
+                case ( PokerHandType.ThreeOfAKind ):
+                case ( PokerHandType.OnePair ):
+                    if ( this.topRank !== other.topRank ) {
+                        return this.topRank - other.topRank;
+                    }
+                    for ( let j = 0; j < this.kickers.length && j < other.kickers.length; ++j ) {
+                        if ( this.kickers[ j ] != other.kickers[ j ] ) {
+                            return this.kickers[ j ] - other.kickers[ j ];
+                        }
+                    }
+                    return 0;
+                case ( PokerHandType.TwoPair ):
+                    for ( let i = 0; i < this.topRanks.length && i < other.topRanks.length; ++i ) {
+                        if ( this.topRanks[ i ] != other.topRanks[ i ] ) {
+                            return this.topRanks[ i ] - other.topRanks[ i ];
+                        }
+                    }
+                    return this.kicker - other.kicker;
             }
         }
         return this.type - other.type;
@@ -300,7 +437,7 @@ class PokerHand {
 
 const consoleFormatCard = function( card:PokerCard ):string {
     const color:string = ( card.isHeart() || card.isDiamond() ) ? `\x1b[31m` : `\x1b[34m`;
-    return `${ color }${ card.getSuitText() }${ card.getRankText() }\x1b[0m`;
+    return `${ color }${ card.getText() }\x1b[0m`;
 };
 
 
@@ -369,10 +506,10 @@ test
     `Hand is a 4 o’ a Kind`,
     function()
     {
-        const hand1:PokerHand = new PokerHand([ new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 5, Bosk.randInt( 3, 0 ) ) ]);
-        const hand2:PokerHand = new PokerHand([ new PokerCard( 4, Bosk.randInt( 3, 0 ) ), new PokerCard( 8, Bosk.randInt( 3, 0 ) ), new PokerCard( 8, Bosk.randInt( 3, 0 ) ), new PokerCard( 8, Bosk.randInt( 3, 0 ) ), new PokerCard( 8, Bosk.randInt( 3, 0 ) ) ]);
-        const hand3:PokerHand = new PokerHand([ new PokerCard( 9, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ) ]);
-        const hand4:PokerHand = new PokerHand([ new PokerCard( 5, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ) ]);
+        const hand1:PokerHand = new PokerHand([ new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 5, randSuit() ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 4, randSuit() ), new PokerCard( 8, randSuit() ), new PokerCard( 8, randSuit() ), new PokerCard( 8, randSuit() ), new PokerCard( 8, randSuit() ) ]);
+        const hand3:PokerHand = new PokerHand([ new PokerCard( 9, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ) ]);
+        const hand4:PokerHand = new PokerHand([ new PokerCard( 5, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ) ]);
         console.log( `Hand 1: ${ hand1.cards.map( consoleFormatCard ).join( ", " ) }` );
         console.log( `Hand 2: ${ hand2.cards.map( consoleFormatCard ).join( ", " ) }` );
         expect( hand1.type ).toEqual( PokerHandType.FourOfAKind );
@@ -393,9 +530,9 @@ test
     `Hand is a Full House`,
     function()
     {
-        const hand1:PokerHand = new PokerHand([ new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 3, Bosk.randInt( 3, 0 ) ), new PokerCard( 3, Bosk.randInt( 3, 0 ) ) ]);
-        const hand2:PokerHand = new PokerHand([ new PokerCard( 1, Bosk.randInt( 3, 0 ) ), new PokerCard( 1, Bosk.randInt( 3, 0 ) ), new PokerCard( 8, Bosk.randInt( 3, 0 ) ), new PokerCard( 8, Bosk.randInt( 3, 0 ) ), new PokerCard( 8, Bosk.randInt( 3, 0 ) ) ]);
-        const hand3:PokerHand = new PokerHand([ new PokerCard( 4, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 7, Bosk.randInt( 3, 0 ) ), new PokerCard( 4, Bosk.randInt( 3, 0 ) ) ]);
+        const hand1:PokerHand = new PokerHand([ new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 3, randSuit() ), new PokerCard( 3, randSuit() ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 1, randSuit() ), new PokerCard( 1, randSuit() ), new PokerCard( 8, randSuit() ), new PokerCard( 8, randSuit() ), new PokerCard( 8, randSuit() ) ]);
+        const hand3:PokerHand = new PokerHand([ new PokerCard( 4, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 7, randSuit() ), new PokerCard( 4, randSuit() ) ]);
         expect( hand1.type ).toEqual( PokerHandType.FullHouse );
         expect( hand2.type ).toEqual( PokerHandType.FullHouse );
         expect( hand1.topRank ).toEqual( 7 );
@@ -412,5 +549,95 @@ test
     {
         const hand1:PokerHand = new PokerHand([ new PokerCard( 7, 2 ), new PokerCard( 7, 2 ), new PokerCard( 2, 2 ), new PokerCard( 3, 2 ), new PokerCard( 3, 2 ) ]);
         expect( hand1.type ).not.toEqual( PokerHandType.FullHouse );
+    }
+);
+
+test
+(
+    `Hand is a Flush`,
+    function()
+    {
+        const hand1:PokerHand = new PokerHand([ new PokerCard( randRank(), 1 ), new PokerCard( randRank(), 1 ), new PokerCard( randRank(), 1 ), new PokerCard( randRank(), 1 ), new PokerCard( randRank(), 1 ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 3, 2 ), new PokerCard( 5, 2 ), new PokerCard( 8, 2 ), new PokerCard( 4, 2 ), new PokerCard( 4, 2 ) ]);
+        const hand3:PokerHand = new PokerHand([ new PokerCard( 8, 3 ), new PokerCard( 9, 3 ), new PokerCard( 10, 3 ), new PokerCard( 6, 3 ), new PokerCard( 1, 3 ) ]);
+        const hand4:PokerHand = new PokerHand([ new PokerCard( 8, 3 ), new PokerCard( 9, 3 ), new PokerCard( 11, 3 ), new PokerCard( 6, 3 ), new PokerCard( 1, 3 ) ]);
+        const hand5:PokerHand = new PokerHand([ new PokerCard( 8, 3 ), new PokerCard( 9, 3 ), new PokerCard( 11, 3 ), new PokerCard( 6, 3 ), new PokerCard( 1, 3 ) ]);
+        expect( hand1.type ).toEqual( PokerHandType.Flush );
+        expect( hand2.topRank ).toEqual( 3 );
+        expect( hand3.topRank ).toEqual( 1 );
+        expect( hand3.beats( hand2 ) ).toBeTruthy();
+        expect( hand3.beats( hand4 ) ).toBeTruthy();
+        expect( hand4.comp( hand5 ) ).toEqual( 0 );
+    }
+);
+
+test
+(
+    `Hand is a Straight`,
+    function()
+    {
+        const hand1:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 4, 1 ), new PokerCard( 7, 3 ), new PokerCard( 5, 2 ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 2, 0 ), new PokerCard( 4, 1 ), new PokerCard( 1, 3 ), new PokerCard( 5, 2 ) ]);
+        expect( hand1.type ).toEqual( PokerHandType.Straight );
+        expect( hand2.beats( hand1 ) ).toBeTruthy();
+    }
+);
+
+test
+(
+    `Hand is a 3 o’ a Kind`,
+    function()
+    {
+        const hand1:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 3, 1 ), new PokerCard( 7, 3 ), new PokerCard( 3, 2 ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 2, 1 ), new PokerCard( 6, 0 ), new PokerCard( 2, 1 ), new PokerCard( 7, 3 ), new PokerCard( 2, 2 ) ]);
+        const hand3:PokerHand = new PokerHand([ new PokerCard( 2, 1 ), new PokerCard( 6, 0 ), new PokerCard( 2, 1 ), new PokerCard( 5, 3 ), new PokerCard( 2, 2 ) ]);
+        const hand4:PokerHand = new PokerHand([ new PokerCard( 2, 2 ), new PokerCard( 6, 3 ), new PokerCard( 2, 1 ), new PokerCard( 5, 0 ), new PokerCard( 2, 2 ) ]);
+        expect( hand1.type ).toEqual( PokerHandType.ThreeOfAKind );
+        expect( hand2.beats( hand1 ) ).toBeTruthy();
+        expect( hand3.beats( hand2 ) ).toBeTruthy();
+        expect( hand3.comp( hand4 ) ).toEqual( 0 );
+    }
+);
+
+test
+(
+    `Hand is a 2 Pair`,
+    function()
+    {
+        const hand1:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 6, 1 ), new PokerCard( 7, 3 ), new PokerCard( 3, 2 ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 7, 0 ), new PokerCard( 7, 1 ), new PokerCard( 2, 3 ), new PokerCard( 3, 2 ) ]);
+        const hand3:PokerHand = new PokerHand([ new PokerCard( 2, 1 ), new PokerCard( 6, 0 ), new PokerCard( 6, 1 ), new PokerCard( 9, 3 ), new PokerCard( 2, 2 ) ]);
+        expect( hand1.type ).toEqual( PokerHandType.TwoPair );
+        expect( hand1.beats( hand2 ) ).toBeTruthy();
+        expect( hand3.beats( hand1 ) ).toBeTruthy();
+        expect( hand1.comp( hand1 ) ).toEqual( 0 );
+    }
+);
+
+test
+(
+    `Hand is a Pair`,
+    function()
+    {
+        const hand1:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 1, 1 ), new PokerCard( 7, 3 ), new PokerCard( 3, 2 ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 2, 1 ), new PokerCard( 6, 0 ), new PokerCard( 11, 1 ), new PokerCard( 7, 3 ), new PokerCard( 2, 2 ) ]);
+        const hand3:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 1, 1 ), new PokerCard( 8, 3 ), new PokerCard( 3, 2 ) ]);
+        expect( hand1.type ).toEqual( PokerHandType.OnePair );
+        expect( hand2.beats( hand1 ) ).toBeTruthy();
+        expect( hand1.beats( hand3 ) ).toBeTruthy();
+    }
+);
+
+test
+(
+    `Hand is a High Card`,
+    function()
+    {
+        const hand1:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 1, 1 ), new PokerCard( 7, 3 ), new PokerCard( 11, 2 ) ]);
+        const hand2:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 1, 1 ), new PokerCard( 7, 3 ), new PokerCard( 12, 2 ) ]);
+        const hand3:PokerHand = new PokerHand([ new PokerCard( 3, 1 ), new PokerCard( 6, 0 ), new PokerCard( 0, 1 ), new PokerCard( 7, 3 ), new PokerCard( 11, 2 ) ]);
+        expect( hand1.type ).toEqual( PokerHandType.HighCard );
+        expect( hand1.beats( hand2 ) ).toBeTruthy();
+        expect( hand3.beats( hand1 ) ).toBeTruthy();
     }
 );

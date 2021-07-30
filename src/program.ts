@@ -4,24 +4,24 @@ module.exports = ( function()
 	{
 		constructor()
 		{
-
+	
 		}
-
+	
 		public isArray( thing:any ):any
 		{
 			return thing instanceof Array;
 		}
-
+	
 		public dirUploads():string
 		{
 			return 'http://localhost/bosk2/public/';
 		}
-
+	
 		public isEven( n:number ):boolean
 		{
 			return n % 2 === 0;
 		}
-
+	
 		public shuffleList<T>( list:readonly T[] ):T[]
 		{
 			return list.slice( 0 ).sort( function() { return 0.5 - Math.random() } );
@@ -79,14 +79,13 @@ module.exports = ( function()
 			return this.rand( function() { return Math.floor( ( Math.random() * ( max + 1 - min ) ) + min ); }, ignore );
 		}
 	
-		public randListIndex<T>( list:readonly T[], ignore:T ):number
+		public randListIndex<T>( list:readonly T[], ignore:T = undefined ):number
 		{
 			return this.randInt( list.length - 1, 0, ignore );
 		}
 	
 		public randListEntry<T>( list:readonly T[], ignore:T = undefined ):any
 		{
-			console.log( this );
 			return this.rand( function() { return list[ this.randListIndex( list ) ]; }.bind( this ), ignore );
 		}
 	
@@ -139,6 +138,302 @@ module.exports = ( function()
 	};
 
 	const Bosk:BoskT = new BoskT();
+
+	interface Poker {
+		getHand: () => PokerHand;
+	};
+	
+	const cardSuits:readonly string[] = Object.freeze([
+		`♦`,
+		`♣`,
+		`♥`,
+		`♠`
+	]);
+	
+	const cardRanks:readonly string[] = Object.freeze([
+		`A`,
+		`K`,
+		`Q`,
+		`J`,
+		`10`,
+		`9`,
+		`8`,
+		`7`,
+		`6`,
+		`5`,
+		`4`,
+		`3`,
+		`2`
+	]);
+	
+	const randRank = ():number => Bosk.randInt( cardRanks.length - 1, 0 );
+	const randSuit = ():number => Bosk.randInt( 3, 0 );
+	
+	class PokerCard {
+		readonly rankIndex:number;
+		readonly suitIndex:number;
+		constructor( rankIndex:number, suitIndex:number ) {
+			this.rankIndex = rankIndex;
+			this.suitIndex = suitIndex;
+		}
+	
+		getRankText():string { return cardRanks[ this.rankIndex ]; }
+		getSuitText():string { return cardSuits[ this.suitIndex ]; }
+		getText():string { return `${ this.getSuitText() }${ this.getRankText() }`; }
+		isHeart():boolean { return this.suitIndex === 2 };
+		isDiamond():boolean { return this.suitIndex === 0 };
+	};
+	
+	const poker:Poker = Object.freeze( ( function() {
+		const masterDeck:PokerCard[] = Bosk.shuffleList( ( function():PokerCard[] {
+			const list:PokerCard[] = [];
+			for ( let suit = 0; suit < cardSuits.length; ++suit ) {
+				for ( let rank = 0; rank < cardRanks.length; ++rank ) {
+					list.push( new PokerCard( rank, suit ) );
+				}
+			}
+			return list;
+		})());
+		const getCard = function():PokerCard {
+			const cardIndex:number = Bosk.randListIndex( masterDeck );
+			return masterDeck.splice( cardIndex, 1 )[ 0 ];
+		};
+		return {
+			getHand: ():PokerHand => new PokerHand( [ ...Array( 5 ).keys() ].map( getCard ) )
+		};
+	})());
+	
+	enum PokerHandType {
+		RoyalFlush,
+		StraightFlush,
+		FourOfAKind,
+		FullHouse,
+		Flush,
+		Straight,
+		ThreeOfAKind,
+		TwoPair,
+		OnePair,
+		HighCard
+	};
+	
+	const testIsStraightFlush = function( cards:readonly PokerCard[] ):boolean {
+		let testRank:number = cards[ 0 ].rankIndex;
+		for ( let i = 1; i < cards.length; ++i ) {
+			// Make sure all cards after 1st share 1st’s suit & go up in rank sequence from 1st’s.
+			if ( cards[ 0 ].suitIndex !== cards[ i ].suitIndex || cards[ i ].rankIndex !== ++testRank ) {
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	const testIsFlush = function( cards:readonly PokerCard[] ):boolean {   
+		for ( let i = 1; i < cards.length; ++i ) {
+			if ( cards[ 0 ].suitIndex !== cards[ i ].suitIndex ) {
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	const testIsStraight = function( cards:readonly PokerCard[] ):boolean {
+		let testRank:number = cards[ 0 ].rankIndex;
+		for ( let i = 1; i < cards.length; ++i ) {
+			// Make sure all cards go up in rank sequence from 1st’s.
+			if ( cards[ i ].rankIndex !== ++testRank ) {
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	const findPairs = function( cards:readonly PokerCard[] ):number[][] {
+		const pairs:number[][] = [];
+		for ( let i = 0; i < cards.length; ++i ) {
+			for ( let j = i + 1; j < cards.length; ++j ) {
+				if ( cards[ i ].rankIndex === cards[ j ].rankIndex ) {
+					pairs.push( [ i, j ] );
+				}
+			}
+		}
+		return pairs;
+	};
+	
+	class PokerHand {
+		readonly cards:PokerCard[];
+		readonly type:PokerHandType;
+		readonly kicker:number;
+		readonly kickers:number[];
+		readonly topRank:number;
+		readonly topRanks:number[];
+	
+		constructor( cards:readonly PokerCard[] ) {
+			if ( cards.length !== 5 ) {
+				throw `Invalid Deck size ${ cards.length }. Must be 5.`;
+			}
+	
+			this.cards = cards.slice().sort( ( a:PokerCard, b:PokerCard ):number => a.rankIndex - b.rankIndex );
+			this.type = PokerHandType.HighCard;
+			this.kicker = 0;
+			this.topRank = 0;
+			this.kickers = [];
+			this.topRanks = [];
+	
+			// Test for Straight Flush
+			if ( testIsStraightFlush( this.cards ) ) {
+				this.type = ( this.cards[ 0 ].rankIndex === 0 ) ? PokerHandType.RoyalFlush : PokerHandType.StraightFlush;
+				this.topRank = this.cards[ 0 ].rankIndex;
+				return;
+			}
+	
+			// Test for 4 o’ a Kind
+			for ( let i = 0; i < 2; ++i ) {
+				let isFourKind:boolean = true;
+				for ( let j = i + 1; j < i + 4; ++j ) {
+					if ( this.cards[ j ].rankIndex !== this.cards[ i ].rankIndex ) {
+						isFourKind = false;
+						break;
+					}
+				}
+				if ( isFourKind ) {
+					this.type = PokerHandType.FourOfAKind;
+					this.kicker = this.cards[ ( i === 0 ) ? 4 : 0 ].rankIndex;
+					this.topRank = this.cards[ i ].rankIndex;
+					return;
+				}
+			}
+	
+			// Test for Full House
+			for ( let i = 1; i < this.cards.length; ++i ) {
+				if ( this.cards[ 0 ].rankIndex !== this.cards[ i ].rankIndex ) {
+					if ( i === 2 || i === 3 ) {
+						let isFullHouse:boolean = true;
+						for ( let j = i; j < this.cards.length; ++j ) {
+							if ( this.cards[ i ].rankIndex !== this.cards[ j ].rankIndex ) {
+								isFullHouse = false;
+								break;
+							}
+						}
+	
+						if ( isFullHouse ) {
+							this.type = PokerHandType.FullHouse;
+							this.topRank = this.cards[ ( i === 2 ) ? 2 : 0 ].rankIndex;
+							this.kicker = this.cards[ ( i === 2 ) ? 0 : 3 ].rankIndex;
+							return;
+						}
+					}
+					break;
+				}
+			}
+	
+			// Test for Flush
+			if ( testIsFlush( this.cards ) ) {
+				this.type = PokerHandType.Flush;
+				this.topRank = this.cards[ 0 ].rankIndex;
+				return;
+			}
+	
+			// Test for Straight
+			if ( testIsStraight( this.cards ) ) {
+				this.type = PokerHandType.Straight;
+				this.topRank = this.cards[ 0 ].rankIndex;
+				return;
+			}
+	
+			// Test for 3 o’ a Kind
+			for ( let i = 0; i < 3; ++i ) {
+				let isThreeKind:boolean = true;
+				for ( let j = i + 1; j < i + 3; ++j ) {
+					if ( this.cards[ j ].rankIndex !== this.cards[ i ].rankIndex ) {
+						isThreeKind = false;
+						break;
+					}
+				}
+				if ( isThreeKind ) {
+					this.type = PokerHandType.ThreeOfAKind;
+					this.topRank = this.cards[ i ].rankIndex;
+	
+					// Find min ( highest o’ rank ) o’ 2 cards that aren’t part o’ triple.
+					const nonTriple:number[] = ( i === 1 ) ? [ 0, 4 ] : ( ( i === 2 ) ? [ 0, 1 ] : [ 3, 4 ] );
+					this.kickers = nonTriple.map( ( n:number ) => this.cards[ n ].rankIndex ).sort();
+					return;
+				}
+			}
+	
+			// Test for 2 Pair
+			const pairs:number[][] = findPairs( this.cards );
+			switch ( pairs.length ) {
+				case ( 2 ):
+				{
+					this.type = PokerHandType.TwoPair;
+					this.topRanks = pairs.map( ( list:number[] ) => this.cards[ list[ 0 ] ].rankIndex ).sort();
+					const flatPairs:number[] = [].concat.apply( [], pairs );
+					for ( let i = 0; i < this.cards.length; ++i ) {
+						if ( !flatPairs.includes( i ) ) {
+							this.kicker = this.cards[ i ].rankIndex;
+							return;
+						}
+					}
+					return;
+				}
+				case ( 1 ):
+				{
+					this.type = PokerHandType.OnePair;
+					this.topRank = this.cards[ pairs[ 0 ][ 0 ] ].rankIndex;
+					// Set kickers as all cards not part o’ pair.
+					this.kickers = [ ...Array( 5 ).keys() ]
+						.map( ( n:number ) => ( pairs[ 0 ].includes( n ) ) ? -1 : n )
+						.filter( ( n:number ) => n >= 0 )
+						.map( ( n:number ) => this.cards[ n ].rankIndex )
+						.sort();
+				}
+			}
+		}
+	
+		comp( other:PokerHand ):number {
+			if ( this.type === other.type ) {
+				switch ( this.type ) {
+					case ( PokerHandType.StraightFlush ):
+					case ( PokerHandType.Straight ):
+						return this.topRank - other.topRank;
+					case ( PokerHandType.FourOfAKind ):
+					case ( PokerHandType.FullHouse ):
+						return ( this.topRank === other.topRank ) ? this.kicker - other.kicker : this.topRank - other.topRank;
+					case ( PokerHandType.HighCard ):
+					case ( PokerHandType.Flush ):
+						for ( let i = 0; i < this.cards.length; ++i ) {
+							if ( this.cards[ i ].rankIndex !== other.cards[ i ].rankIndex ) {
+								return this.cards[ i ].rankIndex - other.cards[ i ].rankIndex;
+							}
+						}
+						return 0;
+					case ( PokerHandType.ThreeOfAKind ):
+					case ( PokerHandType.OnePair ):
+						if ( this.topRank !== other.topRank ) {
+							return this.topRank - other.topRank;
+						}
+						for ( let j = 0; j < this.kickers.length && j < other.kickers.length; ++j ) {
+							if ( this.kickers[ j ] != other.kickers[ j ] ) {
+								return this.kickers[ j ] - other.kickers[ j ];
+							}
+						}
+						return 0;
+					case ( PokerHandType.TwoPair ):
+						for ( let i = 0; i < this.topRanks.length && i < other.topRanks.length; ++i ) {
+							if ( this.topRanks[ i ] != other.topRanks[ i ] ) {
+								return this.topRanks[ i ] - other.topRanks[ i ];
+							}
+						}
+						return this.kicker - other.kicker;
+				}
+			}
+			return this.type - other.type;
+		}
+	
+		beats( other:PokerHand ):boolean {
+			return this.comp( other ) < 0;
+		}
+	};
 
 	class ChanceDeck
 	{
@@ -858,7 +1153,6 @@ module.exports = ( function()
 		},
 		getRandomMinigame: function():MinigameGame
 		{
-			console.log( this.minigames );
 			return Bosk.randListEntry( this.minigames );
 		},
 		testWin: function( minigame:MinigameGame ):boolean
