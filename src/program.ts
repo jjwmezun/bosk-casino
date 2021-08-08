@@ -138,10 +138,6 @@ module.exports = ( function()
 	};
 
 	const Bosk:BoskT = new BoskT();
-
-	interface Poker {
-		getHand: () => PokerHand;
-	};
 	
 	const cardSuits:readonly string[] = Object.freeze([
 		`♦`,
@@ -213,6 +209,22 @@ module.exports = ( function()
 		TwoPair,
 		OnePair,
 		HighCard
+	};
+
+	const getPokerHandTypeText = ( handType:PokerHandType ):string => {
+		switch ( handType )
+		{
+			case ( PokerHandType.RoyalFlush )   : return `royal flush`;
+			case ( PokerHandType.StraightFlush ): return `straight flush`;
+			case ( PokerHandType.FourOfAKind )  : return `4 o’ a kind`;
+			case ( PokerHandType.FullHouse )    : return `full house`;
+			case ( PokerHandType.Flush )        : return `flush`;
+			case ( PokerHandType.Straight )     : return `straight`;
+			case ( PokerHandType.ThreeOfAKind ) : return `3 o’ a kind`;
+			case ( PokerHandType.TwoPair )      : return `2 pair`;
+			case ( PokerHandType.OnePair )      : return `pair`;
+			case ( PokerHandType.HighCard )     : return `high card`;
+		}
 	};
 
 	enum PokerWinType {
@@ -656,6 +668,7 @@ module.exports = ( function()
 		readonly turnList:Array<Turn>;
         readonly autumnsHand:PokerHand;
         readonly dawnsHand:PokerHand;
+        readonly edgarsHand:PokerHand;
 
 		constructor( playerOrder:number[], turnList:Array<Turn> )
 		{
@@ -664,6 +677,7 @@ module.exports = ( function()
 			const deck:PokerDeck = new PokerDeck();
 			this.autumnsHand = deck.getHand();
 			this.dawnsHand = deck.getHand();
+			this.edgarsHand = deck.getHand();
 		}
 	};
 
@@ -3030,21 +3044,11 @@ module.exports = ( function()
 		dinnerText: function( game:Game ):readonly string[]
 		{
 			let p:string[] = [
-				`Dawn began tossing cards onto the table, alternating ’tween tossing 1 in front o’ Autumn & 1 in front o’ herself, till each had a pile o’ 5 in front o’ her. They each scooped their piles into their hands & began to sort them by rank.`
+				`Dawn began tossing cards onto the table, cycling ’mong tossing 1 in front o’ Autumn, 1 in front o’ Edgar, & 1 in front o’ herself, till each had a pile o’ 5 in front o’ them. They each scooped their piles into their hands & Autumn & Dawn began to sort them by rank.`
 			];
 
 			const dawnSpread:string = `Dawn said as she spread out her cards on the table: ${ game.dawnsHand.getText() }`;
 			const autumnSpread:string = `Autumn laid out her cards ’long the table: ${ game.autumnsHand.getText() }`;
-			const dawnGoodHand = ( type:string ):string[] => this.addParagraphs(
-				p,
-				[ 
-					`<O shit>.`,
-					`Autumn looked up from her cards & said, <I hope that isn’t your attempt @ a poker face>.`,
-					`<Nope>.`,
-					`<¿What did you get? ¿An automatic win card?>.`,
-					`<No, but I did get a ${ type }>, ${ dawnSpread }. <¿Did you get anything?>.`
-				]
-			);
 
 			switch ( game.dawnsHand.type )
 			{
@@ -3058,19 +3062,6 @@ module.exports = ( function()
 							`<Nope>.`,
 							`<¿What did you get? ¿An automatic win card?>.`,
 							`<No, but I got a royal flush>, ${ dawnSpread }.`
-						]
-					);
-					const autumnGoodHand = ( type:string ):string[] => this.addParagraphs(
-						p,
-						[
-							`<Sounds like an autowin to me>, said Autumn. <I just got a ${ type }>. Autumn laid out her cards ’long to table: ${ game.autumnsHand.getText() }`,
-							`<Damn. Well, that’s still a good hand, irrespective>, Dawn said as she began scooping up both hands back into the deck.`
-						]
-					);
-					const autumnNormalHand = ( type:string ):string[] => this.addParagraphs(
-						p,
-						[
-							`<Sounds like an autowin to me>, said Autumn. <I just got a ${ type }>. Autumn laid out her cards ’long to table: ${ game.autumnsHand.getText() }`
 						]
 					);
 					switch ( game.autumnsHand.type )
@@ -3098,25 +3089,26 @@ module.exports = ( function()
 							);
 						break;
 						case ( PokerHandType.FourOfAKind ):
-							p = autumnGoodHand( `4 o’ a kind` );
-						break;
 						case ( PokerHandType.FullHouse ):
-							p = autumnGoodHand( `full house` );
-						break;
 						case ( PokerHandType.Flush ):
-							p = autumnGoodHand( `flush` );
-						break;
 						case ( PokerHandType.Straight ):
-							p = autumnGoodHand( `straight` );
-						break;
 						case ( PokerHandType.ThreeOfAKind ):
-							p = autumnGoodHand( `three o’ a kind` );
+							p = this.addParagraphs(
+								p,
+								[
+									`<Sounds like an autowin to me>, said Autumn. <I just got a ${ getPokerHandTypeText( game.autumnsHand.type ) }>. Autumn laid out her cards ’long to table: ${ game.autumnsHand.getText() }`,
+									`<Damn. Well, that’s still a good hand, irrespective>, Dawn said as she began scooping up both hands back into the deck.`
+								]
+							);
 						break;
 						case ( PokerHandType.TwoPair ):
-							p = autumnNormalHand( `2 pair` );
-						break;
 						case ( PokerHandType.OnePair ):
-							p = autumnNormalHand( `a pair` );
+							p = this.addParagraphs(
+								p,
+								[
+									`<Sounds like an autowin to me>, said Autumn. <I just got a ${ getPokerHandTypeText( game.autumnsHand.type ) }>. Autumn laid out her cards ’long to table: ${ game.autumnsHand.getText() }`
+								]
+							);
 						break;
 						case ( PokerHandType.HighCard ):
 							p = this.addParagraphs(
@@ -3126,15 +3118,84 @@ module.exports = ( function()
 								]
 							);
 					}
+
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<¿What ’bout you, Edgar?>, asked Dawn.`,
+							`<Um, I got whate’er this is>, Edgar said as he laid his cards face-up on the table: ${ game.edgarsHand.getText() }`,
+							`<Let me see…>.`
+						]
+					);
+
+					if ( game.dawnsHand.type === game.edgarsHand.type ) {
+						const flushWinners:string = ( game.dawnsHand.type === game.autumnsHand.type ) ? `all` : `both`;
+						p = this.addParagraphs(
+							p,
+							[ 
+								`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`,
+								`<Well, you have definitely have a’least a flush… O shit — ¡you have a royal flush, too! ¡We ${ flushWinners } win!>.`
+							]
+						);
+					} else {
+						switch ( game.edgarsHand.type )
+						{
+							case ( PokerHandType.StraightFlush ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`,
+										`<Well, you have definitely have a’least a flush… O, you have a straight flush, which is unfortunately not as good as a royal flush>.`,
+									]
+								);
+							break;
+							case ( PokerHandType.Flush ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`,
+										`<Well, you have definitely have a’least a flush… Yup, that’s exactly what you have, which is unfortunately not as good as a royal flush>.`,
+									]
+								);
+							break;
+							case ( PokerHandType.FourOfAKind ):
+							case ( PokerHandType.FullHouse ):
+							case ( PokerHandType.Straight ):
+							case ( PokerHandType.ThreeOfAKind ):
+							case ( PokerHandType.TwoPair ):
+							case ( PokerHandType.OnePair ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank.`,
+										`Finally she said, <Sadly, you only have a ${ getPokerHandTypeText( game.edgarsHand.type )}>.`
+									]
+								);
+							break;
+							case ( PokerHandType.HighCard ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank.`,
+										`Finally she said, <Sadly, it seems like you don’t have anything>.`
+									]
+								);
+						}
+					}
 				break;
 				case ( PokerHandType.StraightFlush ):
-					p = dawnGoodHand( `straight flush` );
-				break;
 				case ( PokerHandType.FourOfAKind ):
-					p = dawnGoodHand( `4 o’ a kind` );
-				break;
 				case ( PokerHandType.FullHouse ):
-					p = dawnGoodHand( `full house` );
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<O shit>.`,
+							`Autumn looked up from her cards & said, <I hope that isn’t your attempt @ a poker face>.`,
+							`<Nope>.`,
+							`<¿What did you get? ¿An automatic win card?>.`,
+							`<No, but I did get a ${ getPokerHandTypeText( game.dawnsHand.type ) }>, ${ dawnSpread }. <¿Did you get anything?>.`
+						]
+					);
 				break;
 				case ( PokerHandType.Flush ):
 					p = this.addParagraphs(
@@ -3191,7 +3252,7 @@ module.exports = ( function()
 						p = this.addParagraphs(
 							p,
 							[ 
-								`<Me neither>. ${ autumnSpread }.`,
+								`<I didn’t get anything, either>. ${ autumnSpread }.`,
 							]
 						);
 					}
@@ -3209,7 +3270,7 @@ module.exports = ( function()
 							p = this.addParagraphs(
 								p,
 								[ 
-									`<You just beat me by a li’l>, Dawn said as she began scooping up both hands back into the deck.`,
+									`<You just beat me by a li’l>, said Dawn.`,
 								]
 							);
 						break;
@@ -3217,7 +3278,7 @@ module.exports = ( function()
 							p = this.addParagraphs(
 								p,
 								[ 
-									`<I barely beat you>, Dawn said as she began scooping up both hands back into the deck.`,
+									`<I barely beat you>, said Dawn.`,
 								]
 							);
 						break;
@@ -3225,9 +3286,183 @@ module.exports = ( function()
 							p = this.addParagraphs(
 								p,
 								[ 
-									`<We completely tied, too>, Dawn said as she began scooping up both hands back into the deck.`,
+									`<We completely tied, too>, said Dawn.`,
 								]
 							);
+					}
+
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<¿What ’bout you, Edgar?>, asked Dawn.`,
+							`<Um, I got whate’er this is>, Edgar said as he laid his cards face-up on the table: ${ game.edgarsHand.getText() }`,
+							`<Let me see…>.`
+						]
+					);
+
+					if ( game.dawnsHand.type === game.edgarsHand.type ) {
+						if ( game.dawnsHand.type === PokerHandType.HighCard ) {
+							p = this.addParagraphs(
+								p,
+								[ 
+									`Dawn began to arrange Edgar’s hand by rank.`,
+									`Finally she said, <Sadly, it seems like you don’t have anything, either>.`,
+									`<We’re all losers — fitting>, said Autumn.`
+								]
+							);
+						}
+						else {
+							p = this.addParagraphs(
+								p,
+								[ 
+									`Dawn began to arrange Edgar’s hand by rank.`,
+									`<You got a ${ getPokerHandTypeText( game.edgarsHand.type ) }, too>, she said.`,
+									`<¿Truly? ¿What are the chances o’ that?>, asked Autumn.`
+								]
+							);
+						}
+
+						const currentWinner:string = ( game.autumnsHand.comp( game.dawnsHand ) === 0 ) ? `us` : ( ( game.autumnsHand.comp( game.dawnsHand ) <= 0 ) ? `you` : `me` );
+						const currentWinner2:string = ( currentWinner === `us` ) ? `us` : ( ( currentWinner === `you` ) ? `you` : `I` );
+						const currentWinnerHand:PokerHand = ( currentWinner === `you` ) ? game.autumnsHand : game.dawnsHand;
+						switch ( game.edgarsHand.getWinType( currentWinnerHand ) ) {
+							case ( PokerWinType.Win ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<He just beat ${ currentWinner } by a li’l>, Dawn said as she began scooping up both hands back into the deck.`,
+									]
+								);
+							break;
+							case ( PokerWinType.Lose ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<He barely lost to ${ currentWinner }>, Dawn said as she began scooping up both hands back into the deck.`,
+									]
+								);
+							break;
+							case ( PokerWinType.Tie ):
+								if ( currentWinner === `us` ) {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`<Wow, we’re all tied>, Dawn said as she began scooping up both hands back into the deck.`,
+										]
+									);
+								}
+								else {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`<He & ${ currentWinner2 } are tied, too>, Dawn said as she began scooping up both hands back into the deck.`,
+										]
+									);
+								}
+						}
+					}
+					else {
+						const currentWinner:string = ( game.autumnsHand.comp( game.dawnsHand ) === 0 ) ? `we have` : ( ( game.autumnsHand.comp( game.dawnsHand ) <= 0 ) ? `Autumn has` : `I have` );
+						const currentWinnerHand:PokerHand = ( currentWinner === `Autumn has` ) ? game.autumnsHand : game.dawnsHand;
+						switch ( game.edgarsHand.type )
+						{
+							case ( PokerHandType.RoyalFlush ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`,
+										`<Well, you have definitely have a’least a flush… O shit — you have a royal flush>.`,
+										`<¿Is that good?>, asked Edgar.`,
+										`<That’s the best you can get>, said Dawn. <That means you win>.`
+									]
+								);
+							break;
+							case ( PokerHandType.StraightFlush ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`
+									]
+								);
+								if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`<Well, you have definitely have a’least a flush… ¡O! ¡You have a straight flush! ¡That’s better than what we have, so you win!>.`,
+										]
+									);
+								}
+								else {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`<Well, you have definitely have a’least a flush… O, you have a straight flush, which is unfortunately not as good as what ${ currentWinner }>.`,
+										]
+									);
+								}
+							break;
+							case ( PokerHandType.Flush ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`
+									]
+								);
+								if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`<Well, you have definitely have a’least a flush… Yup, that’s exactly what you have, & it’s better than what we have, so you win>.`,
+										]
+									);
+								}
+								else {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`<Well, you have definitely have a’least a flush… Yup, that’s exactly what you have, which is unfortunately not as good as what ${ currentWinner }>.`,
+										]
+									);
+								}
+							break;
+							case ( PokerHandType.FourOfAKind ):
+							case ( PokerHandType.FullHouse ):
+							case ( PokerHandType.Straight ):
+							case ( PokerHandType.ThreeOfAKind ):
+							case ( PokerHandType.TwoPair ):
+							case ( PokerHandType.OnePair ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank.`
+									]
+								);
+								if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`Finally she said, <You have a ${ getPokerHandTypeText( game.edgarsHand.type )}. That means you win>.`
+										]
+									);
+								}
+								else {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`Finally she said, <Sadly, you only have a ${ getPokerHandTypeText( game.edgarsHand.type )}>.`
+										]
+									);
+								}
+							break;
+							case ( PokerHandType.HighCard ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Dawn began to arrange Edgar’s hand by rank.`,
+										`Finally she said, <Sadly, it seems like you don’t have anything>.`
+									]
+								);
+						}
 					}
 				}
 				else {
@@ -3244,34 +3479,20 @@ module.exports = ( function()
 							p = this.addParagraphs(
 								p,
 								[ 
-									`<Damn. ¿See? You are lucky>, Dawn said as she began scooping up both hands back into the deck.`,
+									`<Damn. ¿See? You are lucky>.`,
 									`<Only when it doesn’t matter>, Autumn said before taking a drink o’ her water.`
 								]
 							);
 						break;
 						case ( PokerHandType.StraightFlush ):
-							p = autumnGot( `straight flush` );
-						break;
 						case ( PokerHandType.FourOfAKind ):
-							p = autumnGot( `4 o’ a kind` );
-						break;
 						case ( PokerHandType.FullHouse ):
-							p = autumnGot( `full house` );
-						break;
 						case ( PokerHandType.Flush ):
-							p = autumnGot( `flush` );
-						break;
 						case ( PokerHandType.Straight ):
-							p = autumnGot( `straight` );
-						break;
 						case ( PokerHandType.ThreeOfAKind ):
-							p = autumnGot( `3 o’ a kind` );
-						break;
 						case ( PokerHandType.TwoPair ):
-							p = autumnGot( `2 pair` );
-						break;
 						case ( PokerHandType.OnePair ):
-							p = autumnGot( `pair` );
+							p = autumnGot( getPokerHandTypeText( game.autumnsHand.type ) );
 						break;
 						case ( PokerHandType.HighCard ):
 							p = this.addParagraphs(
@@ -3288,7 +3509,7 @@ module.exports = ( function()
 								p = this.addParagraphs(
 									p,
 									[ 
-										`<Good job>, Dawn said as she began scooping up both hands back into the deck.`,
+										`<Good job>.`,
 										`<I didn’t actually do anything but pick up cards you gave me, but thank you, I guess>, Autumn said before taking a drink o’ her water.`
 									]
 								);
@@ -3297,12 +3518,21 @@ module.exports = ( function()
 								p = this.addParagraphs(
 									p,
 									[ 
-										`<That’s too bad>, Dawn said as she began scooping up both hands back into the deck.`,
+										`<That’s too bad>.`,
 										`<The story o’ my life>, Autumn said before taking a drink o’ her water.`
 									]
 								);
 						}
 					}
+
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<¿What ’bout you, Edgar?>, asked Dawn.`,
+							`<Um, I got whate’er this is>, Edgar said as he laid his cards face-up on the table: ${ game.edgarsHand.getText() }`,
+							`<Let me see…>.`
+						]
+					);
 				}
 			}
 
