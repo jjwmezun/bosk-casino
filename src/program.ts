@@ -197,6 +197,7 @@ module.exports = ( function()
 		}
 
 		getHand():PokerHand {
+			//return new PokerHand( [ new PokerCard( 0, 1 ), new PokerCard( 1, 1 ), new PokerCard( 2, 1 ), new PokerCard( 3, 1 ), new PokerCard( 4, 1 ) ] );
 			return new PokerHand( [ ...Array( 5 ).keys() ].map( () => this.deck.splice( Bosk.randListIndex( this.deck ), 1 )[ 0 ] ) );
 		}
 	};
@@ -212,6 +213,12 @@ module.exports = ( function()
 		TwoPair,
 		OnePair,
 		HighCard
+	};
+
+	enum PokerWinType {
+		Win,
+		Lose,
+		Tie
 	};
 	
 	const testIsStraightFlush = function( cards:readonly PokerCard[] ):boolean {
@@ -427,9 +434,10 @@ module.exports = ( function()
 			}
 			return this.type - other.type;
 		}
-	
-		beats( other:PokerHand ):boolean {
-			return this.comp( other ) < 0;
+
+		getWinType( other:PokerHand ):PokerWinType {
+			const comp:number = this.comp( other );
+			return ( comp === 0 ) ? PokerWinType.Tie : ( ( comp < 0 ) ? PokerWinType.Win : PokerWinType.Lose );
 		}
 
 		getText():string {
@@ -3022,8 +3030,21 @@ module.exports = ( function()
 		dinnerText: function( game:Game ):readonly string[]
 		{
 			let p:string[] = [
-				`Dawn began tossing cards onto the table, alternating ’tween tossing 1 in front o’ Autumn & in front o’ herself, till each had a pile o’ 5 in front o’ her. They each scooped their piles into their hands & began to sort them by rank.`
+				`Dawn began tossing cards onto the table, alternating ’tween tossing 1 in front o’ Autumn & 1 in front o’ herself, till each had a pile o’ 5 in front o’ her. They each scooped their piles into their hands & began to sort them by rank.`
 			];
+
+			const dawnSpread:string = `Dawn said as she spread out her cards on the table: ${ game.dawnsHand.getText() }`;
+			const autumnSpread:string = `Autumn laid out her cards ’long the table: ${ game.autumnsHand.getText() }`;
+			const dawnGoodHand = ( type:string ):string[] => this.addParagraphs(
+				p,
+				[ 
+					`<O shit>.`,
+					`Autumn looked up from her cards & said, <I hope that isn’t your attempt @ a poker face>.`,
+					`<Nope>.`,
+					`<¿What did you get? ¿An automatic win card?>.`,
+					`<No, but I did get a ${ type }>, ${ dawnSpread }. <¿Did you get anything?>.`
+				]
+			);
 
 			switch ( game.dawnsHand.type )
 			{
@@ -3036,18 +3057,285 @@ module.exports = ( function()
 							`<I hope that isn’t your attempt @ a poker face>, said Autumn.`,
 							`<Nope>.`,
 							`<¿What did you get? ¿An automatic win card?>.`,
-							`<No, but I got a royal flush>, Dawn said as she spread out her cards on the table: ${ game.dawnsHand.getText() }.`
+							`<No, but I got a royal flush>, ${ dawnSpread }.`
 						]
 					);
+					const autumnGoodHand = ( type:string ):string[] => this.addParagraphs(
+						p,
+						[
+							`<Sounds like an autowin to me>, said Autumn. <I just got a ${ type }>. Autumn laid out her cards ’long to table: ${ game.autumnsHand.getText() }`,
+							`<Damn. Well, that’s still a good hand, irrespective>, Dawn said as she began scooping up both hands back into the deck.`
+						]
+					);
+					const autumnNormalHand = ( type:string ):string[] => this.addParagraphs(
+						p,
+						[
+							`<Sounds like an autowin to me>, said Autumn. <I just got a ${ type }>. Autumn laid out her cards ’long to table: ${ game.autumnsHand.getText() }`
+						]
+					);
+					switch ( game.autumnsHand.type )
+					{
+						case ( PokerHandType.RoyalFlush ):
+							p = this.addParagraphs(
+								p,
+								[
+									`<Huh, that’s convenient. ¿Did you manipulate the cards while shuffling them to give us both the best possible hands as some sort o’ happy-time “everyone wins” scenario?>, said Autumn.`,
+									`<¿What are you talking ’bout? ¿Did you get a royal flush, too?>, asked Dawn.`,
+									`<Looks like it>, Autumn said as she laid her cards ’long the table: ${ game.autumnsHand.getText() }`,
+									`<¡That’s zany! I can’t believe it>, Dawn said as she stared @ the 2 hands. Then as she began scooping up the cards ’gain she added, <Well, that tolls it: with this kind o’ luck we’re bound to win big in this board game>.`,
+									`<I don’t think luck works that way>, muttered Autumn.`
+								]
+							);
+						break;
+						case ( PokerHandType.StraightFlush ):
+							p = this.addParagraphs(
+								p,
+								[
+									`<Sounds like an autowin to me>, said Autumn. <This shows how hilarious my luck is, since I got the hand just below it>. Autumn laid out her cards ’long to table, revealing a straight flush: ${ game.autumnsHand.getText() }`,
+									`<Damn, that sucks. Well, that’s still lucky for both o’ us. We’re bound to win the board game with this luck>. Dawn began scooping up both hands back into the deck.`,
+									`<I don’t think luck works that way>, muttered Autumn.`
+								]
+							);
+						break;
+						case ( PokerHandType.FourOfAKind ):
+							p = autumnGoodHand( `4 o’ a kind` );
+						break;
+						case ( PokerHandType.FullHouse ):
+							p = autumnGoodHand( `full house` );
+						break;
+						case ( PokerHandType.Flush ):
+							p = autumnGoodHand( `flush` );
+						break;
+						case ( PokerHandType.Straight ):
+							p = autumnGoodHand( `straight` );
+						break;
+						case ( PokerHandType.ThreeOfAKind ):
+							p = autumnGoodHand( `three o’ a kind` );
+						break;
+						case ( PokerHandType.TwoPair ):
+							p = autumnNormalHand( `2 pair` );
+						break;
+						case ( PokerHandType.OnePair ):
+							p = autumnNormalHand( `a pair` );
+						break;
+						case ( PokerHandType.HighCard ):
+							p = this.addParagraphs(
+								p,
+								[
+									`<Sounds like an autowin to me>, said Autumn. <I didn’t get anything useful>. ${ autumnSpread }.`
+								]
+							);
+					}
 				break;
-				default:
+				case ( PokerHandType.StraightFlush ):
+					p = dawnGoodHand( `straight flush` );
+				break;
+				case ( PokerHandType.FourOfAKind ):
+					p = dawnGoodHand( `4 o’ a kind` );
+				break;
+				case ( PokerHandType.FullHouse ):
+					p = dawnGoodHand( `full house` );
+				break;
+				case ( PokerHandType.Flush ):
 					p = this.addParagraphs(
 						p,
 						[ 
-							`<I didn’t get anything>, Dawn said as she spread out her cards on the table: ${ game.dawnsHand.getText() }.`,
+							`<I got a flush>, ${ dawnSpread }. <¿How ’bout you?>.`,
 						]
 					);
 				break;
+				case ( PokerHandType.Straight ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<I got a straight>, ${ dawnSpread }. <¿How ’bout you?>.`,
+						]
+					);
+				break;
+				case ( PokerHandType.ThreeOfAKind ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<I got 3 o’ a kind>, ${ dawnSpread }. <¿How ’bout you?>.`,
+						]
+					);
+				break;
+				case ( PokerHandType.TwoPair ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<Well, I got 2 pairs>, ${ dawnSpread }. <¿What ’bout you?>.`,
+						]
+					);
+				break;
+				case ( PokerHandType.OnePair ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<Well, all I got was a pair>, ${ dawnSpread }. <¿Did you get better luck?>.`,
+						]
+					);
+				break;
+				case ( PokerHandType.HighCard ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`<Well, I didn’t get anything>, ${ dawnSpread }. <¿Did you get better luck?>.`,
+						]
+					);
+			}
+
+			if ( game.dawnsHand.type !== PokerHandType.RoyalFlush ) {
+				if ( game.dawnsHand.type === game.autumnsHand.type ) {
+					if ( game.dawnsHand.type === PokerHandType.HighCard ) {
+						p = this.addParagraphs(
+							p,
+							[ 
+								`<Me neither>. ${ autumnSpread }.`,
+							]
+						);
+					}
+					else {
+						p = this.addParagraphs(
+							p,
+							[ 
+								`<I got the same>. ${ autumnSpread }.`,
+							]
+						);
+					}
+
+					switch ( game.autumnsHand.getWinType( game.dawnsHand ) ) {
+						case ( PokerWinType.Win ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`<You just beat me by a li’l>, Dawn said as she began scooping up both hands back into the deck.`,
+								]
+							);
+						break;
+						case ( PokerWinType.Lose ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`<I barely beat you>, Dawn said as she began scooping up both hands back into the deck.`,
+								]
+							);
+						break;
+						case ( PokerWinType.Tie ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`<We completely tied, too>, Dawn said as she began scooping up both hands back into the deck.`,
+								]
+							);
+					}
+				}
+				else {
+					const autumnGot = ( type:string ):string[] => this.addParagraphs(
+						p,
+						[ 
+							`<I got a ${ type }>. ${ autumnSpread }.`,
+						]
+					);
+					switch ( game.autumnsHand.type )
+					{
+						case ( PokerHandType.RoyalFlush ):
+							p = autumnGot( `royal flush` );
+							p = this.addParagraphs(
+								p,
+								[ 
+									`<Damn. ¿See? You are lucky>, Dawn said as she began scooping up both hands back into the deck.`,
+									`<Only when it doesn’t matter>, Autumn said before taking a drink o’ her water.`
+								]
+							);
+						break;
+						case ( PokerHandType.StraightFlush ):
+							p = autumnGot( `straight flush` );
+						break;
+						case ( PokerHandType.FourOfAKind ):
+							p = autumnGot( `4 o’ a kind` );
+						break;
+						case ( PokerHandType.FullHouse ):
+							p = autumnGot( `full house` );
+						break;
+						case ( PokerHandType.Flush ):
+							p = autumnGot( `flush` );
+						break;
+						case ( PokerHandType.Straight ):
+							p = autumnGot( `straight` );
+						break;
+						case ( PokerHandType.ThreeOfAKind ):
+							p = autumnGot( `3 o’ a kind` );
+						break;
+						case ( PokerHandType.TwoPair ):
+							p = autumnGot( `2 pair` );
+						break;
+						case ( PokerHandType.OnePair ):
+							p = autumnGot( `pair` );
+						break;
+						case ( PokerHandType.HighCard ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`<I didn’t get anything>. ${ autumnSpread }.`,
+								]
+							);
+					}
+
+					if ( game.autumnsHand.type != PokerHandType.RoyalFlush ) {
+						switch ( game.autumnsHand.getWinType( game.dawnsHand ) ) {
+							case ( PokerWinType.Win ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<Good job>, Dawn said as she began scooping up both hands back into the deck.`,
+										`<I didn’t actually do anything but pick up cards you gave me, but thank you, I guess>, Autumn said before taking a drink o’ her water.`
+									]
+								);
+							break;
+							case ( PokerWinType.Lose ):
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<That’s too bad>, Dawn said as she began scooping up both hands back into the deck.`,
+										`<The story o’ my life>, Autumn said before taking a drink o’ her water.`
+									]
+								);
+						}
+					}
+				}
+			}
+
+			switch ( game.autumnsHand.getWinType( game.dawnsHand ) ) {
+				case ( PokerWinType.Win ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`When Dawn finished putting ’way her cards, she said, <Well, a deal’s a deal: here you go>, & then slid Autumn 250₧.`,
+							`Autumn took it & said, <You’re too kind. Well, since I’m so generous, I’m going to give it as a gift to my great friend Dawn>, & then slid it back o’er to Dawn.`,
+							`Dawn giggled & then said, <You’re too kind>.`
+						]
+					);
+				break;
+				case ( PokerWinType.Lose ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`When Dawn finished putting ’way her cards, she said with a sly grin, <Well, a deal’s a deal: you have to give me 1 o’ your succulent articles o’ clothing>.`,
+							`<Sure thing>, Autumn said as she began pulling out the hairband tying up her ponytail. Dawn began laughing as Autumn held it out to her, but took it nontheless.`,
+							`<I don’t think I’ve e’er seen you with your hair down before>, said Dawn. <I’m surprised you haven’t tried it as a disguise>.`,
+							`<It wouldn’t be a convincing disguise & would make it easier to grab>, said Autumn.`
+						]
+					);
+				break;
+				case ( PokerWinType.Lose ):
+					p = this.addParagraphs(
+						p,
+						[ 
+							`When Dawn finished putting ’way her cards, she said, <Unfortunately, since we had a draw, neither o’ us get anything>.`,
+							`Autumn shrugged & said, <As the Say’s Law people say, it’d just end up like that in the long run, anyway>.`
+						]
+					);
 			}
 
 			return Object.freeze( p );
