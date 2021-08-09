@@ -3533,6 +3533,106 @@ module.exports = ( function()
 							`<Let me see…>.`
 						]
 					);
+
+					const currentWinner:string = ( game.autumnsHand.comp( game.dawnsHand ) === 0 ) ? `we have` : ( ( game.autumnsHand.comp( game.dawnsHand ) <= 0 ) ? `Autumn has` : `I have` );
+					const currentWinnerHand:PokerHand = ( currentWinner === `Autumn has` ) ? game.autumnsHand : game.dawnsHand;
+					switch ( game.edgarsHand.type )
+					{
+						case ( PokerHandType.RoyalFlush ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`,
+									`<Well, you have definitely have a’least a flush… O shit — you also have a royal flush. You & Autumn both win>.`
+								]
+							);
+						break;
+						case ( PokerHandType.StraightFlush ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`
+								]
+							);
+							if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<Well, you have definitely have a’least a flush… ¡O! ¡You also have a straight flush! Also, you won>.`,
+									]
+								);
+							}
+							else {
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<Well, you have definitely have a’least a flush… O, you also have a straight flush, but unfortunately you still didn’t win>.`
+									]
+								);
+							}
+						break;
+						case ( PokerHandType.Flush ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`Dawn began to arrange Edgar’s hand by rank, only to quickly notice they all had the same suit.`
+								]
+							);
+							if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<Well, you have definitely have a’least a flush… Yup, that’s exactly what you have. Also, it looks like you won>.`,
+									]
+								);
+							}
+							else {
+								p = this.addParagraphs(
+									p,
+									[ 
+										`<Well, you have definitely have a’least a flush… Yup, that’s exactly what you have, but unfortunately you still didn’t win>.`,
+									]
+								);
+							}
+						break;
+						case ( PokerHandType.FourOfAKind ):
+						case ( PokerHandType.FullHouse ):
+						case ( PokerHandType.Straight ):
+						case ( PokerHandType.ThreeOfAKind ):
+						case ( PokerHandType.TwoPair ):
+						case ( PokerHandType.OnePair ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`Dawn began to arrange Edgar’s hand by rank.`
+								]
+							);
+							if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Finally she said, <You have a ${ getPokerHandTypeText( game.edgarsHand.type )}. That means you win>.`
+									]
+								);
+							}
+							else {
+								p = this.addParagraphs(
+									p,
+									[ 
+										`Finally she said, <Sadly, you only have a ${ getPokerHandTypeText( game.edgarsHand.type )}>.`
+									]
+								);
+							}
+						break;
+						case ( PokerHandType.HighCard ):
+							p = this.addParagraphs(
+								p,
+								[ 
+									`Dawn began to arrange Edgar’s hand by rank.`,
+									`Finally she said, <Sadly, it seems like you don’t have anything>.`
+								]
+							);
+					}
 				}
 			}
 
