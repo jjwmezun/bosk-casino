@@ -275,6 +275,96 @@ module.exports = ( function()
 		}
 		return pairs;
 	};
+
+	const findPokerLosers = function( autumn:PokerHand, dawn:PokerHand, edgar:PokerHand ):string[] {
+		const avd:number = autumn.comp( dawn );
+		const ave:number = autumn.comp( edgar );
+		const dve:number = dawn.comp( edgar );
+		// If Autumn loses to Dawn.
+		if ( avd > 0 ) {
+			// If Autumn loses to Edgar.
+			if ( ave > 0 ) {
+				return [ `autumn` ];
+			// If Autumn beats Edgar.
+			} else if ( ave < 0 ) {
+				return [ `edgar` ];
+			// If Autumn & Edgar are equal.
+			} else {
+				return [ `autumn`, `edgar` ];
+			}
+		}
+		// If Autumn beats Dawn.
+		else if ( avd < 0 ) {
+			// If Dawn loses to Edgar.
+			if ( dve > 0 ) {
+				return [ `dawn` ];
+			// If Dawn beats Edgar.
+			} else if ( dve < 0 ) {
+				return [ `edgar` ];
+			// If Dawn & Edgar are equal.
+			} else {
+				return [ `dawn`, `edgar` ];
+			}
+		}
+		// autumn & dawn are equal.
+		else {
+			// If Autumn & Dawn lose to Edgar.
+			if ( ave > 0 ) {
+				return [ `autumn`, `dawn` ];
+			// If Autumn & Dawn beat Edgar.
+			} else if ( dve < 0 ) {
+				return [ `edgar` ];
+			// If all 3 are tied.
+			} else {
+				return [ `autumn`, `dawn`, `edgar` ];
+			}
+		}
+	};
+
+	const findPokerWinners = function( autumn:PokerHand, dawn:PokerHand, edgar:PokerHand ):string[] {
+		const avd:number = autumn.comp( dawn );
+		const ave:number = autumn.comp( edgar );
+		const dve:number = dawn.comp( edgar );
+		// If Autumn beats to Dawn.
+		if ( avd < 0 ) {
+			// If Autumn beats to Edgar.
+			if ( ave < 0 ) {
+				return [ `autumn` ];
+			// If Autumn loses to Edgar.
+			} else if ( ave > 0 ) {
+				return [ `edgar` ];
+			// If Autumn & Edgar are equal.
+			} else {
+				return [ `autumn`, `edgar` ];
+			}
+		}
+		// If Autumn loses to Dawn.
+		else if ( avd > 0 ) {
+			// If Dawn beats to Edgar.
+			if ( dve < 0 ) {
+				return [ `dawn` ];
+			// If Dawn loses to Edgar.
+			} else if ( dve > 0 ) {
+				return [ `edgar` ];
+			// If Dawn & Edgar are equal.
+			} else {
+				return [ `dawn`, `edgar` ];
+			}
+		}
+		// autumn & dawn are equal.
+		else {
+			// If Autumn & Dawn beat Edgar.
+			if ( ave < 0 ) {
+				return [ `autumn`, `dawn` ];
+			// If Autumn & Dawn lose to Edgar.
+			} else if ( dve > 0 ) {
+				return [ `edgar` ];
+			// If all 3 are tied.
+			} else {
+				return [ `autumn`, `dawn`, `edgar` ];
+			}
+		}
+	};
 	
 	class PokerHand {
 		readonly cards:PokerCard[];
@@ -3270,7 +3360,7 @@ module.exports = ( function()
 							p = this.addParagraphs(
 								p,
 								[ 
-									`<You just beat me by a li’l>, said Dawn.`,
+									`<Let’s see… You just beat me by a li’l>, said Dawn.`,
 								]
 							);
 						break;
@@ -3278,7 +3368,7 @@ module.exports = ( function()
 							p = this.addParagraphs(
 								p,
 								[ 
-									`<I barely beat you>, said Dawn.`,
+									`<Let’s see… I barely beat you>, said Dawn.`,
 								]
 							);
 						break;
@@ -3286,7 +3376,7 @@ module.exports = ( function()
 							p = this.addParagraphs(
 								p,
 								[ 
-									`<We completely tied, too>, said Dawn.`,
+									`<Let’s see… Wow, we completely tied, too>, said Dawn.`,
 								]
 							);
 					}
@@ -3316,8 +3406,7 @@ module.exports = ( function()
 								p,
 								[ 
 									`Dawn began to arrange Edgar’s hand by rank.`,
-									`<You got a ${ getPokerHandTypeText( game.edgarsHand.type ) }, too>, she said.`,
-									`<¿Truly? ¿What are the chances o’ that?>, asked Autumn.`
+									`<You got a ${ getPokerHandTypeText( game.edgarsHand.type ) }, too>, she said.`
 								]
 							);
 						}
@@ -3330,7 +3419,7 @@ module.exports = ( function()
 								p = this.addParagraphs(
 									p,
 									[ 
-										`<He just beat ${ currentWinner } by a li’l>, Dawn said as she began scooping up both hands back into the deck.`,
+										`<Hmm… He just beat ${ currentWinner } by a li’l>, Dawn said as she began scooping up both hands back into the deck.`,
 									]
 								);
 							break;
@@ -3338,7 +3427,7 @@ module.exports = ( function()
 								p = this.addParagraphs(
 									p,
 									[ 
-										`<He barely lost to ${ currentWinner }>, Dawn said as she began scooping up both hands back into the deck.`,
+										`<Hmm… He barely lost to ${ currentWinner }>, Dawn said as she began scooping up both hands back into the deck.`,
 									]
 								);
 							break;
@@ -3355,7 +3444,7 @@ module.exports = ( function()
 									p = this.addParagraphs(
 										p,
 										[ 
-											`<He & ${ currentWinner2 } are tied, too>, Dawn said as she began scooping up both hands back into the deck.`,
+											`<Hmm… He & ${ currentWinner2 } are tied, too>, Dawn said as she began scooping up both hands back into the deck.`,
 										]
 									);
 								}
@@ -3607,21 +3696,41 @@ module.exports = ( function()
 									`Dawn began to arrange Edgar’s hand by rank.`
 								]
 							);
-							if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
-								p = this.addParagraphs(
-									p,
-									[ 
-										`Finally she said, <You have a ${ getPokerHandTypeText( game.edgarsHand.type )}. That means you win>.`
-									]
-								);
+							if ( game.edgarsHand.type === currentWinnerHand.type ) {
+								if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`Finally she said, <You have a ${ getPokerHandTypeText( game.edgarsHand.type )}… & yours is better than what ${ currentWinner }, so you win>.`
+										]
+									);
+								}
+								else {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`Finally she said, <Sadly, you only have a ${ getPokerHandTypeText( game.edgarsHand.type )}, & it’s worse than what ${ currentWinner }, so you don’t win>.`
+										]
+									);
+								}
 							}
 							else {
-								p = this.addParagraphs(
-									p,
-									[ 
-										`Finally she said, <Sadly, you only have a ${ getPokerHandTypeText( game.edgarsHand.type )}>.`
-									]
-								);
+								if ( game.edgarsHand.getWinType( currentWinnerHand ) === PokerWinType.Win ) {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`Finally she said, <You have a ${ getPokerHandTypeText( game.edgarsHand.type )}. That means you win>.`
+										]
+									);
+								}
+								else {
+									p = this.addParagraphs(
+										p,
+										[ 
+											`Finally she said, <Sadly, you only have a ${ getPokerHandTypeText( game.edgarsHand.type )}>.`
+										]
+									);
+								}
 							}
 						break;
 						case ( PokerHandType.HighCard ):
@@ -3636,36 +3745,91 @@ module.exports = ( function()
 				}
 			}
 
-			switch ( game.autumnsHand.getWinType( game.dawnsHand ) ) {
-				case ( PokerWinType.Win ):
+			const losers:string[] = findPokerLosers( game.autumnsHand, game.dawnsHand, game.edgarsHand );
+			const winners:string[] = findPokerWinners( game.autumnsHand, game.dawnsHand, game.edgarsHand );
+			if ( losers.length === 3 ) {
+				p = this.addParagraphs(
+					p,
+					[ 
+						`When Dawn finished putting ’way her cards, she said, <Unfortunately, since we all had a draw, none o’ us get anything>.`,
+						`Autumn shrugged & said, <As the Say’s Law people say, it’d just end up like that in the long run, anyway>.`
+					]
+				);
+			}
+			else if ( losers.includes( `autumn` ) ) {
+				const winnerString1:string = ( winners.length === 2 ) ? `us` : ( ( winners.includes( `dawn` ) ) ? `me` : `Edgar` );
+				const winnerString2:string = ( winners.length === 2 ) ? `them` : ( ( winners.includes( `dawn` ) ) ? `her` : `Edgar` );
+				const winnerString3:string = ( winners.length === 1 && winners.includes( `edgar` ) ) ? `Edgar` : `she`;
+				p = this.addParagraphs(
+					p,
+					[ 
+						`When Dawn finished putting ’way her cards, she looked @ Autumn with a sly grin & said, <Well, a deal’s a deal: you have to give ${ winnerString1 } 1 o’ your succulent articles o’ clothing. Choose wisely>.`,
+						`<Sure thing>, Autumn said as she began pulling out the hairband tying up her ponytail. Dawn began laughing as Autumn held it out to ${ winnerString2 }, but ${ winnerString3 } took it all the same.`,
+						`<I don’t think I’ve e’er seen you with your hair down before>, said Dawn. <I’m surprised you haven’t tried it as a disguise>.`,
+						`<It wouldn’t be a convincing disguise & would make it easier to grab>, said Autumn.`
+					]
+				);
+				if ( losers.includes( `dawn` ) ) {
 					p = this.addParagraphs(
 						p,
 						[ 
-							`When Dawn finished putting ’way her cards, she said, <Well, a deal’s a deal: here you go>, & then slid Autumn 250₧.`,
-							`Autumn took it & said, <You’re too kind. Well, since I’m so generous, I’m going to give it as a gift to my great friend Dawn>, & then slid it back o’er to Dawn.`,
-							`Dawn giggled & then said, <You’re too kind>.`
+							`<& since I lost, too, I guess I ought to give Edgar 250₧>, Dawn said as she began riffling thru her jacket pockets. She pulled out a wad o’ notes & handed them to Edgar, who slowly took them with a guilty look.`,
+							`<I would count those if I were you>, said Autumn, looking @ Dawn with mock seriousness. <I wouldn’t trust this cat; might be a sneak>.`,
+							`<Quit being a flirt, you’ll make me blush>, retorted Dawn.`
 						]
 					);
-				break;
-				case ( PokerWinType.Lose ):
+				}
+			} else if ( losers.includes( `dawn` ) ) {
+				const winnerString1:string = ( winners.length === 2 ) ? `Autumn & Edgar each` : ( ( winners.includes( `autumn` ) ) ? `Autumn` : `Edgar` );
+				p = this.addParagraphs(
+					p,
+					[ 
+						`When Dawn finished putting ’way her cards, she said, <Well, a deal’s a deal: here you go>, & then slid 250₧ to ${ winnerString1 }.`
+					]
+				);
+				if ( winners.includes( `autumn` ) ) {
+					const extra:string = ( winners.includes( `edgar` ) ) ? ` Edgar also slide his newbegotten wealth back o’er to Dawn.` : ``;
+					p = this.addParagraphs(
+						p,
+						[
+							`Autumn took it & said, <You’re too kind. Well, since I’m so generous, I’m going to give it as a gift to my great friend Dawn>, & then slid it back o’er to Dawn.${ extra }`,
+							`Dawn giggled. <You’re too kind>.`
+						]
+					);
+				}
+			} else {
+				const winnerString1:string = ( winners.length === 2 ) ? `you guys` : ( ( winners.includes( `autumn` ) ) ? `Autumn` : `Dawn` );
+				p = this.addParagraphs(
+					p,
+					[ 
+						`Then Edgar said, <I guess since I lost, I’m s’posed to pay ${ winnerString1 }. Let me see if I have anything>. Edgar began searching his robe.`
+					]
+				);
+
+				if ( winners.includes( `autumn` ) ) {
 					p = this.addParagraphs(
 						p,
 						[ 
-							`When Dawn finished putting ’way her cards, she said with a sly grin, <Well, a deal’s a deal: you have to give me 1 o’ your succulent articles o’ clothing>.`,
-							`<Sure thing>, Autumn said as she began pulling out the hairband tying up her ponytail. Dawn began laughing as Autumn held it out to her, but took it nontheless.`,
-							`<I don’t think I’ve e’er seen you with your hair down before>, said Dawn. <I’m surprised you haven’t tried it as a disguise>.`,
-							`<It wouldn’t be a convincing disguise & would make it easier to grab>, said Autumn.`
+							`<I can just put it on your tab>, said Autumn.`
 						]
 					);
-				break;
-				case ( PokerWinType.Lose ):
+					if ( winners.length === 2 ) {
+						p = this.addParagraphs(
+							p,
+							[ 
+								`<Yeah, me, too, I guess>, said Dawn.`
+							]
+						);
+					}
+				} else {
 					p = this.addParagraphs(
 						p,
 						[ 
-							`When Dawn finished putting ’way her cards, she said, <Unfortunately, since we had a draw, neither o’ us get anything>.`,
-							`Autumn shrugged & said, <As the Say’s Law people say, it’d just end up like that in the long run, anyway>.`
+							`<I don’t think he has that much money on him>, said Autumn. <I, uh, am usually the 1 who manages our finances>. Autumn took a drink o’ her water while looking ’way from them both.`,
+							`<Well, it’s all right, it’s just for laughs, anyway>, said Dawn.`
 						]
 					);
+				}
 			}
 
 			return Object.freeze( p );
