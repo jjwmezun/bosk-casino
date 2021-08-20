@@ -1711,6 +1711,8 @@ module.exports = ( function()
 				.replace( /<q<\/q>/g, '<q>' )
 				.replace( /\[i\]/g, '<em>' )
 				.replace( /\[\/i\]/g, '</em>' )
+				.replace( /\[cite\]/g, '<i>' )
+				.replace( /\[\/cite\]/g, '</i>' )
 				.replace( /\n/g, '</p><p>' );
 			return `<p>${ content }</p>`;
 		},
@@ -1724,7 +1726,7 @@ module.exports = ( function()
 			for ( const turn of data.turnList )
 			{
 				if ( turn.number === 11 ) {
-					paragraphs = this.addParagraphs( paragraphs, this.dinnerText( data ) );
+					paragraphs = this.addParagraphs( paragraphs, this.dinnerText( data, turn ) );
 				}
 				paragraphs = this.addParagraphs( paragraphs, this.getRollText( data, turn ) );
 				for ( const pass of turn.passes )
@@ -1734,8 +1736,7 @@ module.exports = ( function()
 				paragraphs = this.addParagraphs( paragraphs, this.generateLandText( data, turn ) );
 			}
 			const finalTurn:Turn = data.turnList[ data.turnList.length - 1 ];
-			paragraphs = this.addParagraphs( paragraphs, this.getEndingScript( finalTurn, data ) );
-			return Object.freeze( this.dinnerText( data ) );
+			return this.addParagraphs( paragraphs, this.getEndingScript( finalTurn, data ) );
 		},
 		addParagraph: function( list:string[], newParagraph:string ):readonly string[]
 		{
@@ -1767,29 +1768,29 @@ module.exports = ( function()
 		generateIntroText: function():readonly string[]
 		{
 			return [
-				`Dawn announced, as if to the whole world, <Here it is>.`,
-				`Autumn instantly saw it isolate itself ’mong its fellow buildings: a short but wide building with gold curving crenellations with a neon sign hanging off the side that said, “Codfish Casino”, & below that, “Boskeopolis’s original casino since 1922”, surrounded on both sides by billboards for a Piston SUV & an anti-drug PSA with an emaciated dog who apparently starved to death ’cause their owner was too stoned to feed them.`,
-				`<¿How did I e’er let you convince me to come here?>, Autumn asked as she winced under all the lights.`,
+				`With a breathlessness from bustling down nearly 10 blocks, Dawn, stooped o’er her knees, raised an arm up to the building &amp; announced, as if to the whole world, <Ecce casino. It’s finally here. I thought we’d die before we made it>.`,
+				`Autumn saw Dawn’s target isolate itself ’mong its fellow buildings: a short but wide building with gold curving crenellations with a neon sign hanging off the side that said, “Codfish Casino”, &amp; below that, “Boskeopolis’s original casino since 1922”, surrounded on both sides by billboards for a Piston SUV &amp; an anti-drug PSA with an emaciated dog who apparently starved to death ’cause their owner was too stoned to feed them.`,
+				`<¿How did I e’er let you convince me to come here?>, Autumn asked as she winced under the glare o’ all the lights.`,
 				`<My sexy charm>, said Dawn.`,
 				`<Ah, yes, now I remember>.`,
 				`<C’mon,> — Dawn wrapped an arm round Autumn’s shoulder, which Autumn accepted like a loose rag — <a game like this is a perfect fit for you>.`,
 				`<¿Luck is a perfect fit for me? Clearly you don’t know me well>.`,
-				`Autumn let Dawn lead them inside the building, where she was assaulted on all sides by bright flashing lights from all o’er the color spectrum. E’en the floor, which would would expect to be gray or white, with checkered pattern being the most extravagant, was a carpet tiled with incomprehensible abstract designs in yellow & purple. While the dada canvas o’ noodle-shaped lights hung ’bove them like spying spotlights, they were surrounded on all sides laterally by machines with faces that glowed furiously like monsters from a science fiction B movie.`,
-				`<¿Did you bring us here just so we could feed these machines coins for the privilege to yanking on a level every so oft? ¿Couldn’t you get that @ home for free?>.`,
+				`Autumn let Dawn lead them inside the building, where she was assaulted on all sides by bright flashing lights from all plots o’ the color spectrum. E’en the floor, which one would expect to be gray or white, a checkered pattern maybe the most extravagant, was a carpet tiled with incomprehensible abstract designs in yellow &amp; purple. While the dada canvas o’ noodle-shaped lights hung ’bove them like spying spotlights, they were surrounded laterally by machines with faces that glowed furiously like monsters from a sci-fi B movie but time seems to speed up every time she hears a buzzing.`,
+				`<¿Did you bring us here just so we could feed these machines coins for the privilege to yanking on a lever every so oft? ¿Couldn’t you get that @ home for free?>, said Autumn.`,
 				`<That’s not why I brought you guys here. It’s right up ’head>.`,
-				`Autumn looked o’er the counter they were heading toward & gawked @ the field o’ giant pairs o’ dice & stacks o’ cards & plastic chips. ’Mong the field slithered sleek metallic streets pocked with hexagons o’ different colors. She watched as Dawn went right up to the counter & asked for a game for 3.`,
-				`<Dawn, this looks extravagant for our funds>, Autumn said as she felt her eyes already become hollow & tired from excess stimulation.`,
+				`Autumn looked o’er the counter they were heading toward &amp; gawked @ the field o’ giant pairs o’ dice &amp; stacks o’ cards &amp; plastic chips. ’Mong the field slithered sleek metallic streets pocked with hexagons o’ different colors. She watched as Dawn went right up to the counter &amp; asked for a game for 3.`,
+				`<Dawn, this looks extravagant for our funds>, Autumn said as she felt her eyes already become hollow &amp; tired from excess stimulation.`,
 				`<It’s not too expensive>, Dawn said as she handed the attendant a handful o’ bills. <Now, come on. You’ll love this — you’ll be too cool to let me know you’ll love it, ’course; but I know that deep ’hind that constant sardonic frown o’ yours you’ll love it>.`,
-				`The attendant opened the counter & Dawn led Autumn & Edgar toward the start o’ the metallic road.`,
+				`The attendant opened the counter &amp; Dawn led Autumn &amp; Edgar toward the start o’ the metallic road.`,
 				`<¿What is this?>, asked Autumn.`,
 				`<It’s a board game>.`,
 				`Autumn looked @ Dawn with horror. <¿A live 1?>.`,
 				`Dawn nodded excitedly. <Uh huh. We need to make it to the end, collecting chips ’long the way. Look, we start out with 20>. Dawn held a hand out to show Autumn 2 white plastic chips with yellow stripes all ’long the rim. <If we collect ’nough chips, we can get a nifty prize>.`,
-				`<¿& what if we don’t collect ’nough chips?>.`,
+				`<¿&amp; what if we don’t collect ’nough?>.`,
 				`<Then we have a good time, a’least>.`,
 				`<¿How much did you pay for this experience?>.`,
 				`<It’s only a couple thousand per player>.`,
-				`Autumn shook her head, but said nothing mo’. { The money’s already been paid, so I might as well just play ’long }.`
+				`Autumn shook her head, but said nothing mo’. { The money’s already paid, so I might as well play ’long }.`
 			];
 		},
 		generateLandText: function( game:Game, turn:Turn ):readonly string[]
@@ -2266,7 +2267,7 @@ module.exports = ( function()
 												`Then it stopped on ${ guesses.chosen.number }, causing their hearts to stop.`,
 												`& then it began blinking, & the announced exclaimed, <¡Congratulations! ¡You won!>.`,
 												`Dawn wrapped an arm round Autumn & squeezed her to her chest. <¿See? I told you we could do it>.`,
-												`<${ ( guesses.chosen.character === "Dawn" ) ? `Thanks to <em>your</em> guess` : `Lucky guess` }>, murmured Autumn, her voice slightly muffled by getting her chest crushed by the force o’ Dawn’s embrace.`,
+												`<${ ( guesses.chosen.character === "Dawn" ) ? `Thanks to [i]your[/i] guess` : `Lucky guess` }>, murmured Autumn, her voice slightly muffled by getting her chest crushed by the force o’ Dawn’s embrace.`,
 												`<O, stop>, Dawn lightly chided.`
 											]
 										);
@@ -3131,11 +3132,89 @@ module.exports = ( function()
 				]
 			);
 		},
-		dinnerText: function( game:Game ):readonly string[]
+		dinnerText: function( game:Game, lastTurn:Turn ):readonly string[]
 		{
+			const autumnHasntGottenLoss:boolean = analyze.firstLandOTypesWithCharacter( game, lastTurn.number, [ "lose5", "lose10" ], config.playerNumberFromName( `Autumn` ) );
+			const isLosingFunds:boolean = lastTurn.land.funds < 0;
 			let p:string[] = [
-				`Dawn began tossing cards onto the table, cycling ’mong tossing 1 in front o’ Autumn, 1 in front o’ Edgar, & 1 in front o’ herself, till each had a pile o’ 5 in front o’ them. They each scooped their piles into their hands & Autumn & Dawn began to sort them by rank.`
+				`Then Autumn heard a bell ring, followed by a voice squawking out, <¡Break time!>. Autumn turned to Dawn for answers & received them:`,
+				`<It’s referring to us. Come, they offer us a complimentary dinner>.`,
+				`Autumn followed Dawn off the board’s path, — & then off the board itself & thru the gate out into the rest o’ the casino — but asked ’long the way, <¿How much did you pay ’gain?>.`,
+				`<Not too much, don’t worry>, said Dawn. <I’m flattered that you think I’d have a lot o’ money>.`,
+				`<You forget that the art o’ spending money has time-traveling powers beyond the limit o’ current funds & into the wallet o’ your future self as well>.`,
+				`<Well, I didn’t do that, so don’t worry ’bout it>.`,
+				`<It’s just that I can’t imagine a business offering free food beyond what’s paid for the whole service that wasn’t inundated with ’nough customers to eat them out o’ business>.`,
+				`<You’ll be relieved to know that the food quality is not beyond what we paid>.`,
+				`<I am relieved: while a business being able to break the iron laws o’ cutthroat economics is as shocking as encountering Shoggoth, being ripped off is as familiar as sunny days in July>.`,
+				`Dawn led them to a booth on the ${ this.getRandomDirection() } side o’ the casino, next to a window looking out into the inky night stretched out o’er the city’s several metal tentacles, lit up with its thousand neon sign eyes. Autumn kept her head turned, gazing into the lights, trying to ignore the embarrassing pining feeling she felt. If she were right in the head she’s be a professional working in 1 o’ those lit buildings, absorbed in some kind o’ productive intellectual work ’stead o’ the parasitical anticareer she’s had for almost her entire life; if she were right in the head she’d probably be enjoying this game they were playing a lot mo’.`,
+				`¿Was she not enjoying it? She hadn’t noticed much discomfort;${ ( autumnHasntGottenLoss ) ? `` : ` — well, ’cept for being assaulted by the crane; but physical pain was nothing to her —` } & that was greater than regular.${ ( isLosingFunds ) ? ` She didn’t e’en mind that they were losing “chips”, whate’er consequence that might create.` : `` } ¿Was this what normal people defined “happiness”: not just the lack o’ discomfort, but obliviousness to its potential as well? A spacey but soothing assortment o’ low beats & light notes, strings, & horn blows that Autumn guessed was jazz permeated the casino so deep that she felt it thru the table into her fingers. For a moment it filled her with comfort, only for her picklock brain to realize that this was all a scheme to keep them staying & spending.`,
+				`In the corner o’ her eye she saw a middle-aged man with tired eyes in a white-&-black checkered uniform stop next to their table, hand out menus, & ask what drinks they desired. Edgar politely declined & thankfully the waiter didn’t push the issue further & make him ’splain why. Perhaps he guessed just by looking @ Edgar’s skeletal face. Dawn seemed to scan her menu up & down, lingering on a <Hmm…>, before finally deciding on a Raspberry Cool Spot. Autumn wanted to buy 1 o’ their many alcoholic beverages, but thought better o’ it, & stuck with water. ’Twas what her younger, mo’ vital, self would’ve ordered, & she felt mo’ like her younger, mo’ vital self tonight for some reason.`,
+				`The waiter finished writing down presumably what they ordered, & then after a cheerful, <I’ll get you your drinks as soon as I can, Madames>, hastened ’way. Autumn picked up her menu with its stiff, laminated middleground ’tween paper & cardboard & its oddly ornate soft, fuzzy border all round each page & scanned down all the options, twisting her eyes as if she were reading a foreign language. Living so long on whate’er Edgar decided to make for her & cheap, utilitarian meals like ramen noodle left her lost ’mong these choices whose meanings were equally abstruse. She looked up @ Dawn & said, <You’ve been here before. ¿What’s the best option?>.`,
+				`Without moving her head from ’hind her menu, Dawn said, <Well, I was thinking o’ having a tuna melt with fries>.`,
+				`Autumn put down her menu & said, <Sounds good. I’ll have that, too>.`,
+				`<You’ve ne’er been a big eater, ¿have you?>, Dawn said as she put her own menu down. <That’s not a… a body image thing, ¿is it?>.`,
+				`<No>, said Autumn, pursing her lips in annoyance. <¿What bizarro version o’ me have you met that would make you e’en consider such an out-o’-character reason?>. She turned to Edgar, suspicious o’ what inspiration he might’ve offered to this exotic interpretation, but he just shrugged.`,
+				`Dawn made an uneasy laugh & said, <Forget I said it>.`,
+				`A great emptiness began to hang o’er the table — or a’least that’s how Autumn felt. Whate’er interest she had in the night sky before had evaporated, leaving Autumn with that nerve-agitating impatience that always whipped @ her. Dawn seemed to have noticed this herself as she brought out a box o’ cards & said, <Since we’re casinoing it up, yo, & since you’ve seemed to’ve gotten all the entertainment you can get out o’ that fingernail show you’ve been watching, ¿would you be interested in playing 5-Card?>.`,
+				`Autumn stared @ Dawn with glazed eyes, her right eye stretched & misshapen a bit by her face leaning tightly on her upraised arm. <¿We betting anything?>.`,
+				`With a mischievous smile, Dawn said, <If we weren’t in a public place, I’d vote clothes>.`,
+				`<How ’bout you 2 bet money & I bet clothes>.`,
+				`In the corner o’ Autumn’s eye she could see Edgar blush. Glancing ’way slyly, Dawn said, <I thought your thief’s code was gainst that kind o’ thing…>.`,
+				`<This is an honest game ’mong 3 people in the ware, not you guys paying me. ’Sides, it’s all a fake: much as I’d hope you’d give me my clothes back, I would give you your money back, anyway>.`,
+				`<O, ¿truly?>. Dawn looked @ Autumn was surprise, which made Autumn smile: for once Dawn had, as a normal person would be expected to have, a mo’ cynical view o’ Autumn than reality.`,
+				`<Money taken by pure luck is ne’er fun>.`,
+				`Dawn had opened the box o’ cards by now & was shuffling them. <¿So do you want to play then?>.`,
+				`<Sure. ¿How much you betting?>.`,
+				`<¿Are we still betting? ¿How much did you feel comfortable betting?>.`,
+				`<¿Me? 1 article>.`,
+				`<¿What is that?>.`,
+				`<O’ clothing>.`,
+				`Dawn laughed. <You’re not serious>.`,
+				`<Sure, it’s only 1. I’ve got plenty mo’>.`,
+				`<This isn’t like that scene in [cite]The Crying of Lot 49[/cite] where you just have mountains o’ jackets on, ¿is it?>.`,
+				`<You’ll see. ¿How much are you betting?>.`,
+				`<¿Is 250 too cheap?>.`,
+				`<I would say that’s too much>.`,
+				`<Well, you said you’d just give it back, anyway>.`,
+				`Dawn resumed shuffling — a shuffling so fast ( & with such noisy clapping ) that it sometimes looked as if the cards were moving themselves & Dawn were merely raising her hands to cast an incantation. Dawn must’ve noticed Autumn’s mesmerized stare, as she laughed nervously & said, <It’s something I learned when I worked — >.`,
+				`<Your drinks, Madames>.`,
+				`The waiter set a tall glass o’ deep mulberrycolored, multicolored, multitudinous liquid in front o’ Dawn & ’nother tall glass with clear water in front o’ Autumn.`,
+				`<Thank you>, Dawn said cheerfully, drowning out Autumn’s muttered rendition.`,
+				`<¿Have you 2 decided on meals?>.`,
+				`<We’ll both have tuna melts with fries. ¿Right?>. Dawn looked to Autumn, who nodded silently.`,
+				`The waiter wrote in his notebook, said, <All right, we’ll get right on it>, & then left ’gain.`,
+				`<Must be nice to be on the other side now>, said Autumn.`,
+				`<¿What do you mean?>, asked Dawn.`,
+				`<You, being a customer not a… all the things you did @ your ol’ restaurant>.`,
+				`<O yeah>. Dawn looked upward as if dreaming. <God, it must’ve been nearly a decade since I sold that place off…>.`,
+				`<¿Do you know if that place is still round?>, asked Autumn.`,
+				`<I think I checked in on it once or twice not long after I sold it, but to tell the truth I’d forgotten ’bout it since then, I’ve been preoccupied with so much other stuff>.`,
+				`Autumn nodded as she took a drink o’ her water.`,
+				`<Anyway, as I was saying, this sweet-ass ballet-boogaloo-discofoxshuffling technique was something I learned when I was working @ a casino while in college>.`,
+				`<¿Is that why you brought us here?>, asked Autumn.`,
+				`<¿To show you my sexy shuffling skills? No, I just thought it’d be fun & would fit you>.`,
+				`<¿Fit me?>, Autumn said as she pointed to herself, in case Dawn had spontaneously lost her ability to hear.`,
+				`<You know, ’cause it’s money-based>.`,
+				`<Yeah, based on [i]losing[/i] money. That doesn’t — well, maybe it does, actually>. Autumn frowned deeply, & then Dawn laughed.`,
+				`<We haven’t lost our money yet>, said Dawn.`
 			];
+
+			if ( isLosingFunds ) {
+				p = this.addParagraphs(
+					p,
+					[
+						`<We’re already losing chips>, said Autumn.`,
+						`<We have a whole half o’ the board to make those chips back>.`
+					]
+				);
+			}
+
+			p = this.addParagraphs(
+				p,
+				[
+					`Dawn began tossing cards onto the table, cycling ’mong tossing 1 in front o’ Autumn, 1 in front o’ Edgar, & 1 in front o’ herself, till each had a pile o’ 5 in front o’ them. They each scooped their piles into their hands & Autumn & Dawn began to sort them by rank.`
+				]
+			);
 
 			const dawnSpread:string = `Dawn said as she spread out her cards on the table: ${ game.dawnsHand.getText() }`;
 			const autumnSpread:string = `Autumn laid out her cards ’long the table: ${ game.autumnsHand.getText() }`;
@@ -3832,6 +3911,19 @@ module.exports = ( function()
 				}
 			}
 
+			p = this.addParagraphs(
+				p,
+				[ 
+					`Dawn began to shuffle the deck for ’nother hand, only to be interrupted by the waiter returning with their meals. They thanked the waiter & began eating their meals, ’nother quiet wafting o’er them, but this 1 far mo’ pleasant than the previous.`,
+					`Both began to slow their eating halfway thru till the waiter returned & asked them if they wanted anything else. Autumn & Dawn agreed that they were ’bout done, so Dawn requested cartons &, after the waiter brought them them & Dawn had stowed their lefto’ers in Dawn’s backpack, they rose from their seats & walked back to the board, Autumn feeling less alert, having apparently become accustomed to the lunar cacophony, & tired.`,
+					`Dawn led them to a part o’ the board that Autumn guessed was the front — she couldn’t recall — & flashed a ticket or something made o’ paper in front o’ a machine. Then she heard mechanical buzzing & looked up to see, to her horror, a crane coming after them.`,
+					`Dawn must’ve seen Autumn’s discomfort, for she turned to Autumn & said, <Don’t worry, it won’t hurt us; it’s just going to place us back where we paused our game ­— it’s so we don’t cheat>.`,
+					`<¿How’d I e’er let you convince me to play this stupid game>, Autumn muttered to herself.`,
+					`So the crane picked them up all in 1 bunch together & moved them ’long the ceiling, so high that Autumn could see the whole board from below, which looked ’bout as big as a normal game board. Then it stopped slowly lowered them onto a space Autumn s’posed they were @ before. ’Gain, she couldn’t remember, she was so tired now.`,
+					`<OK, ¿now where were we?>, Dawn said as she picked up the die, already rolling it in her fists. ${ { Autumn: `<Autumn, it’s your turn next>, she continued as she handed the dice to Autumn`, Dawn: `<Right, it’s my turn next>`, Edgar: `<Edgar, it’s your turn next>, she continued as she handed the dice to Edgar` }[ config.players[ analyze.getTurnPlayer( game, lastTurn ) ] ] }.`
+				]
+			);
+
 			return Object.freeze( p );
 		},
 		firstRollText: function( game:Game ):readonly string[]
@@ -3886,6 +3978,7 @@ module.exports = ( function()
 			}
 		},
 		capitalize: ( text:string ):string => text.charAt( 0 ).toUpperCase() + text.slice( 1 ),
+		getRandomDirection: () => Bosk.randListEntry([ `north`, `west`, `south`, `east` ]),
 		chanceCardText: Object.freeze
 		({
 			"lose-money1": `Get tricked into joining a religious cult scam. Pay 20 chips`,
@@ -3987,6 +4080,15 @@ module.exports = ( function()
 			if ( canvas !== null )
 			{
 				canvas.innerHTML = script.generateForHTML( casino.run() );
+			}
+
+			const button:HTMLElement|null = document.getElementById( `bosk-casino-read-again` );
+			if ( button !== null )
+			{
+				document.getElementById( `bosk-casino-read-again` ).addEventListener( `click`, function() {
+					canvas.innerHTML = script.generateForHTML( casino.run() );
+					location.href = `#autumn_story_content`;
+				} );
 			}
 		}
 	})
